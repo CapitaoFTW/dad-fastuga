@@ -66,7 +66,7 @@ class User extends Authenticatable
         return $this->hasMany(Order::class, 'delivered_by');
     }
 
-    public function order_items()
+    public function orderItems()
     {
         return $this->hasMany(Order_Item::class, 'preparation_by');
     }
@@ -76,9 +76,9 @@ class User extends Authenticatable
         return $this->gender == 'M' ? 'Masculine' : 'Feminine';
     }
 
-    public function projects()
+    public function orders()
     {
-        return $this->hasMany(Project::class, 'responsible_id');
+        return $this->hasMany(Order::class, 'responsible_id');
     }
 
     public function tasks()

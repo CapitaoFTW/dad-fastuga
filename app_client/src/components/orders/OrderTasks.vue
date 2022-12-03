@@ -15,7 +15,7 @@ const props = defineProps({
   },
 });
 
-const emptyProject = () => {
+const emptyOrder = () => {
   return {
     id: null,
     name: "",
@@ -24,14 +24,14 @@ const emptyProject = () => {
   };
 };
 
-const loadProject = (id) => {
+const loadOrder = (id) => {
   if (!id || id < 0) {
-    project.value = emptyProject.value();
+    order.value = emptyOrder.value();
   } else {
     axios
-      .get("projects/" + id + "/tasks")
+      .get("orders/" + id + "/tasks")
       .then((response) => {
-        project.value = response.data.data;
+        order.value = response.data.data;
       })
       .catch((error) => {
         console.log(error);
@@ -39,12 +39,12 @@ const loadProject = (id) => {
   }
 };
 
-const editProject = () => {
-  router.push({ name: "Project", params: { id: props.id } });
+const editOrder = () => {
+  router.push({ name: "Order", params: { id: props.id } });
 };
 
 const addTask = () => {
-  router.push({ name: "NewTaskOfProject", params: { id: props.id } });
+  router.push({ name: "NewTaskOfOrder", params: { id: props.id } });
 };
 
 const editTask = (task) => {
@@ -52,26 +52,26 @@ const editTask = (task) => {
 };
 
 const deletedTask = (deletedTask) => {
-  let idx = project.value.tasks.findIndex((t) => t.id === deletedTask.id);
+  let idx = order.value.tasks.findIndex((t) => t.id === deletedTask.id);
   if (idx >= 0) {
-    project.value.tasks.splice(idx, 1);
+    order.value.tasks.splice(idx, 1);
   }
 };
 
-const project = ref(emptyProject());
+const order = ref(emptyOrder());
 
 const filterByCompleted = ref(0);
 
 watch(
   () => props.id,
   (newValue) => {
-    loadProject(newValue);
+    loadOrder(newValue);
   },
   { immediate: true }
 );
 
 const filteredTasks = computed(() => {
-  return project.value.tasks.filter(
+  return order.value.tasks.filter(
     (t) =>
       filterByCompleted.value == -1 ||
       (filterByCompleted.value == 0 && !t.completed) ||
@@ -80,7 +80,7 @@ const filteredTasks = computed(() => {
 });
 
 const totalTasks = computed(() => {
-  return project.value.tasks.reduce(
+  return order.value.tasks.reduce(
     (c, t) =>
       filterByCompleted.value == -1 ||
       (filterByCompleted.value == 0 && !t.completed) ||
@@ -94,12 +94,12 @@ const totalTasks = computed(() => {
 
 <template>
   <div class="mx-2">
-    <h3 class="mt-4">Project # {{ project.id }} : {{ project.name }}</h3>
+    <h3 class="mt-4">Order # {{ order.id }} : {{ order.name }}</h3>
   </div>
   <hr />
   <div class="d-flex justify-content-between">
     <div class="mx-2">
-      <h5 class="mt-4">Project status: {{ project.status_name }}</h5>
+      <h5 class="mt-4">Order status: {{ order.status_name }}</h5>
     </div>
     <div class="mx-2 total-filtro">
       <h5 class="mt-4">Total tasks: {{ totalTasks }}</h5>
@@ -115,8 +115,8 @@ const totalTasks = computed(() => {
       </select>
     </div>
     <div class="mx-2 mt-2">
-      <button type="button" class="btn btn-secondary px-4 btn-top" @click="editProject">
-        <i class="bi bi-xs bi-pencil"></i>&nbsp; Edit Project
+      <button type="button" class="btn btn-secondary px-4 btn-top" @click="editOrder">
+        <i class="bi bi-xs bi-pencil"></i>&nbsp; Edit Order
       </button>
     </div>
     <div class="mx-2 mt-2">
@@ -130,7 +130,7 @@ const totalTasks = computed(() => {
     :tasks="filteredTasks"
     :showId="true"
     :showOwner="true"
-    :showProject="false"
+    :showOrder="false"
     @edit="editTask"
     @deleted="deletedTask"
   ></task-table>

@@ -4,7 +4,7 @@ import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useUserStore } from "../../stores/user.js"
 import { useOrdersStore } from "../../stores/orders.js"
 
-import TaskDetail from "./TaskDetail.vue"
+import OrderDetail from "./OrderDetail.vue"
 
 const router = useRouter()
 const axios = inject('axios')
@@ -12,73 +12,89 @@ const toast = inject('toast')
 const userStore = useUserStore()
 const ordersStore = useOrdersStore()
 
-const newTask = () => {
+
+const newOrder = () => {
   return {
     id: null,
-    owner_id: userStore.userId,
-    order_id: null,
-    completed: false,
-    description: '',
-    notes: '',
-    total_hours: null
+    ticket_number: null,
+    customer_id: userStore.userId,
+    status: 'P',
+    date: null,
+    total_price: null,
+    total_paid: null,
+    total_paid_with_points: null,
+    points_gained: null,
+    points_used_to_pay: null,
+    payment_type: null,
+    payment_reference: null,
+    delivered_by: null,
+    total_products: null,
   }
 }
 
-const task = ref(newTask())
-const errors = ref(null)
-const confirmationLeaveDialog = ref(null)
-
 let originalValueStr = ''
-const loadTask = (id) => {
+const loadOrder = (id) => {
   originalValueStr = ''
   errors.value = null
+
   if (!id || (id < 0)) {
-    task.value = newTask()
+    order.value = newOrder()
     originalValueStr = dataAsString()
+
   } else {
-    axios.get('tasks/' + id)
+    axios.get('orders/' + id)
       .then((response) => {
-        task.value = response.data.data
+        order.value = response.data.data
         originalValueStr = dataAsString()
       })
+
       .catch((error) => {
         console.log(error)
       })
   }
 }
 
+/* Change this function */
 const save = () => {
   errors.value = null
+
   if (operation.value == 'insert') {
-    axios.post('tasks', task.value)
-      .then((response) => {
-        task.value = response.data.data
+    ordersStore.insertOrder(order.value)
+
+      .then((insertedOrder) => {
+        order.value = insertedOrder
         originalValueStr = dataAsString()
-        toast.success('Task #' + task.value.id + ' was created successfully.')
+
+        toast.success('Order #' + order.value.ticket_number + ' was created successfully.')
         router.back()
       })
+
       .catch((error) => {
         if (error.response.status == 422) {
-          toast.error('Task was not created due to validation errors!')
+          toast.error('Order was not created due to validation errors!')
           errors.value = error.response.data.errors
         } else {
-          toast.error('Task was not created due to unknown server error!')
+          toast.error('Order was not created due to unknown server error!')
         }
       })
+
   } else {
-    axios.put('tasks/' + props.id, task.value)
-      .then((response) => {
-        task.value = response.data.data
+    ordersStore.updateOrder(order.value)
+      .then((updatedOrder) => {
+        order.value = updatedOrder
         originalValueStr = dataAsString()
-        toast.success('Task #' + task.value.id + ' was updated successfully.')
+
+        toast.success('Order #' + order.value.ticket_number + ' was updated successfully.')
         router.back()
       })
+
       .catch((error) => {
         if (error.response.status == 422) {
-          toast.error('Task #' + props.id + ' was not updated due to validation errors!')
+          toast.error('Order #' + order.value.ticket_number + ' was not updated due to validation errors!')
           errors.value = error.response.data.errors
+
         } else {
-          toast.error('Task #' + props.id + ' was not updated due to unknown server error!')
+          toast.error('Order #' + order.value.ticket_number + ' was not updated due to unknown server error!')
         }
       })
   }
@@ -90,7 +106,7 @@ const cancel = () => {
 }
 
 const dataAsString = () => {
-  return JSON.stringify(task.value)
+  return JSON.stringify(order.value)
 }
 
 let nextCallBack = null
@@ -103,9 +119,11 @@ const leaveConfirmed = () => {
 onBeforeRouteLeave((to, from, next) => {
   nextCallBack = null
   let newValueStr = dataAsString()
+
   if (originalValueStr != newValueStr) {
     nextCallBack = next
     confirmationLeaveDialog.value.show()
+
   } else {
     next()
   }
@@ -115,31 +133,46 @@ const props = defineProps({
   id: {
     type: Number,
     default: null
-  },
-  fixedOrder: {
-    type: Number,
-    default: null
   }
 })
 
-const operation = computed(() => (!props.id || props.id < 0) ? 'insert' : 'update')
+const order = ref(newOrder())
+const users = ref([])
+const errors = ref(null)
+const confirmationLeaveDialog = ref(null)
 
-// beforeRouteUpdate was not fired correctly
-// Used this watcher instead to update the ID
+const operation = computed(() => {
+  return (!props.id || props.id < 0) ? 'insert' : 'update'
+})
+
 watch(
   () => props.id,
-  (newValue) => {
-    loadTask(newValue)
-  },
-  { immediate: true }
-)
-</script>
 
+  (newValue) => {
+    loadOrder(newValue)
+  },
+
+  { immediate: true, }
+)
+
+onMounted(() => {
+  users.value = []
+  axios.get('users')
+    .then((response) => {
+      users.value = response.data.data
+    })
+
+    .catch((error) => {
+      console.log(error)
+    })
+})
+</script>
 
 <template>
   <confirmation-dialog ref="confirmationLeaveDialog" confirmationBtn="Discard changes and leave"
     msg="Do you really want to leave? You have unsaved changes!" @confirmed="leaveConfirmed">
   </confirmation-dialog>
-  <task-detail :operationType="operation" :task="task" :errors="errors" :orders="ordersStore.orders"
-    :fixedOrder="fixedOrder" @save="save" @cancel="cancel"></task-detail>
+
+  <OrderDetail :operationType="operation" :order="order" :users="users" :errors="errors" @save="save" @cancel="cancel">
+  </OrderDetail>
 </template>

@@ -3,15 +3,15 @@
   import {useRouter} from 'vue-router'
   import TaskTable from "./TaskTable.vue"
   import { useUserStore } from "../../stores/user.js";
-  import { useProjectsStore } from "../../stores/projects.js"
+  import { useOrdersStore } from "../../stores/orders.js"
   
   const axios = inject('axios')
   const router = useRouter()
   const userStore = useUserStore();
-  const projectsStore = useProjectsStore()
+  const ordersStore = useOrdersStore()
 
   const tasks = ref([])
-  const filterByProjectId = ref(-1)
+  const filterByOrderId = ref(-1)
   const filterByCompleted = ref(-1)
 
   const loadTasks = () => {
@@ -55,8 +55,8 @@
         (props.onlyCurrentTasks && !t.completed)
         ||
         (!props.onlyCurrentTasks && (
-          (filterByProjectId.value == -1
-            || filterByProjectId.value == t.project_id
+          (filterByOrderId.value == -1
+            || filterByOrderId.value == t.order_id
           ) &&
           (filterByCompleted.value == -1
             || filterByCompleted.value == 0 && !t.completed
@@ -70,8 +70,8 @@
         (props.onlyCurrentTasks && !t.completed)
           ||
           (!props.onlyCurrentTasks && (
-            (filterByProjectId.value == -1
-              || filterByProjectId.value == t.project_id
+            (filterByOrderId.value == -1
+              || filterByOrderId.value == t.order_id
             ) &&
             (filterByCompleted.value == -1
               || filterByCompleted.value == 0 && !t.completed
@@ -117,17 +117,17 @@
     </div>
     <div class="mx-2 mt-2 flex-grow-1 filter-div">
       <label
-        for="selectProject"
+        for="selectOrder"
         class="form-label"
-      >Filter by project:</label>
+      >Filter by order:</label>
       <select
         class="form-select"
-        id="selectProject"
-        v-model="filterByProjectId"
+        id="selectOrder"
+        v-model="filterByOrderId"
       >
         <option value="-1">Any</option>
-        <option :value="null">-- No project --</option>
-        <option v-for="prj in projectsStore.projects" :key="prj.id" :value="prj.id">
+        <option :value="null">-- No order --</option>
+        <option v-for="prj in ordersStore.orders" :key="prj.id" :value="prj.id">
           {{prj.name}}
         </option>
       </select>

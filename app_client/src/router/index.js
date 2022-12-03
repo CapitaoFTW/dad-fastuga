@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from "../stores/user.js"
 
-import HomeView from '../views/HomeView.vue'
+import Menu from '../views/Menu.vue'
 
 import Dashboard from "../components/Dashboard.vue"
 import Register from "../components/auth/Register.vue"
@@ -9,6 +9,8 @@ import Login from "../components/auth/Login.vue"
 import ChangePassword from "../components/auth/ChangePassword.vue"
 import Users from "../components/users/Users.vue"
 import User from "../components/users/User.vue"
+import Orders from "../components/orders/Orders.vue"
+import Order from "../components/orders/Order.vue"
 import RouteRedirector from "../components/global/RouteRedirector.vue"
 
 const router = createRouter({
@@ -16,8 +18,8 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'Home',
-      component: HomeView
+      name: 'Menu',
+      component: Menu
     },
     {
       path: '/redirect/:redirectTo',
@@ -55,28 +57,34 @@ const router = createRouter({
       name: 'CurrentTasks',
       component: Tasks,
       props: { onlyCurrentTasks: true, tasksTitle: 'Current Tasks' }
+    },*/
+    {
+      path: '/orders',
+      name: 'Orders',
+      component: Orders,
     },
     {
-      path: '/projects',
-      name: 'Projects',
-      component: Projects,
-    },
-    {
-      path: '/projects/new',
-      name: 'NewProject',
-      component: Project,
+      path: '/orders/new',
+      name: 'NewOrder',
+      component: Order,
       props: { id: -1 }
     },
     {
-      path: '/projects/:id',
-      name: 'Project',
-      component: Project,
+      path: '/orders/:id',
+      name: 'Order',
+      component: Order,
       props: route => ({ id: parseInt(route.params.id) })     
-    },*/
+    },
     {
       path: '/users',
       name: 'Users',
       component: Users,
+    },
+    {
+      path: '/users/new',
+      name: 'NewUser',
+      component: User,
+      props: { id: -1 }
     },
     {
       path: '/users/:id',
@@ -87,16 +95,16 @@ const router = createRouter({
       props: route => ({ id: parseInt(route.params.id) })
     }, 
     /*{
-      path: '/projects/:id/tasks',
-      name: 'ProjectTasks',
-      component: ProjectTasks,
+      path: '/orders/:id/tasks',
+      name: 'OrderTasks',
+      component: OrderTasks,
       props: route => ({ id: parseInt(route.params.id) })
     },
     {
-      path: '/projects/:id/tasks/new',
-      name: 'NewTaskOfProject',
+      path: '/orders/:id/tasks/new',
+      name: 'NewTaskOfOrder',
       component: Task,
-      props: route => ({ id:-1, fixedProject:  parseInt(route.params.id) })
+      props: route => ({ id:-1, fixedOrder:  parseInt(route.params.id) })
     },
     {
       path: '/tasks/new',
@@ -143,11 +151,11 @@ router.beforeEach((to, from, next) => {
   const userStore = useUserStore()  
 
   if (userStore.user && (to.name == 'Register' || to.name == 'Login')) {
-    next({ name: 'Home' })
+    next({ name: 'Menu' })
     return
   }
 
-  if (to.name == 'Register' || to.name == 'Login' || to.name == 'Home') {
+  if (to.name == 'Register' || to.name == 'Login' || to.name == 'Menu') {
     next()
     return
   }
@@ -159,7 +167,7 @@ router.beforeEach((to, from, next) => {
 
   if (to.name == 'Reports') {
     if (userStore.user.type != 'EM') {
-      next({ name: 'Home' })
+      next({ name: 'Menu' })
       return
     }
   }
@@ -170,13 +178,13 @@ router.beforeEach((to, from, next) => {
       return
     }
 
-    next({ name: 'Home' })
+    next({ name: 'Menu' })
     return
   }
 
-  if (to.name != 'Dashboard' && to.name != 'Register' && to.name != 'Login' && to.name != 'ChangePassword' /*&& to.name != 'Orders' && to.name != 'NewOrder'
-  && to.name != 'Order'*/ && to.name != 'Users' && to.name != 'User' && to.name != 'Reports' && to.name != 'about') {
-    next({ name: 'Home' })
+  if (to.name != 'Dashboard' && to.name != 'Register' && to.name != 'Login' && to.name != 'ChangePassword' && to.name != 'Orders' && to.name != 'NewOrder'
+  && to.name != 'Order' && to.name != 'Users' && to.name != 'User' && to.name != 'Reports' && to.name != 'about') {
+    next({ name: 'Menu' })
     return
   }
   

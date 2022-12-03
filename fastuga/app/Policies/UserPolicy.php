@@ -19,16 +19,33 @@ class UserPolicy
         //
     }
 
+    public function viewAny(User $user)
+    {
+        return $user->isManager();
+    }
+
     public function view(User $user, User $model)
     {
-        return $user->type == "EM" || $user->id == $model->id;
+        return $user->isManager() || $user->id == $model->id;
     }
+
+    public function create(User $user)
+    {
+        return $user->isManager();
+    }
+
     public function update(User $user, User $model)
     {
-        return $user->type == "EM" || $user->id == $model->id;
+        return $user->isManager() || $user->id == $model->id;
     }
+
     public function updatePassword(User $user, User $model)
     {
         return $user->id == $model->id;
+    }
+
+    public function delete(User $user, User $model)
+    {
+        return $user->isManager() || $user->id == $model->id;
     }
 }

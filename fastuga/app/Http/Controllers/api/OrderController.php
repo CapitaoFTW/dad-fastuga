@@ -9,7 +9,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Http\Resources\OrderResource;
 use App\Http\Requests\StoreUpdateOrderRequest;
-use App\Models\Order_Item;
+use App\Models\OrderItem;
 
 class OrderController extends Controller
 {
@@ -53,7 +53,7 @@ class OrderController extends Controller
 
     public function destroy(Order $order)
     {
-        Order_Item::where('order_id', $order->id)->delete();
+        OrderItem::where('order_id', $order->id)->delete();
         $order->delete();
         return new OrderResource($order);
     }

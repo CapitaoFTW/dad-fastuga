@@ -23,7 +23,7 @@ class UserResource extends JsonResource
                     'name' => $this->name,
                     'email' => $this->email,
                     'photo_url' => $this->photo_url,
-                    'customer' => new CustomerResource($this->customer),
+                    'customer' => new CustomerResource($this->customer()),
                 ];
             default:
                 return [

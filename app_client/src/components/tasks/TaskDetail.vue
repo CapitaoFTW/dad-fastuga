@@ -14,11 +14,11 @@ const props = defineProps({
     type: String,
     default: "insert", // insert / update
   },
-  projects: {
+  orders: {
     type: Array,
     required: true,
   },
-  fixedProject: {
+  fixedOrder: {
     type: Number,
     default: null,
   },
@@ -36,10 +36,10 @@ watch(
 );
 
 watch(
-  () => props.fixedProject,
-  (newFixedProject) => {
-    if (newFixedProject) {
-      editingTask.value.project_id = newFixedProject;
+  () => props.fixedOrder,
+  (newFixedOrder) => {
+    if (newFixedOrder) {
+      editingTask.value.order_id = newFixedOrder;
     }
   },
   { immediate: true }
@@ -91,14 +91,14 @@ const cancel = () => {
       <field-error-message :errors="errors" fieldName="description"></field-error-message>
     </div>
     <div class="mb-3">
-      <label for="inputProject" class="form-label">Project</label>
-      <select class="form-select" id="inputProject" :disabled="fixedProject" v-model="editingTask.project_id">
-        <option :value="null">-- No Project --</option>
-        <option v-for="prj in projects" :key="prj.id" :value="prj.id">
+      <label for="inputOrder" class="form-label">Order</label>
+      <select class="form-select" id="inputOrder" :disabled="fixedOrder" v-model="editingTask.order_id">
+        <option :value="null">-- No Order --</option>
+        <option v-for="prj in orders" :key="prj.id" :value="prj.id">
           {{ prj.name }}
         </option>
       </select>
-      <field-error-message :errors="errors" fieldName="project_id"></field-error-message>
+      <field-error-message :errors="errors" fieldName="order_id"></field-error-message>
     </div>
     <div class="mb-3">
       <label for="inputNotes" class="form-label">Notes</label>

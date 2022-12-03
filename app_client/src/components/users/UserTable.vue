@@ -19,13 +19,9 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
-  showManager: {
+  showType: {
     type: Boolean,
     default: true,
-  },
-  showGender: {
-    type: Boolean,
-    default: false,
   },
   showPhoto: {
     type: Boolean,
@@ -35,9 +31,13 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  showDeleteButton: {
+    type: Boolean,
+    default: true,
+  }
 })
 
-const emit = defineEmits(["edit"])
+const emit = defineEmits(['edit', 'delete'])
 
 const photoFullUrl = (user) => {
   return user.photo_url ? serverBaseUrl + "/storage/fotos/" + user.photo_url : avatarNoneUrl
@@ -45,6 +45,10 @@ const photoFullUrl = (user) => {
 
 const editClick = (user) => {
   emit("edit", user)
+}
+
+const deleteClick = (user) => {
+  emit('delete', user)
 }
 
 const canViewUserDetail = (userId) => {
@@ -64,7 +68,7 @@ const canViewUserDetail = (userId) => {
         <th v-if="showPhoto" class="align-middle">Photo</th>
         <th class="align-middle">Name</th>
         <th v-if="showEmail" class="align-middle">Email</th>
-        <th v-if="showManager" class="align-middle">Manager?</th>
+        <th v-if="showEditButton || showDeleteButton"></th>
       </tr>
     </thead>
     <tbody>
@@ -75,11 +79,13 @@ const canViewUserDetail = (userId) => {
         </td>
         <td class="align-middle">{{ user.name }}</td>
         <td v-if="showEmail" class="align-middle">{{ user.email }}</td>
-        <td v-if="showManager" class="align-middle">{{ user.type == "EM" ? "Yes" : "" }}</td>
-        <td class="text-end align-middle" v-if="showEditButton">
+        <td class="text-end align-middle" v-if="showEditButton || showDeleteButton">
           <div class="d-flex justify-content-end" v-if="canViewUserDetail(user.id)">
-            <button class="btn btn-xs btn-light" @click="editClick(user)" v-if="showEditButton">
-              <i class="bi bi-xs bi-pencil"></i>
+            <button class="btn btn-xs btn-primary text-light" @click="editClick(user)" v-if="showEditButton">
+              <i class="bi bi-xs bi-pencil-fill"></i>
+            </button>
+            <button class="btn btn-xs btn-danger" @click="deleteClick(user)" v-if="showDeleteButton"><i
+                class="bi bi-xs bi-trash3-fill"></i>
             </button>
           </div>
         </td>

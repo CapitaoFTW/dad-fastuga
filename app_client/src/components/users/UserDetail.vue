@@ -7,11 +7,15 @@ const serverBaseUrl = inject("serverBaseUrl");
 const props = defineProps({
   user: {
     type: Object,
-    required: true,
+    required: true
   },
   errors: {
     type: Object,
     required: false
+  },
+  operationType: {
+    type: String,
+    default: 'update'  // insert / update
   },/*,
   uploadFile() {
     var files = this.$refs.photo.files;
@@ -30,10 +34,16 @@ watch(
 
   (newUser) => {
     editingUser.value = newUser
-  },
-
-  { immediate: true }
+  }
 )
+
+const userTitle = computed(() => {
+  if (!editingUser.value) {
+    return ''
+  }
+
+  return props.operationType == 'insert' ? 'New User' : 'Profile'
+})
 
 const photoFullUrl = computed(() => {
   return editingUser.value.photo_url ? serverBaseUrl + "/storage/fotos/" + editingUser.value.photo_url : avatarNoneUrl
@@ -50,8 +60,8 @@ const cancel = () => {
 
 <template>
   <form class="row pt-3 pb-2 mb-3 needs-validation justify-content-center" novalidate @submit.prevent="save">
-    <h3 class="mb-3">Profile</h3>
-    <hr />
+    <h3 class="mb-3">{{ userTitle }}</h3>
+    <hr>
     <div class="w-75">
       <div class="text-center pt-3">
         <img :src="photoFullUrl" class="img-fluid rounded-circle" />
@@ -79,20 +89,23 @@ const cancel = () => {
       </div>
       <div v-if="editingUser.type == 'C'" class="mb-2">
         <label for="inputNIF" class="form-label">NIF</label>
-        <input type="text" class="form-control" id="inputNIF" placeholder="NIF"
-          v-model="editingUser.customer.nif" />
+        <input type="text" class="form-control" id="inputNIF" placeholder="NIF" v-model="editingUser.customer.nif" />
         <field-error-message :errors="errors" fieldName="nif"></field-error-message>
       </div>
       <div v-if="editingUser.type == 'C'" class="mb-2">
         <label for="inputPaymentType" class="form-label">Payment Type</label>
-        <input type="text" class="form-control" id="inputPaymentType" placeholder="Payment Type"
-          v-model="editingUser.customer.default_payment_type" />
+        <select class="form-select" id="inputPaymentType" v-model="editingUser.customer.default_payment_type">
+          <option :value="null">Choose an option</option>
+          <option value="VISA">VISA</option>
+          <option value="MBWAY">MBWAY</option>
+          <option value="PAYPAL">PAYPAL</option>
+        </select>
         <field-error-message :errors="errors" fieldName="default_payment_type"></field-error-message>
       </div>
       <div v-if="editingUser.type == 'C'" class="mb-2">
         <label for="inputPaymentRef" class="form-label">Payment Reference</label>
         <input type="text" class="form-control" id="inputPaymentRef" placeholder="Payment Reference"
-          v-model="editingUser.customer.default_payment_reference" disabled/>
+          v-model="editingUser.customer.default_payment_reference" disabled />
         <field-error-message :errors="errors" fieldName="default_payment_reference"></field-error-message>
       </div>
     </div>
@@ -104,10 +117,6 @@ const cancel = () => {
 </template>
 
 <style scoped>
-.total_hours {
-  width: 26rem;
-}
-
 .inputPhoto {
   width: 0.1px;
   height: 0.1px;
@@ -117,7 +126,7 @@ const cancel = () => {
   z-index: -1;
 }
 
-.inputPhoto + label {
+.inputPhoto+label {
   cursor: pointer;
   /* "hand" cursor */
   font-weight: bold;

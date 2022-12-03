@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Task;
-use App\Models\Project;
+use App\Models\Order;
 use App\Http\Resources\TaskResource;
 use App\Http\Requests\StoreUpdateTaskRequest;
 use App\Http\Requests\UpdateCompleteTaskRequest;

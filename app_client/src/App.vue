@@ -2,12 +2,12 @@
 import { useRouter, RouterLink, RouterView } from "vue-router"
 import { ref, inject } from "vue"
 import { useUserStore } from "./stores/user.js"
-import { useProjectsStore } from "./stores/projects.js"
+import { useOrdersStore } from "./stores/orders.js"
 
 const router = useRouter()
 const toast = inject("toast")
 const userStore = useUserStore()
-const projectsStore = useProjectsStore()
+const ordersStore = useOrdersStore()
 
 const buttonSidebarExpand = ref(null)
 
@@ -34,7 +34,7 @@ const clickMenuOption = () => {
 <template>
   <nav class="navbar navbar-expand-md navbar-dark bg-dark sticky-top flex-md-nowrap p-0 shadow">
     <div class="container-fluid">
-      <router-link class="navbar-brand col-md-3 col-lg-2 me-0 px-3 bg-transparent" :to="{ name: 'Home' }"
+      <router-link class="navbar-brand col-md-3 col-lg-2 me-0 px-3 bg-transparent" :to="{ name: 'Menu' }"
         @click="clickMenuOption">
         <img src="@/assets/logo.png" alt="" width="30" height="24" class="d-inline-block align-text-top" />
         &nbsp; FasTuga
@@ -105,10 +105,10 @@ const clickMenuOption = () => {
         <div class="position-sticky pt-3">
           <ul class="nav flex-column">
             <li class="nav-item">
-              <router-link class="nav-link" :class="{ active: $route.name === 'Home' }" :to="{ name: 'Home' }"
+              <router-link class="nav-link" :class="{ active: $route.name === 'Menu' }" :to="{ name: 'Menu' }"
                 @click="clickMenuOption">
-                <i class="bi bi-house"></i>
-                Home
+                <i class="bi bi-book"></i>
+                Menu
               </router-link>
             </li>
             <li class="nav-item" v-show="userStore.user">
@@ -135,14 +135,14 @@ const clickMenuOption = () => {
                 @click="clickMenuOption">
                 <i class="bi bi-xs bi-plus-circle"></i>
               </router-link>
-            </li>
-            <li class="nav-item">
-              <router-link class="nav-link" :class="{ active: $route.name === 'Projects' }" :to="{ name: 'Projects' }"
+            </li>-->
+            <li class="nav-item" v-show="userStore.user">
+              <router-link class="nav-link" :class="{ active: $route.name === 'Orders' }" :to="{ name: 'Orders' }"
                 @click="clickMenuOption">
-                <i class="bi bi-files"></i>
+                <i class="bi bi-receipt"></i>
                 Orders
               </router-link>
-            </li>-->
+            </li>
             <li class="nav-item" v-show="userStore.user">
               <router-link class="nav-link" :class="{ active: $route.name === 'Users' }" :to="{ name: 'Users' }"
                 @click="clickMenuOption">
@@ -159,24 +159,24 @@ const clickMenuOption = () => {
             </li>
           </ul>
 
-          <!--<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted"
+          <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted"
             v-if="userStore.user">
-            <span>My Projects</span>
-            <router-link class="link-secondary" :to="{ name: 'NewProject' }" aria-label="Add a new project"
+            <span>My Orders</span>
+            <router-link class="link-secondary" :to="{ name: 'NewOrder' }" aria-label="Add a new order"
               @click="clickMenuOption">
               <i class="bi bi-xs bi-plus-circle"></i>
             </router-link>
           </h6>
           <ul class="nav flex-column mb-2">
-            <li class="nav-item" v-for="prj in projectsStore.myInprogressProjects" :key="prj.id">
+            <li class="nav-item" v-for="prj in ordersStore.myInprogressOrders" :key="prj.id">
               <router-link class="nav-link w-100 me-3" :class="{
-                active: $route.name == 'ProjectTasks' && $route.params.id == prj.id,
-              }" :to="{ name: 'ProjectTasks', params: { id: prj.id } }" @click="clickMenuOption">
+                active: $route.name == 'OrderTasks' && $route.params.id == prj.id,
+              }" :to="{ name: 'OrderTasks', params: { id: prj.id } }" @click="clickMenuOption">
                 <i class="bi bi-file-ruled"></i>
                 {{ prj.name }}
               </router-link>
             </li>
-          </ul>-->
+          </ul>
 
           <div class="d-block d-md-none">
             <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">

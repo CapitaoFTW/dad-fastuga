@@ -1,18 +1,14 @@
 <script setup>
-import { ref, watch, inject } from 'vue'
-import UserDetail from "./UserDetail.vue"
+import { ref, watch, computed, inject } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
+import { useUsersStore } from "../../stores/users.js"
+
+import UserDetail from "./UserDetail.vue"
 
 const router = useRouter()
 const axios = inject('axios')
 const toast = inject('toast')
-
-const props = defineProps({
-  id: {
-    type: Number,
-    default: null
-  }
-})
+const usersStore = useUsersStore()
 
 const newUser = () => {
   return {
@@ -47,21 +43,48 @@ const loadUser = (id) => {
 
 const save = () => {
   errors.value = null
-  axios.put('users/' + props.id, user.value)
-    .then((response) => {
-      user.value = response.data.data
-      originalValueStr = dataAsString()
-      toast.success('User was updated successfully.')
-      router.back()
-    })
-    .catch((error) => {
-      if (error.response.status == 422) {
-        toast.error('User was not updated due to validation errors!')
-        errors.value = error.response.data.errors
-      } else {
-        toast.error('User was not updated due to unknown server error!')
-      }
-    })
+
+  if (operation.value == 'insert') {
+    usersStore.insertUser(user.value)
+
+      .then((insertedUser) => {
+        user.value = insertedUser
+        originalValueStr = dataAsString()
+
+        toast.success('User ' + user.value.name + ' was created successfully.')
+        router.back()
+      })
+
+      .catch((error) => {
+        if (error.response.status == 422) {
+          toast.error('User was not created due to validation errors!')
+          errors.value = error.response.data.errors
+
+        } else {
+          toast.error('User was not created due to unknown server error!')
+        }
+      })
+
+  } else {
+    usersStore.updateUser(user.value)
+      .then((updatedUser) => {
+        user.value = updatedUser
+        originalValueStr = dataAsString()
+
+        toast.success('User ' + user.value.name + ' was updated successfully.')
+        router.back()
+      })
+
+      .catch((error) => {
+        if (error.response.status == 422) {
+          toast.error('User ' + user.value.name + ' was not updated due to validation errors!')
+          errors.value = error.response.data.errors
+
+        } else {
+          toast.error('User ' + user.value.name + ' was not updated due to unknown server error!')
+        }
+      })
+  }
 }
 
 const cancel = () => {
@@ -93,9 +116,20 @@ onBeforeRouteLeave((to, from, next) => {
   }
 })
 
+const props = defineProps({
+  id: {
+    type: Number,
+    default: null
+  }
+})
+
 const user = ref(newUser())
 const errors = ref(null)
 const confirmationLeaveDialog = ref(null)
+
+const operation = computed(() => {
+  return (!props.id || props.id < 0) ? 'insert' : 'update'
+})
 
 watch(
   () => props.id,
@@ -114,5 +148,5 @@ watch(
     msg="Do you really want to leave? You have unsaved changes!" @confirmed="leaveConfirmed">
   </confirmation-dialog>
 
-  <user-detail :user="user" :errors="errors" @save="save" @cancel="cancel"></user-detail>
+  <user-detail :operationType="operation" :user="user" :errors="errors" @save="save" @cancel="cancel"></user-detail>
 </template>

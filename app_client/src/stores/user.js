@@ -1,11 +1,11 @@
 import { ref, computed, inject } from 'vue'
 import { defineStore } from 'pinia'
 import avatarNoneUrl from '@/assets/avatar-none.png'
-//import { useProjectsStore } from "./projects.js"
+//import { useOrdersStore } from "./orders.js"
 
 export const useUserStore = defineStore('user', () => {
 
-    //const projectsStore = useProjectsStore()
+    //const ordersStore = useOrdersStore()
     const axios = inject('axios')
     const serverBaseUrl = inject('serverBaseUrl')
 
@@ -62,12 +62,12 @@ export const useUserStore = defineStore('user', () => {
             axios.defaults.headers.common.Authorization = "Bearer " + response.data.access_token
             sessionStorage.setItem('token', response.data.access_token)
             await loadUser()
-            //await projectsStore.loadProjects()
+            //await ordersStore.loadOrders()
             return true
 
         } catch (error) {
             clearUser()
-            //projectsStore.clearProjects()
+            //ordersStore.clearOrders()
             return false
         }
     }
@@ -76,7 +76,7 @@ export const useUserStore = defineStore('user', () => {
         try {
             await axios.post('logout')
             clearUser()
-            //projectsStore.clearProjects()
+            //ordersStore.clearOrders()
             return true
 
         } catch (error) {
@@ -100,12 +100,12 @@ export const useUserStore = defineStore('user', () => {
         if (storedToken) {
             axios.defaults.headers.common.Authorization = "Bearer " + storedToken
             await loadUser()
-            //await projectsStore.loadProjects()
+            //await ordersStore.loadOrders()
             return true
         }
 
         clearUser()
-        //projectsStore.clearProjects()
+        //ordersStore.clearOrders()
 
         return false
     }

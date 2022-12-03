@@ -40,7 +40,7 @@ class Order extends Model
 
     public function getTotalProductsAttribute()
     {
-        return Order_Item::where('order_id', $this->id)->count();
+        return OrderItem::where('order_id', $this->id)->count();
     }
 
     public function deliverer()
@@ -53,8 +53,8 @@ class Order extends Model
         return $this->belongsTo(Customer::class, 'customer_id');
     }
 
-    public function order_items()
+    public function orderItems()
     {
-        return $this->hasMany(Order_Item::class, 'order_id');
+        return $this->hasMany(OrderItem::class, 'order_id');
     }
 }

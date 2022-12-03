@@ -21,7 +21,7 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
-  showProject: {
+  showOrder: {
     type: Boolean,
     default: true,
   },
@@ -113,7 +113,7 @@ const deleteClick = (task) => {
         <th class="text-center" v-if="showCompleted">Completed</th>
         <th>Description</th>
         <th v-if="showOwner">Owner</th>
-        <th v-if="showProject">Project</th>
+        <th v-if="showOrder">Order</th>
         <th v-if="showCompletedButton || showEditButton || showDeleteButton"></th>
       </tr>
     </thead>
@@ -127,7 +127,7 @@ const deleteClick = (task) => {
           <span :class="{ completed: task.completed }">{{ task.description }}</span>
         </td>
         <td v-if="showOwner">{{ task.owner_name }}</td>
-        <td v-if="showProject">{{ task.project_name }}</td>
+        <td v-if="showOrder">{{ task.order_name }}</td>
         <td
           class="text-end"
           v-if="showCompletedButton || showEditButton || showDeleteButton"

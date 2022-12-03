@@ -34,7 +34,7 @@ class OrderResource extends JsonResource
                     "payment_reference" => $this->payment_reference,
                     "date" => $this->date,
                     "delivered_by" => $this->delivered_by,
-                    "deliverer_name" => $this->deliverer->name,
+                    "deliverer" => $this->deliverer->name,
                     "products" => ProductResource::collection($this->order_items->product->sortByDesc('id'))
                 ];
             default:
@@ -44,7 +44,7 @@ class OrderResource extends JsonResource
                     "status" => $this->status,
                     "status_name" => $this->statusName,
                     "customer_id" => $this->customer_id,
-                    "customer_name" => $this->customer->name,
+                    "customer_name" => $this->customer->name ?? null,
                     "total_price" => $this->total_price,
                     "total_paid" => $this->total_paid,
                     "total_paid_with_points" => $this->total_paid_with_points,
@@ -54,7 +54,7 @@ class OrderResource extends JsonResource
                     "payment_reference" => $this->payment_reference,
                     "date" => $this->date,
                     "delivered_by" => $this->delivered_by,
-                    "deliverer_name" => $this->deliverer->name,
+                    "deliverer" => $this->deliverer->name ?? null,
                     "total_products" => $this->totalProducts,
                 ];
         }

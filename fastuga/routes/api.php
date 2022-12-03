@@ -7,19 +7,23 @@ use App\Http\Controllers\api\OrderController;
 
 Route::post('login', [AuthController::class, 'login']);
 Route::post('register', [AuthController::class, 'register']);
-Route::patch('users/{user}/password', [UserController::class, 'update_password']);
 
 Route::middleware('auth:api')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('users/me', [UserController::class, 'show_me']);
 
-    Route::get('users', [UserController::class, 'index']);
+    Route::get('users', [UserController::class, 'index'])
+        /*->middleware('can:viewAny,user')*/;
+    Route::post('users', [UserController::class, 'store'])
+        ->middleware('can:create,user');
     Route::get('users/{user}', [UserController::class, 'show'])
         ->middleware('can:view,user');
     Route::put('users/{user}', [UserController::class, 'update'])
         ->middleware('can:update,user');
-    /*Route::patch('users/{user}/password', [UserController::class, 'update_password'])
-        ->middleware('can:updatePassword,user');*/
+    Route::delete('users/{user}', [UserController::class, 'destroy'])
+        ->middleware('can:delete,user');
+    Route::patch('users/{user}/password', [UserController::class, 'update_password'])
+        ->middleware('can:updatePassword,user');
 
     /*Route::get('users/{user}/tasks', [TaskController::class, 'getTasksOfUser']);
     Route::get('tasks/{task}', [TaskController::class, 'show']);
@@ -37,4 +41,3 @@ Route::middleware('auth:api')->group(function () {
     //Route::get('customers/{customer}/orders', [OrderController::class, 'getOrdersOfCustomer']);
     //Route::get('customers/{customer}/orders/forpickup', [OrderController::class, 'getOrdersOfCustomerForPickup']);
 });
-

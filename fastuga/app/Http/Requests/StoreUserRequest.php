@@ -3,8 +3,10 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use App\Models\User;
 
-class StoreUpdateTaskRequest extends FormRequest
+class StoreUserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,12 +26,11 @@ class StoreUpdateTaskRequest extends FormRequest
     public function rules()
     {
         return [
-            'owner_id' => 'required|exists:users,id',
-            'order_id' => 'nullable|exists:orders,id',
-            'completed' => 'required|boolean',
-            'description' => 'required|max:50|min:3',
-            'notes' => 'nullable',
-            'total_hours' => 'nullable|integer|min:0|max:100'
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'type' => 'required|in:ED,EC,EM',
+            'password' => 'required|min:3|confirmed',
+            'password_confirmation' => 'required|same:password',
         ];
     }
 }
