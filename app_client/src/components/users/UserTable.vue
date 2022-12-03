@@ -64,7 +64,7 @@ const canViewUserDetail = (userId) => {
         <th v-if="showPhoto" class="align-middle">Photo</th>
         <th class="align-middle">Name</th>
         <th v-if="showEmail" class="align-middle">Email</th>
-        <th v-if="showAdmin" class="align-middle">Manager?</th>
+        <th v-if="showManager" class="align-middle">Manager?</th>
       </tr>
     </thead>
     <tbody>
@@ -75,7 +75,7 @@ const canViewUserDetail = (userId) => {
         </td>
         <td class="align-middle">{{ user.name }}</td>
         <td v-if="showEmail" class="align-middle">{{ user.email }}</td>
-        <td v-if="showAdmin" class="align-middle">{{ user.type == "EM" ? "Sim" : "" }}</td>
+        <td v-if="showManager" class="align-middle">{{ user.type == "EM" ? "Yes" : "" }}</td>
         <td class="text-end align-middle" v-if="showEditButton">
           <div class="d-flex justify-content-end" v-if="canViewUserDetail(user.id)">
             <button class="btn btn-xs btn-light" @click="editClick(user)" v-if="showEditButton">

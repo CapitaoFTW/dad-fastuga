@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Hash;
 
 class UpdateUserPasswordRequest extends FormRequest
 {
@@ -24,9 +25,16 @@ class UpdateUserPasswordRequest extends FormRequest
      */
     public function rules()
     {
+        $user = auth()->user();
+
         return [
-            'password' => ['required', 'confirmed', Password::min(3)],
-            'oldpassword' => 'current_password:api',
+            'current_password' => ['required', function ($attribute, $value, $fail) use ($user) {
+                if (!Hash::check($value, $user->password)) {
+                    return $fail(__('The current password is incorrect.'));
+                }
+            }],
+            'password' => 'required|different:current_password',
+            'password_confirmation' => 'same:password',
         ];
     }
 }

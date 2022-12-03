@@ -27,11 +27,13 @@ class RegisterCustomerRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|exists:users,email',
-            'customer.phone' => 'required|digits:9|starts_with:+,2,9',
-            'customer.nif' => 'required|digits:9',
-            'customer.default_payment_type' => 'required|in:VISA,PAYPAL,MBWAY',
-            'customer.default_payment_reference' => ['required', Rule::when($this->customer['default_payment_type'] == 'VISA', 'digits:16|doesnt_start_with:0'), Rule::when($this->customer['default_payment_type'] == 'MBWAY', 'digits:9|doesnt_start_with:0'), Rule::when($this->customer['default_payment_type'] == 'PAYPAL', 'email')],
+            'email' => 'required|email|unique:users,email',
+            'password' => ['required', 'min:3', 'confirmed'],
+            'password_confirmation' =>  ['required', 'same:password'],
+            'phone' => 'required|digits:9|starts_with:2,9',
+            'nif' => 'required|digits:9',
+            'payment_type' => 'required|in:VISA,PAYPAL,MBWAY',
+            'payment_reference' => ['required', Rule::when($this->payment_type == 'VISA', 'digits:16|doesnt_start_with:0'), Rule::when($this->payment_type == 'MBWAY', 'digits:9|doesnt_start_with:0'), Rule::when($this->payment_type == 'PAYPAL', 'email')],
         ];
     }
 }

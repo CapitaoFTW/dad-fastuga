@@ -49,8 +49,8 @@ const cancel = () => {
 </script>
 
 <template>
-  <form class="row g-3 needs-validation justify-content-center" novalidate @submit.prevent="save">
-    <h3 class="mt-5 mb-3">Profile</h3>
+  <form class="row pt-3 pb-2 mb-3 needs-validation justify-content-center" novalidate @submit.prevent="save">
+    <h3 class="mb-3">Profile</h3>
     <hr />
     <div class="w-75">
       <div class="text-center pt-3">

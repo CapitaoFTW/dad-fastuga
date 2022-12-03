@@ -32,11 +32,11 @@ const login = async () => {
 
 <template>
   <form class="row pt-5 mt-5 needs-validation justify-content-center" novalidate @submit.prevent="login">
-    <div class="w-75 mt-4">
+    <div class="w-50 mt-4">
       <h3 class="mb-4 text-center">Login</h3>
       <div class="mb-3">
-        <label for="inputUsername" class="form-label">E-mail</label>
-        <input type="text" class="form-control" id="inputUsername" v-model="credentials.username">
+        <label for="inputEmail" class="form-label">E-mail</label>
+        <input type="text" class="form-control" id="inputEmail" v-model="credentials.email">
       </div>
       <div class="mb-3">
         <label for="inputPassword" class="form-label">Password</label>

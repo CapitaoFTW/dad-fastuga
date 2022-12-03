@@ -40,16 +40,16 @@ export const useUserStore = defineStore('user', () => {
         user.value = null
     }
 
-    async function register (credentials) {
+    async function register(credentials) {
         try {
             const response = await axios.post('register', credentials)
             axios.defaults.headers.common.Authorization = "Bearer " + response.data.access_token
             sessionStorage.setItem('token', response.data.access_token)
             await loadUser()
             //await loadInProgressOrders()
-            return true
-        } 
-        catch(error) {
+            return false
+        }
+        catch (error) {
             clearUser()
             //clearInProgressOrders()
             return error
@@ -87,10 +87,10 @@ export const useUserStore = defineStore('user', () => {
     async function changePassword(passwords) {
         try {
             await axios.patch('users/' + userId.value + '/password', passwords)
-            return true
+            return false
         }
         catch (error) {
-            return false
+            return error
         }
     }
 
@@ -110,5 +110,5 @@ export const useUserStore = defineStore('user', () => {
         return false
     }
 
-    return { user, userId, userPhotoUrl, register, login, logout, restoreToken }
+    return { user, userId, userPhotoUrl, register, login, changePassword, logout, restoreToken }
 })

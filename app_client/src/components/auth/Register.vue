@@ -13,10 +13,9 @@ const credentials = ref({
   email: '',
   password: '',
   password_confirmation: '',
-  type: 'C',
   nif: '',
-  default_payment_type: '',
-  default_payment_ref: ''
+  payment_type: '',
+  payment_reference: ''
 })
 
 const emit = defineEmits(['register'])
@@ -36,7 +35,7 @@ const register = async () => {
 
       toast.error('User was not updated due to unknown server error!')
     }
-  
+
   } else {
     toast.success('User ' + userStore.user.name + ' was successfully registered')
 
@@ -48,10 +47,9 @@ const register = async () => {
 </script>
 
 <template>
-  <form class="row pt-4 needs-validation justify-content-center" novalidate @submit.prevent="register">
-    <h3 class="mb-3">Register</h3>
-    <hr>
-    <div class="w-75">
+  <form class="row pt-3 pb-2 mb-3 needs-validation justify-content-center" novalidate @submit.prevent="register">
+    <div class="w-50 mt-4">
+      <h3 class="mb-4 text-center">Register</h3>
       <div class="mb-3">
         <label for="inputName" class="form-label">Name</label>
         <input type="text" class="form-control" id="inputName" required v-model="credentials.name">
@@ -59,8 +57,8 @@ const register = async () => {
       </div>
       <div class="mb-3">
         <label for="inputEmail" class="form-label">E-mail</label>
-        <input type="email" class="form-control" id="inputEmail" required v-model="credentials.username">
-        <field-error-message :errors="errors" fieldName="username"></field-error-message>
+        <input type="email" class="form-control" id="inputEmail" required v-model="credentials.email">
+        <field-error-message :errors="errors" fieldName="email"></field-error-message>
       </div>
       <div class="mb-3">
         <label for="inputPassword" class="form-label">Password</label>
@@ -85,15 +83,15 @@ const register = async () => {
       </div>
       <div class="mb-3">
         <label for="inputPaymentType" class="form-label">Payment Type</label>
-        <input type="text" class="form-control" id="inputPaymentType" required v-model="credentials.default_payment_type">
-        <field-error-message :errors="errors" fieldName="default_payment_type"></field-error-message>
+        <input type="text" class="form-control" id="inputPaymentType" required v-model="credentials.payment_type">
+        <field-error-message :errors="errors" fieldName="payment_type"></field-error-message>
       </div>
       <div class="mb-4">
         <label for="inputPaymentRef" class="form-label">Payment Reference</label>
-        <input type="text" class="form-control" id="inputPaymentRef" required v-model="credentials.default_payment_reference">
-        <field-error-message :errors="errors" fieldName="default_payment_reference"></field-error-message>
+        <input type="text" class="form-control" id="inputPaymentRef" required v-model="credentials.payment_reference">
+        <field-error-message :errors="errors" fieldName="payment_reference"></field-error-message>
       </div>
-      <div class="d-flex justify-content-center mb-4">
+      <div class="d-flex justify-content-center mt-2">
         <button type="button" class="btn btn-primary px-5" @click="register">Register</button>
       </div>
     </div>

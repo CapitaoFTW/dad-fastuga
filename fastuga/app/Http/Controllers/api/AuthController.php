@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\UserResource;
+use App\Http\Requests\RegisterCustomerRequest;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
@@ -14,12 +15,12 @@ const CLIENT_SECRET = 'arrozdoce2420';
 
 class AuthController extends Controller
 {
-    private function passportAuthenticationData($username, $password) {
+    private function passportAuthenticationData($email, $password) {
        return [
            'grant_type' => 'password',
            'client_id' => CLIENT_ID,
            'client_secret' => CLIENT_SECRET,
-           'username' => $username,
+           'username' => $email,
            'password' => $password,
            'scope' => ''
        ];
@@ -28,7 +29,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         try {
-            request()->request->add($this->passportAuthenticationData($request->username, $request->password));
+            request()->request->add($this->passportAuthenticationData($request->email, $request->password));
             $request = Request::create(PASSPORT_SERVER_URL . '/oauth/token', 'POST');
             $response = Route::dispatch($request);
             $errorCode = $response->getStatusCode();
@@ -49,13 +50,21 @@ class AuthController extends Controller
         return response(['msg' => 'Token revoked'], 200);
     }
 
-    public function register(Request $request) {
+    public function register(RegisterCustomerRequest $request) {
         $validated = $request->validated();
 
         $validated['password'] = bcrypt($validated['password']);
 
         $user = User::create($validated);
-        $user->customer->create($validated['customer']);
+
+        Customer::create([
+            'user_id' => $user->id,
+            'phone' => $validated['phone'],
+            'points' => 0,
+            'nif' => $validated['nif'],
+            'default_payment_type' => $validated['payment_type'],
+            'default_payment_reference' => $validated['payment_reference'],
+        ]);
 
         return $this->login($request);
     }

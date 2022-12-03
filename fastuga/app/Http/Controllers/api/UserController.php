@@ -5,10 +5,10 @@ namespace App\Http\Controllers\api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\Customer;
 use App\Http\Resources\UserResource;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Requests\UpdateUserPasswordRequest;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -39,10 +39,21 @@ class UserController extends Controller
         return new UserResource($user);
     }
 
-    public function update_password(UpdateUserPasswordRequest $request, User $user)
+    public function update_password(Request $request, User $user)
     {
-        $user->password = bcrypt($request->validated()['password']);
+        $validated = $request->validate([
+            'current_password' => ['required', function ($attribute, $value, $fail) use ($user) {
+                if (!Hash::check($value, $user->password)) {
+                    return $fail(__('The current password is incorrect.'));
+                }
+            }],
+            'password' => ['required', 'different:current_password'],
+            'password_confirmation' => ['same:password'],
+        ]);
+
+        $user->password = Hash::make($validated['password']);
         $user->save();
+
         return new UserResource($user);
     }
 
@@ -50,6 +61,7 @@ class UserController extends Controller
     {
         $user = $request->user();
         $user->name = explode(" ", $user->name)[0] . " " . explode(" ", $user->name)[substr_count($user->name, " ")];
+
         return new UserResource($request->user());
     }
 }

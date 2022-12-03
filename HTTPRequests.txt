@@ -1,0 +1,41 @@
+{
+    "name": "Bruno Teixeira",
+    "customer": {
+        "phone": "915930129",
+        "nif": "589138174",
+        "default_payment_type": "VISA",
+        "default_payment_reference": "967584920448391233",
+        "points": "29"
+    }
+}
+
+POST: http://fastuga.test/api/login
+{
+    "username" : "rodrigofilipecapitao@gmail.com",
+    "password" : "123"
+}
+
+POST: http://fastuga.test/api/register
+{
+    "name": "Rodrigo Filipe Capitão",
+    "email" : "rodrigofilipecapitao@gmail.com",
+    "password" : "123",
+    "password_confirmation": "123",
+	"phone": "910599057",
+	"nif": "250761416",
+	"default_payment_type": "MBWAY",
+	"default_payment_reference": "910599057"
+}
+
+{
+    "current_password": "123",
+    "password": "1234",
+    "password_confirmation": "1234"
+}
+
+'name' => 'required|string|max:255',
+            'email' => 'required|email|exists:users,email',
+            'customer.phone' => 'required|digits:9|starts_with:+,2,9',
+            'customer.nif' => 'required|digits:9',
+            'customer.default_payment_type' => 'required|in:VISA,PAYPAL,MBWAY',
+            'customer.default_payment_reference'

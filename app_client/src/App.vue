@@ -147,7 +147,7 @@ const clickMenuOption = () => {
               <router-link class="nav-link" :class="{ active: $route.name === 'Users' }" :to="{ name: 'Users' }"
                 @click="clickMenuOption">
                 <i class="bi bi-people"></i>
-                Team Members
+                Users
               </router-link>
             </li>
             <li class="nav-item" v-show="userStore.user?.type == 'EM'">
@@ -199,7 +199,7 @@ const clickMenuOption = () => {
               </li>
               <li class="nav-item dropdown" v-show="userStore.user">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink2" role="button"
-                  data-bs-toggle="dropdown" aria-expanded="false">
+                  data-bs-toggle="dropdown" aria-expanded="false" style="padding-left: 3px">
                   <img :src="userStore.userPhotoUrl" class="rounded-circle z-depth-0 avatar-img" alt="avatar image" />
                   <span class="avatar-text">{{ userStore.user?.name ?? "Anonymous" }}</span>
                 </a>
@@ -208,7 +208,8 @@ const clickMenuOption = () => {
                     <router-link class="dropdown-item"
                       :class="{ active: $route.name == 'User' && $route.params.id == userStore.userId }"
                       :to="{ name: 'User', params: { id: userStore.userId } }" @click="clickMenuOption">
-                      <i class="bi bi-person-square"></i>Profile
+                      <i class="bi bi-person-square"></i><span class="position-absolute"
+                        style="top: 1.1rem; right:5.4rem">Profile</span>
                     </router-link>
                   </li>
                   <li>
@@ -223,7 +224,8 @@ const clickMenuOption = () => {
                   </li>
                   <li>
                     <a class="dropdown-item" @click.prevent="logout">
-                      <i class="bi bi-arrow-right"></i>Logout
+                      <i class="bi bi-arrow-right"></i><span class="position-absolute"
+                        style="bottom: 1.1rem; left: 3rem">Logout</span>
                     </a>
                   </li>
                 </ul>

@@ -32,8 +32,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <h3 class="mt-5 mb-3">Users</h3>
-  <hr>
+  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+      <h1 class="h2">Users</h1>
+    </div>
   <user-table :users="users" :showId="false" @edit="editUser"></user-table>
 </template>
 

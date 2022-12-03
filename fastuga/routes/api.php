@@ -7,6 +7,7 @@ use App\Http\Controllers\api\OrderController;
 
 Route::post('login', [AuthController::class, 'login']);
 Route::post('register', [AuthController::class, 'register']);
+Route::patch('users/{user}/password', [UserController::class, 'update_password']);
 
 Route::middleware('auth:api')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
@@ -17,8 +18,8 @@ Route::middleware('auth:api')->group(function () {
         ->middleware('can:view,user');
     Route::put('users/{user}', [UserController::class, 'update'])
         ->middleware('can:update,user');
-    Route::patch('users/{user}/password', [UserController::class, 'update_password'])
-        ->middleware('can:updatePassword,user');
+    /*Route::patch('users/{user}/password', [UserController::class, 'update_password'])
+        ->middleware('can:updatePassword,user');*/
 
     /*Route::get('users/{user}/tasks', [TaskController::class, 'getTasksOfUser']);
     Route::get('tasks/{task}', [TaskController::class, 'show']);
