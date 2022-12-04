@@ -25,10 +25,11 @@ class ProductController extends Controller
 
     public function index() {
 
-        return ProductResource::collection(Product::get());
+        return ProductResource::collection(Product::get()->sortByDesc('type'));
+        
         
     }
-
+    
     /*public function show(Product $product)
     {
         return new ProductResource($product);
