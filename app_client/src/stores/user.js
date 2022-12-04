@@ -63,12 +63,12 @@ export const useUserStore = defineStore('user', () => {
             sessionStorage.setItem('token', response.data.access_token)
             await loadUser()
             //await ordersStore.loadOrders()
-            return true
+            return false
 
         } catch (error) {
             clearUser()
             //ordersStore.clearOrders()
-            return false
+            return error
         }
     }
 

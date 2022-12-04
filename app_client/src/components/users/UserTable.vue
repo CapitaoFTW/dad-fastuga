@@ -31,13 +31,17 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  showToggleButton: {
+    type: Boolean,
+    default: true,
+  },
   showDeleteButton: {
     type: Boolean,
     default: true,
   }
 })
 
-const emit = defineEmits(['edit', 'delete'])
+const emit = defineEmits(['edit', 'toggle', 'delete'])
 
 const photoFullUrl = (user) => {
   return user.photo_url ? serverBaseUrl + "/storage/fotos/" + user.photo_url : avatarNoneUrl
@@ -45,6 +49,10 @@ const photoFullUrl = (user) => {
 
 const editClick = (user) => {
   emit("edit", user)
+}
+
+const toggleClick = (user) => {
+  emit('toggle', user)
 }
 
 const deleteClick = (user) => {
@@ -68,7 +76,7 @@ const canViewUserDetail = (userId) => {
         <th v-if="showPhoto" class="align-middle">Photo</th>
         <th class="align-middle">Name</th>
         <th v-if="showEmail" class="align-middle">Email</th>
-        <th v-if="showEditButton || showDeleteButton"></th>
+        <th v-if="showEditButton || showDeleteButton || showToggleButton"></th>
       </tr>
     </thead>
     <tbody>
@@ -79,12 +87,15 @@ const canViewUserDetail = (userId) => {
         </td>
         <td class="align-middle">{{ user.name }}</td>
         <td v-if="showEmail" class="align-middle">{{ user.email }}</td>
-        <td class="text-end align-middle" v-if="showEditButton || showDeleteButton">
+        <td class="text-end align-middle" v-if="showEditButton || showDeleteButton || showToggleButton">
           <div class="d-flex justify-content-end" v-if="canViewUserDetail(user.id)">
             <button class="btn btn-xs btn-primary text-light" @click="editClick(user)" v-if="showEditButton">
               <i class="bi bi-xs bi-pencil-fill"></i>
             </button>
-            <button class="btn btn-xs btn-danger" @click="deleteClick(user)" v-if="showDeleteButton"><i
+            <button class="btn btn-xs" :class="{ 'btn-success' : user.blocked == 0, 'btn-danger' : user.blocked == 1, }" @click="toggleClick(user)" v-if="showToggleButton">
+              <i class="bi bi-xs" :class="{ 'bi-unlock-fill': user.blocked == 0, 'bi-lock-fill': user.blocked == 1, }"></i>
+            </button>
+            <button class="btn btn-xs btn-secondary text-light" @click="deleteClick(user)" v-if="showDeleteButton"><i
                 class="bi bi-xs bi-trash3-fill"></i>
             </button>
           </div>

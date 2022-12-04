@@ -80,7 +80,7 @@ const clickMenuOption = () => {
                 <router-link class="dropdown-item" :class="{ active: $route.name === 'ChangePassword' }"
                   :to="{ name: 'ChangePassword' }" @click="clickMenuOption">
                   <i class="bi bi-key-fill"></i>
-                  Change password
+                  Change Password
                 </router-link>
               </li>
               <li>
@@ -143,7 +143,7 @@ const clickMenuOption = () => {
                 Orders
               </router-link>
             </li>
-            <li class="nav-item" v-show="userStore.user">
+            <li class="nav-item" v-show="userStore.user?.type == 'EM'">
               <router-link class="nav-link" :class="{ active: $route.name === 'Users' }" :to="{ name: 'Users' }"
                 @click="clickMenuOption">
                 <i class="bi bi-people"></i>
@@ -168,12 +168,11 @@ const clickMenuOption = () => {
             </router-link>
           </h6>
           <ul class="nav flex-column mb-2">
-            <li class="nav-item" v-for="prj in ordersStore.myInprogressOrders" :key="prj.id">
-              <router-link class="nav-link w-100 me-3" :class="{
-                active: $route.name == 'OrderTasks' && $route.params.id == prj.id,
-              }" :to="{ name: 'OrderTasks', params: { id: prj.id } }" @click="clickMenuOption">
-                <i class="bi bi-file-ruled"></i>
-                {{ prj.name }}
+            <li class="nav-item" v-for="order in ordersStore.myInProgressOrders" :key="order.id">
+              <router-link class="nav-link w-100 me-3"
+                :class="{ active: $route.name == 'CustomerOrders' && $route.params.id == order.id, }"
+                :to="{ name: 'CustomerOrders', params: { id: order.id } }" @click="clickMenuOption">
+                <i class="bi bi-file-ruled"></i> {{ order.name }}
               </router-link>
             </li>
           </ul>
@@ -216,7 +215,7 @@ const clickMenuOption = () => {
                     <router-link class="dropdown-item" :class="{ active: $route.name === 'ChangePassword' }"
                       :to="{ name: 'ChangePassword' }" @click="clickMenuOption">
                       <i class="bi bi-key-fill"></i>
-                      Change password
+                      Change Password
                     </router-link>
                   </li>
                   <li>

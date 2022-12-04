@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateCompleteTaskRequest extends FormRequest
+class UpdateBlockUserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,7 +24,7 @@ class UpdateCompleteTaskRequest extends FormRequest
     public function rules()
     {
         return [
-            'completed' => 'required|boolean',
+            'blocked' => 'required|in:0,1',
         ];
     }
 }

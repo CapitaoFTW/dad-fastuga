@@ -44,6 +44,11 @@ class UserPolicy
         return $user->id == $model->id;
     }
 
+    public function updateBlocked(User $user)
+    {
+        return $user->isManager();
+    }
+
     public function delete(User $user, User $model)
     {
         return $user->isManager() || $user->id == $model->id;

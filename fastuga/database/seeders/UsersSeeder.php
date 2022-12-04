@@ -190,7 +190,7 @@ class UsersSeeder extends Seeder
     private function updateFoto($userInfo)
     {
         $fileName = null;
-        if ($userInfo['gender'] == 'male') {
+        if ($userInfo['gender'] == 'M') {
             if (count($this->files_M)) {
                 $fileName = array_shift($this->files_M);
             }

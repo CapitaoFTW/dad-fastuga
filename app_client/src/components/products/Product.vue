@@ -1,36 +1,39 @@
 <script setup>
 import { ref, watch, computed, inject } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
-import { useUsersStore } from "../../stores/users.js"
+import { useProductsStore } from "../../stores/products.js"
 
-import UserDetail from "./UserDetail.vue"
+import ProductDetail from "../products/ProductDetail.vue"
 
 const router = useRouter()
 const axios = inject('axios')
 const toast = inject('toast')
-const usersStore = useUsersStore()
+const productsStore = useProductsStore()
 
-const newUser = () => {
+const newProduct = () => {
   return {
     id: null,
     name: '',
+    type: '',
     photo_url: null,
+    price: 0,
+    description: '',
   }
 }
 
 let originalValueStr = ''
-const loadUser = (id) => {
+const loadProduct = (id) => {
   originalValueStr = ''
   errors.value = null
 
   if (!id || (id < 0)) {
-    user.value = newUser()
+    product.value = newProduct()
     originalValueStr = dataAsString()
 
   } else {
-    axios.get('users/' + id)
+    axios.get('products/' + id)
       .then((response) => {
-        user.value = response.data.data
+        product.value = response.data.data
         originalValueStr = dataAsString()
       })
 
@@ -44,43 +47,43 @@ const save = () => {
   errors.value = null
 
   if (operation.value == 'insert') {
-    usersStore.insertUser(user.value)
+    productsStore.insertProduct(product.value)
 
-      .then((insertedUser) => {
-        user.value = insertedUser
+      .then((insertedProduct) => {
+        product.value = insertedProduct
         originalValueStr = dataAsString()
 
-        toast.success('User ' + user.value.name + ' was created successfully.')
+        toast.success('Product ' + product.value.name + ' was created successfully.')
         router.back()
       })
 
       .catch((error) => {
         if (error.response.status == 422) {
-          toast.error('User was not created due to validation errors!')
+          toast.error('Product was not created due to validation errors!')
           errors.value = error.response.data.errors
 
         } else {
-          toast.error('User was not created due to unknown server error!')
+          toast.error('Product was not created due to unknown server error!')
         }
       })
 
   } else {
-    usersStore.updateUser(user.value)
-      .then((updatedUser) => {
-        user.value = updatedUser
+    productsStore.updateProduct(product.value)
+      .then((updatedProduct) => {
+        product.value = updatedProduct
         originalValueStr = dataAsString()
 
-        toast.success('User ' + user.value.name + ' was updated successfully.')
+        toast.success('Product ' + product.value.name + ' was updated successfully.')
         router.back()
       })
 
       .catch((error) => {
         if (error.response.status == 422) {
-          toast.error('User ' + user.value.name + ' was not updated due to validation errors!')
+          toast.error('Product ' + product.value.name + ' was not updated due to validation errors!')
           errors.value = error.response.data.errors
 
         } else {
-          toast.error('User ' + user.value.name + ' was not updated due to unknown server error!')
+          toast.error('Product ' + product.value.name + ' was not updated due to unknown server error!')
         }
       })
   }
@@ -92,7 +95,7 @@ const cancel = () => {
 }
 
 const dataAsString = () => {
-  return JSON.stringify(user.value)
+  return JSON.stringify(product.value)
 }
 
 let nextCallBack = null
@@ -122,7 +125,7 @@ const props = defineProps({
   }
 })
 
-const user = ref(newUser())
+const product = ref(newProduct())
 const errors = ref(null)
 const confirmationLeaveDialog = ref(null)
 
@@ -134,7 +137,7 @@ watch(
   () => props.id,
 
   (newValue) => {
-    loadUser(newValue)
+    loadProduct(newValue)
   },
 
   { immediate: true }
@@ -147,5 +150,5 @@ watch(
     msg="Do you really want to leave? You have unsaved changes!" @confirmed="leaveConfirmed">
   </confirmation-dialog>
 
-  <user-detail :operationType="operation" :user="user" :errors="errors" @save="save" @cancel="cancel"></user-detail>
+  <product-detail :operationType="operation" :product="product" :errors="errors" @save="save" @cancel="cancel"></product-detail>
 </template>

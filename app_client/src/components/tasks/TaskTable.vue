@@ -46,9 +46,7 @@ const taskToDelete = ref(null)
 const deleteConfirmationDialog = ref(null)
 
 const taskToDeleteDescription = computed(() => {
-  return taskToDelete.value
-    ? `#${taskToDelete.value.id} (${taskToDelete.value.description})`
-    : ""
+  return taskToDelete.value ? `#${taskToDelete.value.id} (${taskToDelete.value.description})` : ""
 })
 
 watch(
@@ -70,6 +68,7 @@ const toogleClick = (task) => {
       task.completed = response.data.data.completed
       emit("completeToggled", task)
     })
+    
     .catch((error) => {
       console.log(error)
     })
@@ -98,12 +97,8 @@ const deleteClick = (task) => {
 </script>
 
 <template>
-  <confirmation-dialog
-    ref="deleteConfirmationDialog"
-    confirmationBtn="Delete task"
-    :msg="`Do you really want to delete the task ${taskToDeleteDescription}?`"
-    @confirmed="dialogConfirmedDelete"
-  >
+  <confirmation-dialog ref="deleteConfirmationDialog" confirmationBtn="Delete task"
+    :msg="`Do you really want to delete the task ${taskToDeleteDescription}?`" @confirmed="dialogConfirmedDelete">
   </confirmation-dialog>
 
   <table class="table">
@@ -128,38 +123,18 @@ const deleteClick = (task) => {
         </td>
         <td v-if="showOwner">{{ task.owner_name }}</td>
         <td v-if="showOrder">{{ task.order_name }}</td>
-        <td
-          class="text-end"
-          v-if="showCompletedButton || showEditButton || showDeleteButton"
-        >
+        <td class="text-end" v-if="showCompletedButton || showEditButton || showDeleteButton">
           <div class="d-flex justify-content-end">
-            <button
-              class="btn btn-xs btn-light"
-              @click="toogleClick(task)"
-              v-if="showCompletedButton"
-            >
-              <i
-                class="bi bi-xs"
-                :class="{
-                  'bi-square': !task.completed,
-                  'bi-check2-square': task.completed,
-                }"
-              ></i>
+            <button class="btn btn-xs btn-light" @click="toogleClick(task)" v-if="showCompletedButton">
+              <i class="bi bi-xs"
+                :class="{ 'bi-square': !task.completed, 'bi-check2-square': task.completed, }"></i>
             </button>
 
-            <button
-              class="btn btn-xs btn-light"
-              @click="editClick(task)"
-              v-if="showEditButton"
-            >
+            <button class="btn btn-xs btn-light" @click="editClick(task)" v-if="showEditButton">
               <i class="bi bi-xs bi-pencil"></i>
             </button>
 
-            <button
-              class="btn btn-xs btn-light"
-              @click="deleteClick(task)"
-              v-if="showDeleteButton"
-            >
+            <button class="btn btn-xs btn-light" @click="deleteClick(task)" v-if="showDeleteButton">
               <i class="bi bi-xs bi-x-square-fill"></i>
             </button>
           </div>

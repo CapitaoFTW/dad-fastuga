@@ -16,13 +16,7 @@ const props = defineProps({
   operationType: {
     type: String,
     default: 'update'  // insert / update
-  },/*,
-  uploadFile() {
-    var files = this.$refs.photo.files;
-    var data = new FormData();
-   // data.append('logo', files[0]);
-   console.log(data);
-}*/
+  }
 })
 
 const emit = defineEmits(["save", "cancel"]);
@@ -49,6 +43,10 @@ const photoFullUrl = computed(() => {
   return editingUser.value.photo_url ? serverBaseUrl + "/storage/fotos/" + editingUser.value.photo_url : avatarNoneUrl
 })
 
+const uploadFile = (e) => {
+  editingUser.value.photo_url = e.target.files[0]
+}
+
 const save = () => {
   emit("save", editingUser.value);
 }
@@ -66,8 +64,9 @@ const cancel = () => {
       <div class="text-center pt-3">
         <img :src="photoFullUrl" class="img-fluid rounded-circle" />
         <br />
-        <input ref="photo" type="file" name="photo" id="photo" class="inputPhoto text-primary" @change="uploadFile" />
-        <label class="text-primary" for="photo">Alterar Foto</label>
+        <input type="file" id="inputPhoto" class="inputPhoto text-primary"
+          @change="uploadFile" />
+        <label class="text-primary" for="inputPhoto">Alterar Foto</label>
         <field-error-message :errors="errors" fieldName="photo_url"></field-error-message>
       </div>
       <div class="mb-2">
@@ -77,25 +76,26 @@ const cancel = () => {
       </div>
       <div class="mb-2">
         <label for="inputEmail" class="form-label">Email</label>
-        <input type="email" class="form-control" id="inputEmail" placeholder="Email" disabled
-          v-model="editingUser.email" />
+        <input type="email" class="form-control" id="inputEmail" placeholder="Email" v-model="editingUser.email"
+          required />
         <field-error-message :errors="errors" fieldName="email"></field-error-message>
       </div>
       <div v-if="editingUser.type == 'C'" class="mb-2">
         <label for="inputPhone" class="form-label">Phone Number</label>
         <input type="text" class="form-control" id="inputPhone" placeholder="Phone Number"
-          v-model="editingUser.customer.phone" />
+          v-model="editingUser.customer.phone" required />
         <field-error-message :errors="errors" fieldName="phone"></field-error-message>
       </div>
       <div v-if="editingUser.type == 'C'" class="mb-2">
         <label for="inputNIF" class="form-label">NIF</label>
-        <input type="text" class="form-control" id="inputNIF" placeholder="NIF" v-model="editingUser.customer.nif" />
+        <input type="text" class="form-control" id="inputNIF" placeholder="NIF" v-model="editingUser.customer.nif"
+          required />
         <field-error-message :errors="errors" fieldName="nif"></field-error-message>
       </div>
       <div v-if="editingUser.type == 'C'" class="mb-2">
         <label for="inputPaymentType" class="form-label">Payment Type</label>
-        <select class="form-select" id="inputPaymentType" v-model="editingUser.customer.default_payment_type">
-          <option :value="null">Choose an option</option>
+        <select class="form-select" id="inputPaymentType" v-model="editingUser.customer.default_payment_type" required>
+          <option :value="null" disabled>Choose an option</option>
           <option value="VISA">VISA</option>
           <option value="MBWAY">MBWAY</option>
           <option value="PAYPAL">PAYPAL</option>

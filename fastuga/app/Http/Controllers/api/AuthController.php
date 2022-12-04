@@ -8,6 +8,7 @@ use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
+use Exception;
 
 const PASSPORT_SERVER_URL = "http://fastuga.test";
 const CLIENT_ID = 2;
@@ -15,15 +16,16 @@ const CLIENT_SECRET = 'arrozdoce2420';
 
 class AuthController extends Controller
 {
-    private function passportAuthenticationData($email, $password) {
-       return [
-           'grant_type' => 'password',
-           'client_id' => CLIENT_ID,
-           'client_secret' => CLIENT_SECRET,
-           'username' => $email,
-           'password' => $password,
-           'scope' => ''
-       ];
+    private function passportAuthenticationData($email, $password)
+    {
+        return [
+            'grant_type' => 'password',
+            'client_id' => CLIENT_ID,
+            'client_secret' => CLIENT_SECRET,
+            'username' => $email,
+            'password' => $password,
+            'scope' => ''
+        ];
     }
 
     public function login(Request $request)
@@ -34,6 +36,7 @@ class AuthController extends Controller
             $response = Route::dispatch($request);
             $errorCode = $response->getStatusCode();
             $auth_server_response = json_decode((string) $response->content(), true);
+
             return response()->json($auth_server_response, $errorCode);
 
         } catch (\Exception $e) {
@@ -50,7 +53,8 @@ class AuthController extends Controller
         return response(['msg' => 'Token revoked'], 200);
     }
 
-    public function register(RegisterCustomerRequest $request) {
+    public function register(RegisterCustomerRequest $request)
+    {
         $validated = $request->validated();
 
         $validated['password'] = bcrypt($validated['password']);

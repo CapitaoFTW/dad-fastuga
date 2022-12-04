@@ -27,6 +27,24 @@ const editUser = (user) => {
   router.push({ name: 'User', params: { id: user.id } })
 }
 
+const toggleBlocked = (user) => {
+  if (usersStore.blockedUser(user)) {
+    if (user.blocked == 0)
+      toast.success("User " + user.name + " was unblocked")
+
+    else
+      toast.success("User " + user.name + " was blocked")
+
+  } else {
+
+    if (user.blocked == 0)
+      toast.error("It was not possible to block User " + user.name + "!")
+
+    else
+      toast.error("It was not possible to unblock User " + user.name + "!")
+  }
+}
+
 const deleteUserConfirmed = () => {
   usersStore.deleteUser(userToDelete.value)
     .then((deletedUser) => {
@@ -64,7 +82,7 @@ onMounted(() => {
   <confirmation-dialog ref="deleteConfirmationDialog" confirmationBtn="Delete user"
     :msg="`Do you really want to delete the user ${userToDeleteDescription}?`" @confirmed="deleteUserConfirmed">
   </confirmation-dialog>
-  
+
   <div class="d-flex justify-content-between">
     <div class="mx-2">
       <h3 class="mt-4">Users</h3>
@@ -86,10 +104,12 @@ onMounted(() => {
       </select>
     </div>
     <div class="mx-2 mt-2">
-      <button type="button" class="btn btn-success px-4 btn-adduser" @click="addUser"><i class="bi bi-xs bi-person-plus-fill"></i>&nbsp; Add User</button>
+      <button type="button" class="btn btn-success px-4 btn-adduser" @click="addUser"><i
+          class="bi bi-xs bi-person-plus-fill"></i>&nbsp; Add User</button>
     </div>
   </div>
-  <user-table :users="filteredUsers" :showId="false" @edit="editUser" @delete="clickToDeleteUser"></user-table>
+  <user-table :users="filteredUsers" :showId="false" @toggle="toggleBlocked" @edit="editUser"
+    @delete="clickToDeleteUser"></user-table>
 </template>
 
 <style scoped>

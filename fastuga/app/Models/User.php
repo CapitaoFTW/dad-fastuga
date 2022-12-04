@@ -22,7 +22,8 @@ class User extends Authenticatable
         'email',
         'password',
         'photo_url',
-        'type'
+        'type',
+        'blocked',
     ];
 
     /**
@@ -54,6 +55,10 @@ class User extends Authenticatable
 
     public function isCustomer() {
         return $this->type == 'C';
+    }
+
+    public function isBlocked() {
+        return $this->blocked == 1;
     }
 
     public function customer()

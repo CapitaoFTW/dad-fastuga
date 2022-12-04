@@ -47,7 +47,22 @@ export const useUsersStore = defineStore('users', () => {
         // Note that when an error occours, the exception should be
         // catch by the function that called the insertUser
         const response = await axios.post('users', newUser)
+
         users.value.push(response.data.data)
+
+        return response.data.data
+    }
+
+    async function updateUser(updateUser) {
+        // Note that when an error occours, the exception should be
+        // catch by the function that called the updateUser
+        const response = await axios.put('users/' + updateUser.id, updateUser)
+
+        let idx = users.value.findIndex((t) => t.id === response.data.data.id)
+        if (idx >= 0) {
+            users.value[idx] = response.data.data
+        }
+
         return response.data.data
     }
 
@@ -62,5 +77,17 @@ export const useUsersStore = defineStore('users', () => {
         return response.data.data
     }
 
-    return { users, totalUsers, getUsersByFilter, getUsersByFilterTotal, loadUsers, clearUsers, insertUser, deleteUser }
+    async function blockedUser(user) {
+        if (user.blocked == 0)
+            user.blocked = 1
+        
+        else
+            user.blocked = 0
+
+        const response = await axios.patch("users/" + user.id + "/blocked", { blocked: user.blocked })
+        
+        return response.data.data
+    }
+
+    return { users, totalUsers, getUsersByFilter, getUsersByFilterTotal, loadUsers, clearUsers, insertUser, updateUser, deleteUser, blockedUser }
 })

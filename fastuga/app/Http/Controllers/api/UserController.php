@@ -9,8 +9,9 @@ use App\Models\User;
 use App\Models\Customer;
 use App\Http\Resources\UserResource;
 use App\Http\Requests\UpdateUserRequest;
-use App\Http\Requests\UpdateUserPasswordRequest;
+use App\Http\Requests\UpdateBlockUserRequest;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -28,7 +29,7 @@ class UserController extends Controller
     public function show(User $user)
     {
         if ($user->isCustomer())
-        UserResource::$format = 'withCustomer';
+            UserResource::$format = 'withCustomer';
 
         return new UserResource($user);
     }
@@ -36,6 +37,12 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, User $user)
     {
         $validated = $request->validated();
+
+        if ($request->hasFile('photo_url')) {
+            Storage::delete('storage/fotos/' . $user->photo_url);
+            $path = $request->photo_url->store('storage/fotos');
+            $validated['photo_url'] = basename($path);
+        }
 
         $user->update($validated);
 
@@ -65,6 +72,14 @@ class UserController extends Controller
         return new UserResource($user);
     }
 
+    public function update_blocked(UpdateBlockUserRequest $request, User $user)
+    {
+        $user->blocked = $request->validated()['blocked'];
+        $user->save();
+
+        return new UserResource($user);
+    }
+
     public function show_me(Request $request)
     {
         $user = $request->user();
@@ -75,6 +90,9 @@ class UserController extends Controller
             UserResource::$format = 'withCustomer';
         }
 
+        if ($user->isBlocked())
+            return response()->json('User is blocked!', 403);
+
         return new UserResource($request->user());
     }
 
@@ -82,6 +100,7 @@ class UserController extends Controller
     {
         if ($user->isCustomer()) {
             Customer::where('user_id', $user->id)->delete();
+
             UserResource::$format = 'withCustomer';
         }
 

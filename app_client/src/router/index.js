@@ -1,8 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from "../stores/user.js"
 
-import Menu from '../views/Menu.vue'
-
+import Menu from '../components/products/Menu.vue'
 import Dashboard from "../components/Dashboard.vue"
 import Register from "../components/auth/Register.vue"
 import Login from "../components/auth/Login.vue"
@@ -48,11 +47,6 @@ const router = createRouter({
       component: Dashboard
     },
     /*{
-      path: '/tasks',
-      name: 'Tasks',
-      component: Tasks,
-    },
-    {
       path: '/tasks/current',
       name: 'CurrentTasks',
       component: Tasks,
@@ -162,6 +156,16 @@ router.beforeEach((to, from, next) => {
 
   if (!userStore.user) {
     next({ name: 'Login' })
+    return
+  }
+
+  if (to.name == 'Users') {
+    if (userStore.user.type == 'EM') {
+      next()
+      return
+    }
+
+    next({ name: 'Menu' })
     return
   }
 
