@@ -43,6 +43,7 @@ const loadProduct = (id) => {
   }
 }
 
+
 const save = () => {
   errors.value = null
 

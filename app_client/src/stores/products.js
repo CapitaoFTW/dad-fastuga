@@ -6,6 +6,7 @@ export const useProductsStore = defineStore('products', () => {
 
     const axios = inject('axios')
     const products = ref([])
+    
 
     const totalProducts = computed(() => {
         return products.value.length

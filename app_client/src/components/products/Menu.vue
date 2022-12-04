@@ -47,9 +47,24 @@ const clickToDeleteProduct = (product) => {
   deleteConfirmationDialog.value.show()
 }
 
+
+
 const filteredProducts = computed(() => {
   return productsStore.getProductsByFilter(filterByType.value)
 })
+
+//da order por name mas nao por product
+const orderByType = computed(() => {
+  return filteredProducts.value.sort((a, b) => {
+    if (a.name < b.name) return -1
+    if (a.name > b.name) return 1
+    return 0
+  })
+})
+
+
+
+
 
 const totalProducts = computed(() => {
   return productsStore.getProductsByFilterTotal(filterByType.value)
@@ -87,7 +102,7 @@ onMounted(() => {
           class="bi bi-xs bi-file-earmark-plus"></i>&nbsp; Add Product</button>
     </div>
   </div>
-  <menu-table :products="filteredProducts" :showId="false" @edit="editProduct"
+  <menu-table :products="orderByType" :showId="false" @edit="editProduct"
     @delete="clickToDeleteProduct"></menu-table>
 </template>
 
