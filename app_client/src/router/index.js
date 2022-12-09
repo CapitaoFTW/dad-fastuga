@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from "../stores/user.js"
 
-import Menu from '../components/products/Menu.vue'
+import Products from '../components/products/Products.vue'
+import Product from '../components/products/Product.vue'
 import Dashboard from "../components/Dashboard.vue"
 import Register from "../components/auth/Register.vue"
 import Login from "../components/auth/Login.vue"
@@ -17,8 +18,22 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'Menu',
-      component: Menu
+      name: 'Products',
+      component: Products
+    },
+    {
+      path: '/products/:id',
+      name: 'Product',
+      component: Product,
+      //props: true
+      // Replaced with the following line to ensure that id is a number
+      props: route => ({ id: parseInt(route.params.id) })
+    },
+    {
+      path: '/products/new',
+      name: 'NewProduct',
+      component: Product,
+      props: { id: -1 }
     },
     {
       path: '/redirect/:redirectTo',
@@ -145,11 +160,11 @@ router.beforeEach((to, from, next) => {
   const userStore = useUserStore()  
 
   if (userStore.user && (to.name == 'Register' || to.name == 'Login')) {
-    next({ name: 'Menu' })
+    next({ name: 'Products' })
     return
   }
 
-  if (to.name == 'Register' || to.name == 'Login' || to.name == 'Menu') {
+  if (to.name == 'Register' || to.name == 'Login' || to.name == 'Products') {
     next()
     return
   }
@@ -165,13 +180,13 @@ router.beforeEach((to, from, next) => {
       return
     }
 
-    next({ name: 'Menu' })
+    next({ name: 'Products' })
     return
   }
 
   if (to.name == 'Reports') {
     if (userStore.user.type != 'EM') {
-      next({ name: 'Menu' })
+      next({ name: 'Products' })
       return
     }
   }
@@ -182,15 +197,15 @@ router.beforeEach((to, from, next) => {
       return
     }
 
-    next({ name: 'Menu' })
+    next({ name: 'Products' })
     return
   }
 
-  if (to.name != 'Dashboard' && to.name != 'Register' && to.name != 'Login' && to.name != 'ChangePassword' && to.name != 'Orders' && to.name != 'NewOrder'
+  /*if (to.name != 'Dashboard' && to.name != 'Register' && to.name != 'Login' && to.name != 'ChangePassword' && to.name != 'Orders' && to.name != 'NewOrder'
   && to.name != 'Order' && to.name != 'Users' && to.name != 'User' && to.name != 'Reports' && to.name != 'about') {
-    next({ name: 'Menu' })
+    next({ name: 'Products' })
     return
-  }
+  }*/
   
   next()
 })

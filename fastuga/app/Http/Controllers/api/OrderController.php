@@ -9,7 +9,9 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Http\Resources\OrderResource;
 use App\Http\Requests\StoreUpdateOrderRequest;
+use App\Http\Resources\ProductResource;
 use App\Models\OrderItem;
+use App\Models\User;
 
 class OrderController extends Controller
 {
@@ -18,9 +20,9 @@ class OrderController extends Controller
         return OrderResource::collection(Order::all());
     }
 
-    public function getOrdersOfCustomer(Customer $customer)
+    public function getOrdersOfCustomer(User $user)
     {
-        return OrderResource::collection($customer->orders);
+        return OrderResource::collection($user->customer->orders);
     }
 
     public function getOrdersOfCustomerForPickup(Customer $customer)

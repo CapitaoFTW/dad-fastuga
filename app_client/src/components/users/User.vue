@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, computed, inject } from 'vue'
+import { ref, computed, watch, inject } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useUsersStore } from "../../stores/users.js"
 
@@ -10,11 +10,22 @@ const axios = inject('axios')
 const toast = inject('toast')
 const usersStore = useUsersStore()
 
+const props = defineProps({
+  id: {
+    type: Number,
+    default: null
+  }
+})
+
 const newUser = () => {
   return {
     id: null,
     name: '',
+    email: '',
+    type: 'ED',
     photo_url: null,
+    password: '',
+    password_confirmation: '',
   }
 }
 
@@ -81,6 +92,7 @@ const save = () => {
 
         } else {
           toast.error('User ' + user.value.name + ' was not updated due to unknown server error!')
+
         }
       })
   }
@@ -112,13 +124,6 @@ onBeforeRouteLeave((to, from, next) => {
 
   } else {
     next()
-  }
-})
-
-const props = defineProps({
-  id: {
-    type: Number,
-    default: null
   }
 })
 

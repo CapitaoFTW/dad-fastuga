@@ -34,7 +34,7 @@ const clickMenuOption = () => {
 <template>
   <nav class="navbar navbar-expand-md navbar-dark bg-dark sticky-top flex-md-nowrap p-0 shadow">
     <div class="container-fluid">
-      <router-link class="navbar-brand col-md-3 col-lg-2 me-0 px-3 bg-transparent" :to="{ name: 'Menu' }"
+      <router-link class="navbar-brand col-md-3 col-lg-2 me-0 px-3 bg-transparent" :to="{ name: 'Products' }"
         @click="clickMenuOption">
         <img src="@/assets/logo.png" alt="" width="30" height="24" class="d-inline-block align-text-top" />
         &nbsp; FasTuga
@@ -61,13 +61,13 @@ const clickMenuOption = () => {
               Login
             </router-link>
           </li>
-          <li class="nav-item dropdown" v-show="userStore.user">
+          <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
               data-bs-toggle="dropdown" aria-expanded="false">
-              <img :src="userStore.userPhotoUrl" class="rounded-circle z-depth-0 avatar-img" alt="avatar image" />
+              <img :src="(userStore.userPhotoUrl ?? '@/assets/avatar-none.png')" class="rounded-circle z-depth-0 avatar-img" alt="avatar image" />
               <span class="avatar-text">{{ userStore.user?.name ?? "Anonymous" }}</span>
             </a>
-            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
+            <ul v-show="userStore.user" class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
               <li>
                 <router-link class="dropdown-item"
                   :class="{ active: $route.name == 'User' && $route.params.id == userStore.userId }"
@@ -105,13 +105,13 @@ const clickMenuOption = () => {
         <div class="position-sticky pt-3">
           <ul class="nav flex-column">
             <li class="nav-item">
-              <router-link class="nav-link" :class="{ active: $route.name === 'Menu' }" :to="{ name: 'Menu' }"
+              <router-link class="nav-link" :class="{ active: $route.name === 'Products' }" :to="{ name: 'Products' }"
                 @click="clickMenuOption">
                 <i class="bi bi-book"></i>
                 Menu
               </router-link>
             </li>
-            <li class="nav-item" v-show="userStore.user">
+            <li class="nav-item" v-show="userStore.user?.type == 'EM'">
               <router-link class="nav-link" :class="{ active: $route.name === 'Dashboard' }" :to="{ name: 'Dashboard' }"
                 @click="clickMenuOption">
                 <i class="bi bi-speedometer2"></i>
@@ -136,7 +136,7 @@ const clickMenuOption = () => {
                 <i class="bi bi-xs bi-plus-circle"></i>
               </router-link>
             </li>-->
-            <li class="nav-item" v-show="userStore.user">
+            <li class="nav-item" v-show="userStore.user?.type != 'C'">
               <router-link class="nav-link" :class="{ active: $route.name === 'Orders' }" :to="{ name: 'Orders' }"
                 @click="clickMenuOption">
                 <i class="bi bi-receipt"></i>
@@ -160,12 +160,8 @@ const clickMenuOption = () => {
           </ul>
 
           <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted"
-            v-if="userStore.user">
+            v-if="userStore.user?.type == 'C'">
             <span>My Orders</span>
-            <router-link class="link-secondary" :to="{ name: 'NewOrder' }" aria-label="Add a new order"
-              @click="clickMenuOption">
-              <i class="bi bi-xs bi-plus-circle"></i>
-            </router-link>
           </h6>
           <ul class="nav flex-column mb-2">
             <li class="nav-item" v-for="order in ordersStore.myInProgressOrders" :key="order.id">

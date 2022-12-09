@@ -31,7 +31,15 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
-  showTotalProducts: {
+  showAddButton: {
+    type: Boolean,
+    default: true,
+  },
+  showEditButton: {
+    type: Boolean,
+    default: true,
+  },
+  showDeleteButton: {
     type: Boolean,
     default: true,
   }
@@ -41,7 +49,11 @@ const photoFullUrl = (product) => {
   return product.photo_url ? serverBaseUrl + "/storage/products/" + product.photo_url : avatarNoneUrl
 }
 
-const emit = defineEmits(['edit', 'delete'])
+const emit = defineEmits(['add', 'edit', 'delete'])
+
+const addClick = (product) => {
+  emit('add', product)
+}
 
 const editClick = (product) => {
   emit('edit', product)
@@ -50,7 +62,6 @@ const editClick = (product) => {
 const deleteClick = (product) => {
   emit('delete', product)
 }
-
 </script>
 
 <template>
@@ -60,9 +71,9 @@ const deleteClick = (product) => {
         <th v-if="showId" class="align-middle">#</th>
         <th v-if="showPhoto" class="align-middle">Photo</th>
         <th class="align-middle">Name</th>
-        <th v-if="showPrice" class="align-middle">Price</th>
         <th v-if="showDescription" class="align-middle">Description</th>
-        <th v-if="userStore.user?.type == 'EM'"></th>
+        <th v-if="showPrice" class="align-middle">Price</th>
+        <th v-if="(userStore.user?.type == 'C' || !userStore.user || userStore.user?.type == 'EM')"></th>
       </tr>
     </thead>
     <tbody>
@@ -72,15 +83,19 @@ const deleteClick = (product) => {
           <img :src="photoFullUrl(product)" class="rounded-circle img_photo" />
         </td>
         <td class="align-middle">{{ product.name }}</td>
-        <td class="align-middle">{{ product.price }} €</td>
         <td v-if="showDescription" class="align-middle">{{ product.description }}</td>
-        <td class="text-end align-middle" v-if="userStore.user?.type == 'EM'">
+        <td class="align-middle">{{ product.price }} €</td>
+        <td class="text-end align-middle">
           <div class="d-flex justify-content-end">
-            <button class="btn btn-xs btn-primary text-light" @click="editClick(user)">
+            <button v-if="userStore.user?.type == 'C' || !userStore.user" class="btn btn-xs btn-primary text-light"
+              @click="addClick(product)">+
+            </button>
+            <button v-if="userStore.user?.type == 'EM'" class="btn btn-xs btn-primary text-light"
+              @click="editClick(product)">
               <i class="bi bi-xs bi-pencil-fill"></i>
             </button>
-            <button class="btn btn-xs btn-danger text-light" @click="deleteClick(user)"><i
-                class="bi bi-xs bi-trash3-fill"></i>
+            <button v-if="userStore.user?.type == 'EM'" class="btn btn-xs btn-danger text-light"
+              @click="deleteClick(product)"><i class="bi bi-xs bi-trash3-fill"></i>
             </button>
           </div>
         </td>

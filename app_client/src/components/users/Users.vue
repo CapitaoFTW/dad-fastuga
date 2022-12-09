@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUsersStore } from '../../stores/users.js';
+
 import UserTable from "./UserTable.vue"
 
 const router = useRouter()
@@ -9,7 +10,7 @@ const toast = inject("toast")
 
 const usersStore = useUsersStore()
 const userToDelete = ref(null)
-const filterByType = ref('C')
+const filterByType = ref('')
 const deleteConfirmationDialog = ref(null)
 
 const loadUsers = () => {
@@ -87,7 +88,7 @@ onMounted(() => {
     <div class="mx-2">
       <h3 class="mt-4">Users</h3>
     </div>
-    <div class="mx-2 total-filtro">
+    <div class="mx-2 total-filter">
       <h5 class="mt-4">Total: {{ totalUsers }}</h5>
     </div>
   </div>
@@ -96,7 +97,7 @@ onMounted(() => {
     <div class="mx-2 mt-2 flex-grow-1 filter-div">
       <label for="selectType" class="form-label">Filter by Type:</label>
       <select class="form-select" id="selectType" v-model="filterByType">
-        <option :value="null" disabled>Choose an option</option>
+        <option value="">Any</option>
         <option value="C">Customer</option>
         <option value="ED">Employee Delivery</option>
         <option value="EC">Employee Chef</option>
@@ -117,7 +118,7 @@ onMounted(() => {
   min-width: 12rem;
 }
 
-.total-filtro {
+.total-filter {
   margin-top: 0.35rem;
 }
 

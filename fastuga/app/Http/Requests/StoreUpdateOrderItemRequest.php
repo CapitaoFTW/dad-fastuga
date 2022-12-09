@@ -4,9 +4,8 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use App\Models\User;
 
-class StoreUserRequest extends FormRequest
+class StoreUpdateOrderItemRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,11 +25,8 @@ class StoreUserRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'type' => 'required|in:ED,EC,EM',
-            'photo' => 'base64image',
-            'password' => 'required|min:3',
+            'product_id' => 'required',
+            'price' => 'nullable',
         ];
     }
 }

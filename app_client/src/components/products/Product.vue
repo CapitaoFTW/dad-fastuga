@@ -3,12 +3,19 @@ import { ref, watch, computed, inject } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useProductsStore } from "../../stores/products.js"
 
-import ProductDetail from "../products/ProductDetail.vue"
+import ProductDetail from "./ProductDetail.vue"
 
 const router = useRouter()
 const axios = inject('axios')
 const toast = inject('toast')
 const productsStore = useProductsStore()
+
+const props = defineProps({
+  id: {
+    type: Number,
+    default: null
+  }
+})
 
 const newProduct = () => {
   return {
@@ -16,7 +23,7 @@ const newProduct = () => {
     name: '',
     type: '',
     photo_url: null,
-    price: 0,
+    price: '',
     description: '',
   }
 }
@@ -42,7 +49,6 @@ const loadProduct = (id) => {
       })
   }
 }
-
 
 const save = () => {
   errors.value = null
@@ -116,13 +122,6 @@ onBeforeRouteLeave((to, from, next) => {
 
   } else {
     next()
-  }
-})
-
-const props = defineProps({
-  id: {
-    type: Number,
-    default: null
   }
 })
 

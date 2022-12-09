@@ -94,7 +94,7 @@ onMounted(() => {
     <div class="mx-2 mt-2 flex-grow-1 filter-div">
       <label for="selectStatus" class="form-label">Filter by Status:</label>
       <select class="form-select" id="selectStatus" v-model="filterByStatus">
-        <option :value="null" disabled>Choose an option</option>
+        <option :value="null">Any</option>
         <option value="P">Pending</option>
         <option value="R">Ready</option>
         <option value="C">Cancelled</option>

@@ -12,6 +12,7 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Http\Requests\UpdateBlockUserRequest;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -22,7 +23,28 @@ class UserController extends Controller
 
     public function store(StoreUserRequest $request)
     {
-        $newUser = User::create($request->validated());
+        $validated = $request->validated();
+        $validated['password'] = bcrypt($validated['password']);
+        $newUser = User::create($validated);
+
+        if (array_key_exists('photo', $validated)) {
+            $image_64 = $validated['photo'];
+            $extension = explode('/', explode(':', substr($image_64, 0, strpos($image_64, ';')))[1])[1];
+
+            if ($extension == 'jpeg')
+                $extension = 'jpg';
+
+            $replace = substr($image_64, 0, strpos($image_64, ',') + 1);
+            $image = str_replace($replace, '', $image_64);
+            $image = str_replace(' ', '+', $image);
+            $imageName = Str::random(10) . '.' . $extension;
+
+            Storage::put('public/fotos/' . $imageName, base64_decode($image));
+
+            $newUser->photo_url = $imageName;
+            $newUser->save();
+        }
+
         return new UserResource($newUser);
     }
 
@@ -38,17 +60,32 @@ class UserController extends Controller
     {
         $validated = $request->validated();
 
-        if ($request->hasFile('photo_url')) {
-            Storage::delete('storage/fotos/' . $user->photo_url);
-            $path = $request->photo_url->store('storage/fotos');
-            $validated['photo_url'] = basename($path);
-        }
-
         $user->update($validated);
 
+        if (array_key_exists('photo', $validated)) {
+            Storage::delete('storage/fotos/' . $user->photo_url);
+            $image_64 = $validated['photo'];
+            $extension = explode('/', explode(':', substr($image_64, 0, strpos($image_64, ';')))[1])[1];
+
+            if ($extension == 'jpeg')
+                $extension = 'jpg';
+
+            $replace = substr($image_64, 0, strpos($image_64, ',') + 1);
+            $image = str_replace($replace, '', $image_64);
+            $image = str_replace(' ', '+', $image);
+            $imageName = Str::random(10) . '.' . $extension;
+
+            Storage::put('public/fotos/' . $imageName, base64_decode($image));
+
+            $user->photo_url = $imageName;
+            $user->save();
+        }
+
         if ($user->isCustomer()) {
-            $user->customer()->update($validated['customer']);
-            UserResource::$format = 'withCustomer';
+            if (array_key_exists('customer', $validated)) {
+                Customer::where('user_id', $user->id)->update($validated['customer']);
+                UserResource::$format = 'withCustomer';
+            }
         }
 
         return new UserResource($user);
@@ -100,10 +137,8 @@ class UserController extends Controller
     {
         if ($user->isCustomer()) {
             Customer::where('user_id', $user->id)->delete();
-
             UserResource::$format = 'withCustomer';
         }
-
 
         $user->delete();
         return new UserResource($user);

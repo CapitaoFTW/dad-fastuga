@@ -4,10 +4,9 @@ import { useRouter } from 'vue-router'
 import { useProductsStore } from "../../stores/products.js"
 import { useUserStore } from "../../stores/user.js"
 
-import MenuTable from "./MenuTable.vue"
+import ProductTable from "./ProductTable.vue"
 
 const router = useRouter()
-const axios = inject("axios")
 const toast = inject("toast")
 
 const userStore = useUserStore()
@@ -25,6 +24,10 @@ const loadProducts = () => {
 
 const addProduct = () => {
   router.push({ name: 'NewProduct' })
+}
+
+const addProductToOrder = () => {
+
 }
 
 const editProduct = (product) => {
@@ -47,17 +50,9 @@ const clickToDeleteProduct = (product) => {
   deleteConfirmationDialog.value.show()
 }
 
-
-
 const filteredProducts = computed(() => {
   return productsStore.getProductsByFilter(filterByType.value)
 })
-
-
-
-
-
-
 
 const totalProducts = computed(() => {
   return productsStore.getProductsByFilterTotal(filterByType.value)
@@ -84,19 +79,29 @@ onMounted(() => {
     <div class="mx-2">
       <h3 class="mt-4">Menu</h3>
     </div>
-    <div class="mx-2 total-filtro">
+    <div class="mx-2 total-filter">
       <h5 class="mt-4">Total: {{ totalProducts }}</h5>
     </div>
   </div>
   <hr>
   <div class="mb-3 d-flex justify-content-start flex-wrap">
-    <div class="mx-2">
-      <button v-if="userStore.user?.type == 'EM'" type="button" class="btn btn-success px-4 btn-addproduct" @click="addProduct"><i
-          class="bi bi-xs bi-file-earmark-plus"></i>&nbsp; Add Product</button>
+    <div class="mx-2 mt-2 flex-grow-1 filter-div">
+      <label for="selectType" class="form-label">Filter by Type:</label>
+      <select class="form-select" id="selectType" v-model="filterByType">
+        <option value="">Any</option>
+        <option value="hot dish">Hot Dishes</option>
+        <option value="cold dish">Cold Dishes</option>
+        <option value="drink">Drinks</option>
+        <option value="dessert">Desserts</option>
+      </select>
+    </div>
+    <div class="mx-2 mt-2">
+      <button v-if="userStore.user?.type == 'EM'" type="button" class="btn btn-success px-4 btn-addproduct"
+        @click="addProduct"><i class="bi bi-xs bi-plus-circle"></i>&nbsp; Add Product</button>
     </div>
   </div>
-  <menu-table :products="filteredProducts" :showId="false" @edit="editProduct"
-    @delete="clickToDeleteProduct"></menu-table>
+  <product-table :products="filteredProducts" :showId="false" @add="addProductToOrder" @edit="editProduct"
+    @delete="clickToDeleteProduct"></product-table>
 </template>
 
 <style scoped>
@@ -104,8 +109,11 @@ onMounted(() => {
   min-width: 12rem;
 }
 
-.total-filtro {
-  margin-top: 0.35rem;
+.btn-addproduct {
+  margin-top: 1.85rem;
 }
 
+.total-filter {
+  margin-top: 0.35rem;
+}
 </style>

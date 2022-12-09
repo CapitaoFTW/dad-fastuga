@@ -54,44 +54,6 @@ const cancel = () => {
   <form class="row g-3 needs-validation" novalidate @submit.prevent="save">
     <h3 class="mt-5 mb-3">{{ orderTitle }}</h3>
     <hr>
-
-    <div class="mb-3">
-      <label for="inputTicket" class="form-label">Ticket</label>
-      <input type="text" class="form-control" id="inputTicket" v-model="editingOrder.ticket_number" disabled>
-      <field-error-message :errors="errors" fieldName="ticekt_number"></field-error-message>
-    </div>
-
-    <div class="d-flex flex-wrap justify-content-between">
-      <div class="mb-3 me-3 flex-grow-1">
-        <label for="inputCustomer" class="form-label">Customer</label>
-        <select class="form-select pe-2" id="inputCustomer" v-model="editingOrder.customer_id">
-          <option :value="null">-- No Customer --</option>
-          <option v-for="user in users" :key="user.id" :value="user.id">{{ user.name }}</option>
-        </select>
-        <field-error-message :errors="errors" fieldName="customer_id"></field-error-message>
-      </div>
-
-      <div class="mb-3 ms-xs-3 flex-grow-1">
-        <label for="inputOrder" class="form-label">Status</label>
-        <select class="form-select" id="inputOrder" v-model="editingOrder.status">
-          <option :value="null">Choose an option</option>
-          <option value="P">Pending</option>
-          <option value="R">Ready</option>
-          <option value="C">Cancelled</option>
-          <option value="D">Delivered</option>
-        </select>
-        <field-error-message :errors="errors" fieldName="status"></field-error-message>
-      </div>
-    </div>
-
-    <div class="d-flex flex-wrap justify-content-between">
-      <div class="mb-3 me-3 flex-grow-1">
-        <label for="inputDate" class="form-label">Date</label>
-        <input type="date" class="form-control" id="inputDate" placeholder="Date" v-model="editingOrder.date">
-        <field-error-message :errors="errors" fieldName="date"></field-error-message>
-      </div>
-    </div>
-
     <div class="d-flex flex-wrap justify-content-between">
       <div class="row mb-3 bill_information">
         <label for="inputTotalPrice" class="col-sm-3 col-form-label">Total Price</label>
