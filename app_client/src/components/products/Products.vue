@@ -26,8 +26,23 @@ const addProduct = () => {
   router.push({ name: 'NewProduct' })
 }
 
-const addProductToOrder = () => {
+const addProductToOrder = (product) => {
+  let order = sessionStorage.getItem('order') ?? {}
+  let qtdTotal = sessionStorage.getItem('qtdTotal') ?? 0
+  
+  let qtd = (order[product.id]['qtd'] ?? 0) + 1
+  ++qtdTotal
+  sessionStorage.setItem('qtdTotal', JSON.stringify(qtdTotal))
+  
+  order[product.id] = {
+    'id' : product.id,
+    'qtd' : qtd,
+    'name' : product.name,
+    'preco' : product.preco,
+    'subtotal' : product.preco * qtd,
+  }
 
+  sessionStorage.setItem('order', JSON.stringify(order))
 }
 
 const editProduct = (product) => {

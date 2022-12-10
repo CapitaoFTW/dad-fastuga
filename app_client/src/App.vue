@@ -166,6 +166,13 @@ const clickMenuOption = () => {
           <ul class="nav flex-column mb-2">
             <li class="nav-item" v-for="order in ordersStore.myInProgressOrders" :key="order.id">
               <router-link class="nav-link w-100 me-3"
+                :class="{ active: $route.name == 'ComposeOrder' }"
+                :to="{ name: 'ComposeOrder' }" @click="clickMenuOption">
+                <i class="bi bi-file-ruled"></i> 
+              </router-link>
+            </li>
+            <li class="nav-item" v-for="order in ordersStore.myInProgressOrders" :key="order.id">
+              <router-link class="nav-link w-100 me-3"
                 :class="{ active: $route.name == 'CustomerOrders' && $route.params.id == order.id, }"
                 :to="{ name: 'CustomerOrders', params: { id: order.id } }" @click="clickMenuOption">
                 <i class="bi bi-file-ruled"></i> {{ order.name }}
