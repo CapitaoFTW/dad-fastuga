@@ -20,7 +20,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['save', 'cancel'])
+const emit = defineEmits(['save', 'cancel', 'complete'])
 
 const editingOrder = ref(props.order)
 
@@ -48,6 +48,9 @@ const cancel = () => {
   emit('cancel', editingOrder.value)
 }
 
+const complete = (user) => {
+  emit('complete', user)
+}
 </script>
 
 <template>
@@ -128,6 +131,7 @@ const cancel = () => {
     </div>
 
     <div class="mb-3 d-flex justify-content-end">
+      <button type="button" class="btn btn-success px-5" @click="complete">Complete</button>
       <button type="button" class="btn btn-primary px-5" @click="save">Save</button>
       <button type="button" class="btn btn-light px-5" @click="cancel">Cancel</button>
     </div>

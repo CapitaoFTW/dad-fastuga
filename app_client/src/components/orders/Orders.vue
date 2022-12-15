@@ -55,6 +55,22 @@ const clickToDeleteOrder = (order) => {
   orderToDelete.value = order
   deleteConfirmationDialog.value.show()
 }
+const completeOrder = (order, user) => {
+  if (order.status == 'P' ) {
+    order.status = 'R'
+  } else {
+    order.status = 'P'
+  }
+  axios.patch("orders/" + order.id + "/" + user.id + "/completed")
+    .then((response) => {
+      toast.success('Order #' + order.ticket_number + ' was completed' )
+      loadOrders()
+    })
+
+    .catch((error) => {
+      console.log(error)
+    })
+}
 
 const filteredOrders = computed(() => {
   return ordersStore.getOrdersByFilter(filterByCustomerId.value, filterByStatus.value)

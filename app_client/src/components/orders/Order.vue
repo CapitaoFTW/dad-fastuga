@@ -122,6 +122,25 @@ onBeforeRouteLeave((to, from, next) => {
     next()
   }
 })
+const completeOrder = (user) => {
+  if (order.value.status == 'P') {
+    order.value.status = 'R'
+  
+  } else {
+    order.value.status = 'P'
+  }
+
+  axios.patch("orders/" + order.value.id + "/" + user.id + "/completed")
+    .then((response) => {
+      toast.success('Order #' + order.value.ticket_number + ' was completed ')
+      loadOrder(order.value.id)
+      userStore.loadUser
+    })
+
+    .catch((error) => {
+      console.log(error)
+    })
+}
 
 const props = defineProps({
   id: {

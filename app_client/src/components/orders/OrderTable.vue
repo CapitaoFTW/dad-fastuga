@@ -1,5 +1,8 @@
 <script setup>
 import { computed } from "vue"
+import { useUserStore } from "../../stores/user.js"
+
+const userStore = useUserStore()
 
 const props = defineProps({
   orders: {
@@ -40,7 +43,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['edit', 'delete'])
+const emit = defineEmits(['edit', 'delete', 'complete'])
 
 const editClick = (order) => {
   emit('edit', order)
@@ -53,6 +56,10 @@ const deleteClick = (order) => {
 const cancelledOrDelivered = computed(() => {
   return props.orders.filter(order => order.status == 'C' || order.status == 'D')
 })
+
+const completedClick = (order,user) => {
+  emit('complete', order,user)
+}
 
 </script>
 
@@ -98,7 +105,9 @@ const cancelledOrDelivered = computed(() => {
             <button class="btn btn-xs btn-primary text-light" @click="editClick(order)" v-if="showEditButton">
               <i class="bi bi-xs bi-pencil-fill"></i>
             </button>
-
+            <button v-if="userStore.user?.type == 'EC'" class="btn btn-success text-light" @click="completedClick(order, userStore.user)">
+              <i class="bi bi-check2"></i>
+            </button>
             <button class="btn btn-xs btn-danger" @click="deleteClick(order)" v-if="showDeleteButton"><i
                 class="bi bi-xs bi-trash3-fill"></i>
             </button>
