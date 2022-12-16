@@ -53,5 +53,6 @@ Route::middleware('auth:api')->group(function () {
     Route::DELETE('orders/{order}', [OrderController::class, 'destroy']);
     Route::PUT('orders/{order}', [OrderController::class, 'update']);
     Route::GET('users/{user}/orders', [OrderController::class, 'getOrdersOfUser']);
+    Route::PATCH('orders/{order}/completed', [OrderController::class, 'update_completed']);
     //Route::get('customers/{customer}/orders/forpickup', [OrderController::class, 'getOrdersOfCustomerForPickup']);
 });

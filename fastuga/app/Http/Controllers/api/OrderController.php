@@ -53,6 +53,14 @@ class OrderController extends Controller
         return new OrderResource($order);
     }
 
+    public function update_completed(Order $order)
+    {
+        $order->status = 'R';
+        $order->save();
+
+        return new OrderResource($order);
+    }
+
     public function destroy(Order $order)
     {
         OrderItem::where('order_id', $order->id)->delete();

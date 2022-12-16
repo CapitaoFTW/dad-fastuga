@@ -1,8 +1,12 @@
 <script setup>
-import { computed } from "vue"
+import { ref, computed, onMounted, inject } from 'vue'
+import { useRouter } from 'vue-router'
 import { useUserStore } from "../../stores/user.js"
 
 const userStore = useUserStore()
+const router = useRouter()
+const axios = inject("axios")
+const toast = inject("toast")
 
 const props = defineProps({
   orders: {
@@ -57,8 +61,16 @@ const cancelledOrDelivered = computed(() => {
   return props.orders.filter(order => order.status == 'C' || order.status == 'D')
 })
 
-const completedClick = (order,user) => {
-  emit('complete', order,user)
+const completedClick = (order) => {
+  axios.patch("orders/" + order.id + "/completed")
+    .then((response) => {
+      toast.success('Order #' + order.ticket_number + ' was completed' )
+      loadOrders()
+    })
+
+    .catch((error) => {
+      console.log(error)
+    })
 }
 
 </script>
@@ -105,7 +117,7 @@ const completedClick = (order,user) => {
             <button class="btn btn-xs btn-primary text-light" @click="editClick(order)" v-if="showEditButton">
               <i class="bi bi-xs bi-pencil-fill"></i>
             </button>
-            <button v-if="userStore.user?.type == 'EC'" class="btn btn-success text-light" @click="completedClick(order, userStore.user)">
+            <button v-if="userStore.user?.type == 'EC' && order.status == 'P'" class="btn btn-success text-light" @click="completedClick(order)">
               <i class="bi bi-check2"></i>
             </button>
             <button class="btn btn-xs btn-danger" @click="deleteClick(order)" v-if="showDeleteButton"><i

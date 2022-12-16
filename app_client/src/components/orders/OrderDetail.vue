@@ -1,5 +1,7 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
+import { useUserStore } from "../../stores/user.js"
+const userStore = useUserStore()
 
 const props = defineProps({
   order: {
@@ -48,9 +50,10 @@ const cancel = () => {
   emit('cancel', editingOrder.value)
 }
 
-const complete = (user) => {
-  emit('complete', user)
+const complete = () => {
+  emit('complete', editingOrder.value)
 }
+
 </script>
 
 <template>
@@ -107,7 +110,7 @@ const complete = (user) => {
       <div class="row mb-3 bill_information">
         <label for="inputPaymentReference" class="col-sm-3 col-form-label">Reference</label>
         <div class="col-sm-9">
-          <input type="number" class="form-control" id="inputPaymentReference" v-model="editingOrder.payment_reference">
+          <input type="string" class="form-control" id="inputPaymentReference" v-model="editingOrder.payment_reference">
           <field-error-message :errors="errors" fieldName="payment_reference"></field-error-message>
         </div>
       </div>
@@ -125,13 +128,15 @@ const complete = (user) => {
     <div class="d-flex flex-wrap justify-content-between">
       <div class="mb-3 me-3 flex-grow-1">
         <label for="inputTotalProducts" class="form-label">Total Products</label>
-        <input type="date" class="form-control" id="inputTotalProducts" placeholder="Total Products" v-model="editingOrder.total_products">
+        <input type="number" class="form-control" id="inputTotalProducts" placeholder="Total Products" v-model="editingOrder.total_products">
         <field-error-message :errors="errors" fieldName="total_products"></field-error-message>
       </div>
     </div>
 
     <div class="mb-3 d-flex justify-content-end">
-      <button type="button" class="btn btn-success px-5" @click="complete">Complete</button>
+      <button v-if="userStore.user?.type == 'EC' && order.status == 'P'" class="btn btn-success px-5" @click="complete">
+        Complete
+      </button>
       <button type="button" class="btn btn-primary px-5" @click="save">Save</button>
       <button type="button" class="btn btn-light px-5" @click="cancel">Cancel</button>
     </div>

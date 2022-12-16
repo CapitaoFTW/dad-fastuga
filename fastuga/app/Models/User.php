@@ -49,6 +49,10 @@ class User extends Authenticatable
         return $this->type == 'EM';
     }
 
+    public function isChef() {
+        return $this->type == 'EC';
+    }
+
     public function isEmployee() {
         return $this->type == 'EC' || $this->type == 'ED' || $this->type == 'EM';
     }
