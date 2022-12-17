@@ -1,13 +1,13 @@
 <script setup>
 import { useRouter, RouterLink, RouterView } from "vue-router"
 import { ref, inject } from "vue"
-import { useUserStore } from "./stores/user.js"
-import { useOrdersStore } from "./stores/orders.js"
+import { useUserStore } from "./stores/user"
+import { useOrderStore } from "./stores/order"
 
 const router = useRouter()
 const toast = inject("toast")
 const userStore = useUserStore()
-const ordersStore = useOrdersStore()
+const orderStore = useOrderStore()
 
 const buttonSidebarExpand = ref(null)
 
@@ -47,6 +47,11 @@ const clickMenuOption = () => {
 
       <div class="collapse navbar-collapse justify-content-end">
         <ul class="navbar-nav">
+          <li class="nav-item" v-if="orderStore.order">
+            <router-link class="nav-link" :class="{ active: $route.name == 'ComposeOrder' }"
+              :to="{ name: 'ComposeOrder' }" @click="clickMenuOption"><i class="bi bi-cart"></i>
+            </router-link>
+          </li>
           <li class="nav-item" v-show="!userStore.user">
             <router-link class="nav-link" :class="{ active: $route.name === 'Register' }" :to="{ name: 'Register' }"
               @click="clickMenuOption">
@@ -64,10 +69,12 @@ const clickMenuOption = () => {
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
               data-bs-toggle="dropdown" aria-expanded="false">
-              <img :src="(userStore.userPhotoUrl ?? '@/assets/avatar-none.png')" class="rounded-circle z-depth-0 avatar-img" alt="avatar image" />
+              <img :src="(userStore.userPhotoUrl ?? '@/assets/avatar-none.png')"
+                class="rounded-circle z-depth-0 avatar-img" alt="avatar image" />
               <span class="avatar-text">{{ userStore.user?.name ?? "Anonymous" }}</span>
             </a>
-            <ul v-show="userStore.user" class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
+            <ul v-show="userStore.user" class="dropdown-menu dropdown-menu-dark dropdown-menu-end"
+              aria-labelledby="navbarDropdownMenuLink">
               <li>
                 <router-link class="dropdown-item"
                   :class="{ active: $route.name == 'User' && $route.params.id == userStore.userId }"
@@ -136,7 +143,7 @@ const clickMenuOption = () => {
                 <i class="bi bi-xs bi-plus-circle"></i>
               </router-link>
             </li>-->
-            <li class="nav-item" v-show="userStore.user?.type != 'C'">
+            <li class="nav-item" v-show="userStore.user && userStore.user?.type != 'C'">
               <router-link class="nav-link" :class="{ active: $route.name === 'Orders' }" :to="{ name: 'Orders' }"
                 @click="clickMenuOption">
                 <i class="bi bi-receipt"></i>
@@ -163,14 +170,7 @@ const clickMenuOption = () => {
             v-if="userStore.user?.type == 'C'">
             <span>My Orders</span>
           </h6>
-          <ul class="nav flex-column mb-2">
-            <li class="nav-item" v-for="order in ordersStore.myInProgressOrders" :key="order.id">
-              <router-link class="nav-link w-100 me-3"
-                :class="{ active: $route.name == 'ComposeOrder' }"
-                :to="{ name: 'ComposeOrder' }" @click="clickMenuOption">
-                <i class="bi bi-file-ruled"></i> 
-              </router-link>
-            </li>
+          <!--<ul class="nav flex-column mb-2">
             <li class="nav-item" v-for="order in ordersStore.myInProgressOrders" :key="order.id">
               <router-link class="nav-link w-100 me-3"
                 :class="{ active: $route.name == 'CustomerOrders' && $route.params.id == order.id, }"
@@ -178,7 +178,7 @@ const clickMenuOption = () => {
                 <i class="bi bi-file-ruled"></i> {{ order.name }}
               </router-link>
             </li>
-          </ul>
+          </ul>-->
 
           <div class="d-block d-md-none">
             <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">

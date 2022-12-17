@@ -69,7 +69,7 @@ const router = createRouter({
       props: { onlyCurrentTasks: true, tasksTitle: 'Current Tasks' }
     },*/
     {
-      path: '/compose',
+      path: '/order',
       name: 'ComposeOrder',
       component: ComposeOrder,
     },
@@ -170,7 +170,7 @@ router.beforeEach((to, from, next) => {
     return
   }
 
-  if (to.name == 'Register' || to.name == 'Login' || to.name == 'Products') {
+  if (to.name == 'ComposeOrder' || to.name == 'Register' || to.name == 'Login' || to.name == 'Products') {
     next()
     return
   }

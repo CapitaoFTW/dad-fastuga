@@ -2,13 +2,15 @@
 import { ref, computed, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProductsStore } from "../../stores/products.js"
-import { useUserStore } from "../../stores/user.js"
+import { useUserStore } from "../../stores/user"
+import { useOrderStore } from "../../stores/order"
 
 import ProductTable from "./ProductTable.vue"
 
 const router = useRouter()
 const toast = inject("toast")
 
+const orderStore = useOrderStore()
 const userStore = useUserStore()
 const productsStore = useProductsStore()
 const productToDelete = ref(null)
@@ -27,22 +29,7 @@ const addProduct = () => {
 }
 
 const addProductToOrder = (product) => {
-  let order = sessionStorage.getItem('order') ?? {}
-  let qtdTotal = sessionStorage.getItem('qtdTotal') ?? 0
-  
-  let qtd = (order[product.id]['qtd'] ?? 0) + 1
-  ++qtdTotal
-  sessionStorage.setItem('qtdTotal', JSON.stringify(qtdTotal))
-  
-  order[product.id] = {
-    'id' : product.id,
-    'qtd' : qtd,
-    'name' : product.name,
-    'preco' : product.preco,
-    'subtotal' : product.preco * qtd,
-  }
-
-  sessionStorage.setItem('order', JSON.stringify(order))
+  orderStore.composeOrder(product)
 }
 
 const editProduct = (product) => {

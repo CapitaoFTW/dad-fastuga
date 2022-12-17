@@ -88,7 +88,7 @@ const deleteClick = (product) => {
         <td class="text-end align-middle">
           <div class="d-flex justify-content-end">
             <button v-if="userStore.user?.type == 'C' || !userStore.user" class="btn btn-xs btn-primary text-light"
-              @click="addClick(product)">+
+              @click="addClick(product)"><i class="bi bi-xs bi-cart-plus-fill"></i>
             </button>
             <button v-if="userStore.user?.type == 'EM'" class="btn btn-xs btn-primary text-light"
               @click="editClick(product)">
