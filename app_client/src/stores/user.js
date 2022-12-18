@@ -1,11 +1,9 @@
 import { ref, computed, inject } from 'vue'
 import { defineStore } from 'pinia'
 import avatarNoneUrl from '@/assets/avatar-none.png'
-//import { useOrdersStore } from "./orders.js"
 
 export const useUserStore = defineStore('user', () => {
 
-    //const ordersStore = useOrdersStore()
     const axios = inject('axios')
     const serverBaseUrl = inject('serverBaseUrl')
 
@@ -21,6 +19,10 @@ export const useUserStore = defineStore('user', () => {
 
     const userId = computed(() => {
         return user.value?.id ?? -1
+    })
+
+    const customerId = computed(() => {
+        return user.value?.customer.id ?? -1
     })
 
     async function loadUser() {
@@ -46,12 +48,10 @@ export const useUserStore = defineStore('user', () => {
             axios.defaults.headers.common.Authorization = "Bearer " + response.data.access_token
             sessionStorage.setItem('token', response.data.access_token)
             await loadUser()
-            //await loadInProgressOrders()
             return false
         }
         catch (error) {
             clearUser()
-            //clearInProgressOrders()
             return error
         }
     }
@@ -62,12 +62,10 @@ export const useUserStore = defineStore('user', () => {
             axios.defaults.headers.common.Authorization = "Bearer " + response.data.access_token
             sessionStorage.setItem('token', response.data.access_token)
             await loadUser()
-            //await ordersStore.loadOrders()
             return false
 
         } catch (error) {
             clearUser()
-            //ordersStore.clearOrders()
             return error
         }
     }
@@ -76,7 +74,6 @@ export const useUserStore = defineStore('user', () => {
         try {
             await axios.post('logout')
             clearUser()
-            //ordersStore.clearOrders()
             return true
 
         } catch (error) {
@@ -100,15 +97,13 @@ export const useUserStore = defineStore('user', () => {
         if (storedToken) {
             axios.defaults.headers.common.Authorization = "Bearer " + storedToken
             await loadUser()
-            //await ordersStore.loadOrders()
             return true
         }
 
         clearUser()
-        //ordersStore.clearOrders()
 
         return false
     }
 
-    return { user, userId, userPhotoUrl, register, login, changePassword, logout, restoreToken }
+    return { user, userId, customerId, userPhotoUrl, register, login, changePassword, logout, restoreToken }
 })

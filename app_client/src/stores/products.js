@@ -11,14 +11,6 @@ export const useProductsStore = defineStore('products', () => {
         return products.value.length
     })
 
-    /*const myInProgressProducts = computed(() => {
-        return products.value.filter(product => product.status == 'P' && product.costumer_id == userStore.userId)
-    })
-
-    const totalMyInProgressProducts = computed(() => {
-        return myInProgressProducts.value.length
-    })*/
-
     function getProductsByFilter(type) {
         return products.value.filter(product => (!type || type == product.type))
     }

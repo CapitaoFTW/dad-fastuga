@@ -91,8 +91,8 @@ onMounted(() => {
       <label for="selectType" class="form-label">Filter by Type:</label>
       <select class="form-select" id="selectType" v-model="filterByType">
         <option value="">Any</option>
-        <option value="hot dish">Hot Dishes</option>
         <option value="cold dish">Cold Dishes</option>
+        <option value="hot dish">Hot Dishes</option>
         <option value="drink">Drinks</option>
         <option value="dessert">Desserts</option>
       </select>

@@ -41,16 +41,32 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  showReadyButton: {
+    type: Boolean,
+    default: true,
+  },
+  showDeliverButton: {
+    type: Boolean,
+    default: true,
+  },
   showDeleteButton: {
     type: Boolean,
     default: true,
   }
 })
 
-const emit = defineEmits(['edit', 'delete', 'complete'])
+const emit = defineEmits(['edit', 'ready', 'deliver', 'delete'])
 
 const editClick = (order) => {
   emit('edit', order)
+}
+
+const readyClick = (order) => {
+  emit('ready', order)
+}
+
+const deliveredClick = (order) => {
+  emit('deliver', order)
 }
 
 const deleteClick = (order) => {
@@ -60,18 +76,6 @@ const deleteClick = (order) => {
 const cancelledOrDelivered = computed(() => {
   return props.orders.filter(order => order.status == 'C' || order.status == 'D')
 })
-
-const completedClick = (order) => {
-  axios.patch("orders/" + order.id + "/completed")
-    .then((response) => {
-      toast.success('Order #' + order.ticket_number + ' was completed' )
-      loadOrders()
-    })
-
-    .catch((error) => {
-      console.log(error)
-    })
-}
 
 </script>
 
@@ -93,7 +97,7 @@ const completedClick = (order) => {
         <th v-if="showBillInformation">Reference</th>
         <th v-for="order in cancelledOrDelivered.splice(0, 1)">Deliverer</th>
         <th v-if="showTotalProducts">Total Products</th>
-        <th v-if="showEditButton || showDeleteButton"></th>
+        <th v-if="showEditButton || showReadyButton || showDeliverButton || showDeleteButton"></th>
       </tr>
     </thead>
     <tbody>
@@ -101,7 +105,7 @@ const completedClick = (order) => {
         <td v-if="showId">{{ order.id }}</td>
         <td>{{ order.ticket_number }}</td>
         <td v-if="showStatus">{{ order.status_name }}</td>
-        <td>{{ order.customer_name }}</td>
+        <td>{{ order.customer_name ?? '-- No Customer --' }}</td>
         <td v-if="showDate">{{ order.date }}</td>
         <td v-if="showBillInformation">{{ order.total_price }} €</td>
         <td v-if="showBillInformation">{{ order.total_paid }} €</td>
@@ -110,17 +114,20 @@ const completedClick = (order) => {
         <td v-if="showBillInformation">{{ order.points_used_to_pay }}</td>
         <td v-if="showBillInformation">{{ order.payment_type }}</td>
         <td v-if="showBillInformation">{{ order.payment_reference }}</td>
-        <td v-if="order.delivered_by">{{ order.deliverer }}</td>
+        <td v-if="order.delivered_by">{{ order.deliverer ?? '-- No Deliverer --' }}</td>
         <td v-if="showTotalProducts">{{ order.total_products }}</td>
-        <td class="text-end" v-if="showEditButton || showDeleteButton">
+        <td class="text-end" v-if="showEditButton || showReadyButton || showDeliverButton || showDeleteButton">
           <div class="d-flex justify-content-end">
-            <button class="btn btn-xs btn-primary text-light" @click="editClick(order)" v-if="showEditButton">
+            <button class="btn btn-xs btn-primary text-light" @click="editClick(order)" v-if="showEditButton && userStore.user.type == 'EM'">
               <i class="bi bi-xs bi-pencil-fill"></i>
             </button>
-            <button v-if="userStore.user?.type == 'EC' && order.status == 'P'" class="btn btn-success text-light" @click="completedClick(order)">
-              <i class="bi bi-check2"></i>
+            <button v-if="userStore.user?.type == 'EC' && order.status == 'P' && showReadyButton" class="btn btn-xs btn-success text-light" @click="readyClick(order)">
+              <i class="bi bi-xs bi-check2"></i>
             </button>
-            <button class="btn btn-xs btn-danger" @click="deleteClick(order)" v-if="showDeleteButton"><i
+            <button v-if="userStore.user?.type == 'ED' && order.status == 'R' && showDeliverButton" class="btn btn-xs btn-success text-light" @click="deliveredClick(order)">
+              <i class="bi bi-xs bi-box-seam-fill"></i>
+            </button>
+            <button class="btn btn-xs btn-danger" @click="deleteClick(order)" v-if="showDeleteButton && userStore.user?.type == 'EM'"><i
                 class="bi bi-xs bi-trash3-fill"></i>
             </button>
           </div>

@@ -102,8 +102,8 @@ const cancel = () => {
         <label for="inputType" class="form-label">Type</label>
         <select class="form-select" :class="{ 'text-secondary' : editingProduct.type == '', '' : editingProduct.type != '' }" id="inputType" v-model="editingProduct.type" required>
           <option value="" disabled class="">Choose a Type</option>
-          <option value="hot dish">Hot Dish</option>
           <option value="cold dish">Cold Dish</option>
+          <option value="hot dish">Hot Dish</option>
           <option value="drink">Drink</option>
           <option value="dessert">Dessert</option>
         </select>

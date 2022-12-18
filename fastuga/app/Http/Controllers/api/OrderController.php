@@ -41,9 +41,48 @@ class OrderController extends Controller
         return new OrderResource($order);
     }
 
-    public function store(StoreUpdateOrderRequest $request)
+    public function store(Request $request)
     {
-        $newOrder = Order::create($request->validated());
+        //$validated = $request->validated();
+
+        $lastOrder = Order::latest('id')->first();
+
+        $newOrder = Order::create([
+            'ticket_number' => $lastOrder->ticket_number == 99 ? 1 : $lastOrder->ticket_number + 1,
+            'status' => 'P',
+            'customer_id' => $request['customer_id'],
+            'total_price' => $request['total_price'],
+            'total_paid' => $request['total_paid'],
+            'total_paid_with_points' => $request['total_paid_with_points'],
+            'points_gained' => $request['points_gained'],
+            'points_used_to_pay' => $request['points_used_to_pay'],
+            'payment_type' => $request['payment_type'],
+            'payment_reference' => $request['payment_reference'],
+            'date' => date("Y-m-d"),
+            'delivered_by' => null,
+        ]);
+
+        $order_local_number = 1;
+
+        for ($i = 0; $i < count($request['order_items']); $i++) {
+            $quantity = 0;
+
+            do {
+                OrderItem::create([
+                    'order_id' => $newOrder->id,
+                    'order_local_number' => $order_local_number++,
+                    'product_id' => $request['order_items'][$i]['product_id'],
+                    'status' => $request['order_items'][$i]['type'] == 'hot dish' ? 'W' : 'R',
+                    'price' => $request['order_items'][$i]['price'],
+                    'preparation_by' => null,
+                    'notes' => null,
+                ]);
+
+                $quantity++;
+
+            } while ($quantity != $request['order_items'][$i]['quantity']);
+        }
+
         return new OrderResource($newOrder);
     }
 
@@ -53,7 +92,7 @@ class OrderController extends Controller
         return new OrderResource($order);
     }
 
-    public function update_completed(Order $order)
+    public function update_ready(Order $order)
     {
         $order->status = 'R';
         $order->save();

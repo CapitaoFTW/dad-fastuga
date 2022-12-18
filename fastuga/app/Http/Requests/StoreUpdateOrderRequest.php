@@ -25,7 +25,7 @@ class StoreUpdateOrderRequest extends FormRequest
     public function rules()
     {
         return [
-            'ticket_number' => 'integer|max:99',
+            /*'ticket_number' => 'integer|max:99',
             'status' => 'in:P,R,D,C',
             'customer_id' => 'exists:customers,id',
             'total_price' => 'numeric|min:0',
@@ -36,7 +36,7 @@ class StoreUpdateOrderRequest extends FormRequest
             'payment_type' => 'nullable|in:VISA,PAYPAL,MBWAY',
             'payment_reference' => 'nullable|string',
             'date' => "date",
-            'order_items' => "array"
+            'order_items' => "array"*/
             //'delivered_by' => [Ru, Rule::exists('users', 'id')->where('type', 'ED')],
         ];
     }

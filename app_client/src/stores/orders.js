@@ -13,19 +13,19 @@ export const useOrdersStore = defineStore('orders', () => {
     })
 
     const myInProgressOrders = computed(() => {
-        return orders.value.filter(order => order.status == 'P' && order.costumer_id == userStore.userId)
+        return orders.value.filter(order => order.status == 'P' && order.costumer_id == userStore.user.customer?.id)
     })
 
     const totalMyInProgressOrders = computed(() => {
         return myInProgressOrders.value.length
     })
 
-    function getOrdersByFilter(customerId, status) {
-        return orders.value.filter(order => (!customerId || customerId == order.customerId) && (!status || status == order.status))
+    function getOrdersByFilter(status) {
+        return orders.value.filter(order => (!status || status == order.status))
     }
 
-    function getOrdersByFilterTotal(customerId, status) {
-        return getOrdersByFilter(customerId, status).length
+    function getOrdersByFilterTotal(status) {
+        return getOrdersByFilter(status).length
     }
 
     function clearOrders() {
@@ -75,5 +75,16 @@ export const useOrdersStore = defineStore('orders', () => {
         return response.data.data
     }
 
-    return { orders, totalOrders, myInProgressOrders, totalMyInProgressOrders, getOrdersByFilter, getOrdersByFilterTotal, loadOrders, clearOrders, insertOrder, updateOrder, deleteOrder }
+    async function readyOrder(order) {
+        const response = await axios.patch("orders/" + order.id + "/ready")
+        return response.data.data
+    }
+
+    async function deliverOrder(order) {
+        const response = await axios.patch("orders/" + order.id + "/delivered")
+        return response.data.data
+    }
+
+
+    return { orders, totalOrders, myInProgressOrders, totalMyInProgressOrders, getOrdersByFilter, getOrdersByFilterTotal, loadOrders, clearOrders, insertOrder, updateOrder, deleteOrder, readyOrder, deliverOrder }
 })

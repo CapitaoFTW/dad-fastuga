@@ -17,7 +17,7 @@ const newOrder = () => {
   return {
     id: null,
     ticket_number: null,
-    customer_id: userStore.userId,
+    customer_id: userStore.customerId,
     points_used_to_pay: null,
     payment_type: null,
     payment_reference: null,

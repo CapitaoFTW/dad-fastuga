@@ -6,79 +6,93 @@ export const useOrderStore = defineStore('order', () => {
     const axios = inject('axios')
     const toast = inject('toast')
 
-    const order = ref(null)
-    const totalProducts = ref(null)
+    const composingOrder = ref(JSON.parse(sessionStorage.getItem('order')) ?? [])
+    const totalProducts = ref(sessionStorage.getItem('totalProducts') ?? 0)
 
     function composeOrder(product) {
-        order.value = JSON.parse(sessionStorage.getItem('order')) ?? {}
-        totalProducts.value = sessionStorage.getItem('totalProducts') ?? 0
+        let order = composingOrder.value
 
-        let qtd = (order.value[product.id] == null ? 0 : order.value[product.id]['qtd']) + 1
-        totalProducts.value++
-        sessionStorage.setItem('totalProducts', totalProducts.value)
+        let isSameProduct = false
+        let quantity = 1
 
-        order.value[product.id] = {
-            'id': product.id,
-            'qtd': qtd,
-            'name': product.name,
-            'price': product.price,
-            'subtotal': (product.price * qtd).toFixed(2),
-        }
-
-        sessionStorage.setItem('order', JSON.stringify(order.value))
-    }
-
-    function updateComposingOrder(product, value) {
-        order.value = JSON.parse(sessionStorage.getItem('order')) ?? {}
-        totalProducts.value = sessionStorage.getItem('totalProducts') ?? 0
-        let qtd = order.value[product.id]['qtd'] + value
-
-        if (value == 1) {
-            toast.success("Added 1 item from the product '" + order.value[product.id]['name'] + "'")
-            totalProducts.value++;
-
-        } else {
-
-            if (qtd <= 0) {
-                toast.info("Product '" + order.value[product.id]['name'] + "' was removed from the order")
-                delete order.value[product.id]
-
-            } else {
-                toast.warning("Removed 1 item from the product '" + order.value[product.id]['name'] + "'")
-                totalProducts.value--;
+        for (let i = 0; i < order.length; i++) {
+            if (order[i].product_id == product.id) {
+                order[i].quantity++
+                order[i].subtotal = (product.price * order[i].quantity).toFixed(2)
+                isSameProduct = true
             }
         }
 
-        if (qtd > 0) {
-            order.value[product.id] = {
-                'id': product.id,
-                'qtd': qtd,
+        totalProducts.value++
+
+        if (!isSameProduct) {
+            let row = {
+                'product_id': product.id,
+                'quantity': quantity,
                 'name': product.name,
                 'price': product.price,
-                'subtotal': (product.price * qtd).toFixed(2),
+                'type': product.type,
+                'subtotal': (product.price * quantity).toFixed(2),
+            }
+
+            order.push(row)
+        }
+
+        composingOrder.value = order
+
+        sessionStorage.setItem('totalProducts', totalProducts.value)
+        sessionStorage.setItem('order', JSON.stringify(composingOrder.value))
+    }
+
+    function updateComposingOrder(row, value) {
+        let order = composingOrder.value
+
+        for (let i = 0; i < order.length; i++) {
+            if (order[i].product_id == row.product_id) {
+
+                if (order[i].quantity > 0) {
+                    order[i].quantity += value
+                    order[i].subtotal = (row.price * order[i].quantity).toFixed(2)
+                }
+
+                if (value == 1) {
+                    toast.success("Added 1 item from the product '" + order[i].name + "'")
+                    totalProducts.value++;
+
+                } else {
+
+                    if (order[i].quantity <= 0 || value == 0) {
+                        toast.info("Product '" + order[i].name + "' was removed from the order")
+
+                        if (value == 0) {
+                            totalProducts.value -= order[i].quantity
+                            totalProducts.value++ // using this to spare an else
+                        }
+
+                        order.splice(i, 1)
+
+                    } else {
+
+                        toast.warning("Removed 1 item from the product '" + order[i].name + "'")
+                    }
+
+                    totalProducts.value--;
+                }
             }
         }
 
-        sessionStorage.setItem('totalProducts', totalProducts.value)
-        sessionStorage.setItem('order', JSON.stringify(order.value))
-    }
+        composingOrder.value = order
 
-    function deleteProductFromComposingOrder(product) {
-        order.value = JSON.parse(sessionStorage.getItem('order')) ?? {}
-        totalProducts.value = sessionStorage.getItem('totalProducts') ?? 0
-        totalProducts.value -= order.value[product.id]['qtd']
-        toast.info("Product " + order.value[product.id]['name'] + " was removed from the order")
-        delete order.value[product.id]
         sessionStorage.setItem('totalProducts', totalProducts.value)
-        sessionStorage.setItem('order', JSON.stringify(order.value))
+        sessionStorage.setItem('order', JSON.stringify(composingOrder.value))
     }
 
     function clearOrder() {
         sessionStorage.removeItem('order')
         sessionStorage.removeItem('totalProducts')
-        order.value = null
-        totalProducts.value = null
+        composingOrder.value = []
+        totalProducts.value = 0
     }
 
-    return { order, totalProducts, clearOrder, composeOrder, updateComposingOrder, deleteProductFromComposingOrder }
+    return { composingOrder, totalProducts, clearOrder, composeOrder, updateComposingOrder }
 })

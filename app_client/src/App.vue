@@ -2,12 +2,14 @@
 import { useRouter, RouterLink, RouterView } from "vue-router"
 import { ref, inject } from "vue"
 import { useUserStore } from "./stores/user"
+import { useOrdersStore } from "./stores/orders"
 import { useOrderStore } from "./stores/order"
 
 const router = useRouter()
 const toast = inject("toast")
 const userStore = useUserStore()
 const orderStore = useOrderStore()
+const ordersStore = useOrdersStore()
 
 const buttonSidebarExpand = ref(null)
 
@@ -47,9 +49,9 @@ const clickMenuOption = () => {
 
       <div class="collapse navbar-collapse justify-content-end">
         <ul class="navbar-nav">
-          <li class="nav-item" v-if="orderStore.order">
+          <li class="nav-item" v-if="orderStore.totalProducts != 0">
             <router-link class="nav-link" :class="{ active: $route.name == 'ComposeOrder' }"
-              :to="{ name: 'ComposeOrder' }" @click="clickMenuOption"><i class="bi bi-cart"></i>
+              :to="{ name: 'ComposeOrder' }" @click="clickMenuOption"><i class="bi bi-cart m-0"></i><span class="rounded-circle align-top badge badge-pill badge-danger"><span class="text-light">{{ orderStore.totalProducts }}</span></span>
             </router-link>
           </li>
           <li class="nav-item" v-show="!userStore.user">
@@ -167,18 +169,18 @@ const clickMenuOption = () => {
           </ul>
 
           <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted"
-            v-if="userStore.user?.type == 'C'">
+            v-if="!userStore.user && ordersStore.totalMyInProgressOrders != 0 || userStore.user?.type == 'C' && ordersStore.totalMyInProgressOrders != 0">
             <span>My Orders</span>
           </h6>
-          <!--<ul class="nav flex-column mb-2">
+          <ul class="nav flex-column mb-2">
             <li class="nav-item" v-for="order in ordersStore.myInProgressOrders" :key="order.id">
               <router-link class="nav-link w-100 me-3"
-                :class="{ active: $route.name == 'CustomerOrders' && $route.params.id == order.id, }"
-                :to="{ name: 'CustomerOrders', params: { id: order.id } }" @click="clickMenuOption">
-                <i class="bi bi-file-ruled"></i> {{ order.name }}
+                :class="{ active: $route.name == 'Order' && $route.params.id == order.id }"
+                :to="{ name: 'Order', params: { id: order.id } }" @click="clickMenuOption">
+                <i class="bi bi-file-receipt"></i> {{ order.name }}
               </router-link>
             </li>
-          </ul>-->
+          </ul>
 
           <div class="d-block d-md-none">
             <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
@@ -246,6 +248,11 @@ const clickMenuOption = () => {
 
 <style>
 @import "./assets/dashboard.css";
+
+span.badge {
+  background-color: #dc3545;
+  padding: 0.2rem;
+}
 
 .avatar-img {
   margin: -1.2rem 0.8rem -2rem 0.8rem;

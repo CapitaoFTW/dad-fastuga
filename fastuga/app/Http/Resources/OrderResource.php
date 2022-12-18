@@ -44,7 +44,7 @@ class OrderResource extends JsonResource
                     "status" => $this->status,
                     "status_name" => $this->statusName,
                     "customer_id" => $this->customer_id,
-                    "customer_name" => $this->customer->name ?? null,
+                    "customer_name" => $this->customer->user->name ?? null,
                     "total_price" => $this->total_price,
                     "total_paid" => $this->total_paid,
                     "total_paid_with_points" => $this->total_paid_with_points,

@@ -10,14 +10,6 @@ export const useUsersStore = defineStore('users', () => {
         return users.value.length
     })
 
-    /*const myInProgressUsers = computed(() => {
-        return users.value.filter(user => user.status == 'P' && user.costumer_id == userStore.userId)
-    })
-
-    const totalMyInProgressUsers = computed(() => {
-        return myInProgressUsers.value.length
-    })*/
-
     function getUsersByFilter(type) {
         return users.value.filter(user => (!type || type == user.type))
     }
@@ -47,9 +39,7 @@ export const useUsersStore = defineStore('users', () => {
         // Note that when an error occours, the exception should be
         // catch by the function that called the insertUser
         const response = await axios.post('users', newUser)
-
         users.value.push(response.data.data)
-
         return response.data.data
     }
 

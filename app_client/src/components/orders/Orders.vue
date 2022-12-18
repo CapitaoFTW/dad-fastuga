@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '../../stores/user'
 import { useOrdersStore } from "../../stores/orders.js"
 import OrderTable from "./OrderTable.vue"
 
@@ -8,11 +9,12 @@ const router = useRouter()
 const axios = inject("axios")
 const toast = inject("toast")
 
+const userStore = useUserStore()
 const ordersStore = useOrdersStore()
 const orderToDelete = ref(null)
 const users = ref([])
 const filterByCustomerId = ref(null)
-const filterByStatus = ref('P')
+const filterByStatus = ref(userStore.user?.type == 'ED' ? 'R' : userStore.user?.type == 'EC' ? 'P' : '')
 const deleteConfirmationDialog = ref(null)
 
 const loadOrders = () => {
@@ -32,12 +34,30 @@ const loadUsers = () => {
     })
 }
 
-const addOrder = () => {
-  router.push({ name: 'NewOrder' })
-}
-
 const editOrder = (order) => {
   router.push({ name: 'Order', params: { id: order.id } })
+}
+
+const readyOrder = (order) => {
+  ordersStore.readyOrder(order)
+    .then((response) => {
+      toast.success('Order #' + order.ticket_number + ' is now ready to be delivered')
+    })
+
+    .catch((error) => {
+      toast.error("It was not possible to ready Order #" + order.ticket_number + "!")
+    })
+}
+
+const deliverOrder = (order) => {
+  ordersStore.deliverOrder(order)
+    .then((response) => {
+      toast.success('Order #' + order.ticket_number + ' was delivered')
+    })
+
+    .catch((error) => {
+      toast.error("It was not possible to deliver Order #" + order.ticket_number + "!")
+    })
 }
 
 const deleteOrderConfirmed = () => {
@@ -56,26 +76,12 @@ const clickToDeleteOrder = (order) => {
   deleteConfirmationDialog.value.show()
 }
 
-const completeOrder = (order) => {
-  order.status ='R'
-
-  axios.patch("orders/" + order.id + "/completed")
-    .then((response) => {
-      toast.success('Order #' + order.ticket_number + ' was completed' )
-      loadOrders()
-    })
-
-    .catch((error) => {
-      console.log(error)
-    })
-}
-
 const filteredOrders = computed(() => {
-  return ordersStore.getOrdersByFilter(filterByCustomerId.value, filterByStatus.value)
+  return ordersStore.getOrdersByFilter(filterByStatus.value)
 })
 
 const totalOrders = computed(() => {
-  return ordersStore.getOrdersByFilterTotal(filterByCustomerId.value, filterByStatus.value)
+  return ordersStore.getOrdersByFilterTotal(filterByStatus.value)
 })
 
 const orderToDeleteDescription = computed(() => {
@@ -108,7 +114,7 @@ onMounted(() => {
     <div class="mx-2 mt-2 flex-grow-1 filter-div">
       <label for="selectStatus" class="form-label">Filter by Status:</label>
       <select class="form-select" id="selectStatus" v-model="filterByStatus">
-        <option :value="null">Any</option>
+        <option value="">Any</option>
         <option value="P">Pending</option>
         <option value="R">Ready</option>
         <option value="C">Cancelled</option>
@@ -122,13 +128,9 @@ onMounted(() => {
         <option v-for="user in users" :key="user.id" :value="user.id">{{ user.name }}</option>
       </select>
     </div>-->
-    <div class="mx-2 mt-2">
-      <button type="button" class="btn btn-success px-4 btn-addorder" @click="addOrder"><i
-          class="bi bi-xs bi-file-earmark-plus"></i>&nbsp; Add Order</button>
-    </div>
   </div>
-  <order-table :orders="filteredOrders" :showId="false" :showDates="true" @edit="editOrder"
-    @delete="clickToDeleteOrder"></order-table>
+  <order-table :orders="filteredOrders" :showId="false" :showDates="true" @edit="editOrder" @ready="readyOrder"
+    @deliver="deliverOrder" @delete="clickToDeleteOrder"></order-table>
 </template>
 
 <style scoped>

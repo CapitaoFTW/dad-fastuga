@@ -123,7 +123,7 @@ class UserController extends Controller
         $user->name = explode(" ", $user->name)[0] . " " . explode(" ", $user->name)[substr_count($user->name, " ")];
 
         if ($user->isCustomer()) {
-            $user->customer = $request['customer'];
+            $user->customer = $request->user()->customer;
             UserResource::$format = 'withCustomer';
         }
 
