@@ -94,5 +94,10 @@ export const useOrderStore = defineStore('order', () => {
         totalProducts.value = 0
     }
 
-    return { composingOrder, totalProducts, clearOrder, composeOrder, updateComposingOrder }
+    async function payOrder(payment) {
+        const response = await axios.post('https://dad-202223-payments-api.vercel.app/api/payments ', payment)
+        return response.data.data
+    }
+
+    return { composingOrder, totalProducts, clearOrder, composeOrder, updateComposingOrder, payOrder }
 })

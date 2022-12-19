@@ -32,12 +32,7 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        return new OrderResource($order);
-    }
-
-    public function showWithProducts(Order $order)
-    {
-        OrderResource::$format = 'withProducts';
+        OrderResource::$format = 'withOrderItems';
         return new OrderResource($order);
     }
 
@@ -79,7 +74,6 @@ class OrderController extends Controller
                 ]);
 
                 $quantity++;
-
             } while ($quantity != $request['order_items'][$i]['quantity']);
         }
 
@@ -100,10 +94,34 @@ class OrderController extends Controller
         return new OrderResource($order);
     }
 
-    public function destroy(Order $order)
+    public function update_delivered(Request $request, Order $order)
     {
-        OrderItem::where('order_id', $order->id)->delete();
-        $order->delete();
+        $order->delivered_by = $request->user()->id;
+        $order->status = 'D';
+        $order->save();
+
+        return new OrderResource($order);
+    }
+
+    public function update_cancelled(Order $order)
+    {
+        if ($order->customer_id) {
+            if ($order->points_gained != 0)
+                $order->customer->points -= $order->points_gained;
+
+            if ($order->points_used_to_pay != 0)
+                $order->customer->points += $order->points_used_to_pay;
+
+            $order->customer->save();
+        }
+
+        $order->status = 'C';
+        $order->total_paid = 0;
+        $order->total_paid_with_points = 0;
+        $order->points_gained = 0;
+        $order->points_used_to_pay = 0;
+        $order->save();
+
         return new OrderResource($order);
     }
 }

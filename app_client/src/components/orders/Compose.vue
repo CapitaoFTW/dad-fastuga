@@ -57,47 +57,66 @@ const destroy = (row) => {
 
 const save = () => {
   errors.value = null
-  let order_items = {}
-  
-  for(let i = 0; i < order.value.length; i++) {
-    order_items[i] = {
-      'name': order.value[i].name,
-      'price': order.value[i].price,
-      'product_id': order.value[i].product_id,
-      'quantity': order.value[i].quantity,
-      'type': order.value[i].type,
-    }
+  let composingOrder = {}
+
+  /*if (!userStore.user) {
+    //router.push({ name: 'PayOrder' })
   }
 
-  ordersStore.insertOrder({
-    'customer_id': userStore.user ? userStore.customerId : null,
-    'total_price': totalPrice.value,
-    'total_paid': totalPrice.value,
-    'total_paid_with_points': 0,
-    'points_gained': userStore.user && totalPrice.value >= 10 ? Math.floor(totalPrice.value / 10) : 0,
-    'points_used_to_pay': 0,
-    'payment_type': userStore.user ? userStore.user.customer.default_payment_type : 'MBWAY',
-    'payment_reference': userStore.user ? userStore.user.customer.default_payment_reference : '910599057',
-    'order_items': order.value,
-  })
+  let payment = {
+    type: userStore.user.customer.default_payment_type.toLowerCase(),
+    reference: userStore.user.customer.default_payment_reference,
+    value: Number(totalPrice.value)
+  }
 
-    .then((insertedOrder) => {
-      toast.success('Order #' + insertedOrder.ticket_number + ' was created successfully.')
-      orderStore.clearOrder()
+  orderStore.payOrder(payment)
+    .then((payment) => {
+      toast.success('Order was paid successfully.')*/
 
-      router.push({ name: 'Products' })
-    })
+      composingOrder = {
+        'customer_id': userStore.user ? userStore.customerId : null,
+        'total_price': totalPrice.value,
+        'total_paid': totalPrice.value,
+        'total_paid_with_points': 0,
+        'points_gained': userStore.user && totalPrice.value >= 10 ? Math.floor(totalPrice.value / 10) : 0,
+        'points_used_to_pay': 0,
+        'payment_type': userStore.user ? userStore.user.customer.default_payment_type : 'MBWAY',
+        'payment_reference': userStore.user ? userStore.user.customer.default_payment_reference : '910599057',
+        'order_items': order.value,
+      }
+
+      ordersStore.insertOrder(composingOrder)
+        .then((insertedOrder) => {
+          toast.success('Order #' + insertedOrder.ticket_number + ' was created successfully.')
+          orderStore.clearOrder()
+
+          router.push({ name: 'Products' })
+        })
+
+        .catch((error) => {
+          if (error.response.status == 422) {
+            toast.error('Order was not created due to validation errors!')
+            errors.value = error.response.data.errors
+
+            console.log(error)
+
+          } else {
+            console.log(error)
+            toast.error('Order was not created due to unknown server error!')
+          }
+        })
+    /*})
 
     .catch((error) => {
       if (error.response.status == 422) {
-        toast.error('Order was not created due to validation errors!')
+        toast.error('Order was not paid due to validation errors!')
         errors.value = error.response.data.errors
-  
+
       } else {
-      console.log(error)
-      toast.error('Order was not created due to unknown server error!')
+        console.log(error)
+        toast.error('Order was not created due to unknown server error!')
       }
-    })
+    })*/
 }
 
 const errors = ref(null)

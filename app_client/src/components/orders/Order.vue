@@ -3,15 +3,26 @@ import { ref, watch, computed, onMounted, inject } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useUserStore } from "../../stores/user.js"
 import { useOrdersStore } from "../../stores/orders.js"
+import { useOrderItemsStore } from "../../stores/order_items.js"
 
 import OrderDetail from "./OrderDetail.vue"
 
 const router = useRouter()
 const axios = inject('axios')
 const toast = inject('toast')
+
 const userStore = useUserStore()
 const ordersStore = useOrdersStore()
+const orderItemsStore = useOrderItemsStore()
+const filterByStatus = ref(!userStore.user || userStore.user?.type == 'C' || userStore.user?.type == 'ED' ? 'R' : '')
+const cancelConfirmationDialog = ref(null)
 
+const props = defineProps({
+  id: {
+    type: Number,
+    default: null
+  }
+})
 
 const newOrder = () => {
   return {
@@ -23,87 +34,17 @@ const newOrder = () => {
     payment_reference: null,
     delivered_by: null,
     total_products: null,
+    order_items: [],
   }
 }
 
 let originalValueStr = ''
 const loadOrder = (id) => {
   originalValueStr = ''
-  errors.value = null
-
-  if (!id || (id < 0)) {
-    order.value = newOrder()
-    originalValueStr = dataAsString()
-
-  } else {
-    axios.get('orders/' + id)
-      .then((response) => {
-        order.value = response.data.data
-        originalValueStr = dataAsString()
-      })
-
-      .catch((error) => {
-        console.log(error)
-      })
-  }
-}
-
-/* Change this function */
-const save = () => {
-  errors.value = null
-
-  if (operation.value == 'insert') {
-    ordersStore.insertOrder(order.value)
-
-      .then((insertedOrder) => {
-        order.value = insertedOrder
-        originalValueStr = dataAsString()
-
-        toast.success('Order #' + order.value.ticket_number + ' was created successfully.')
-        router.back()
-      })
-
-      .catch((error) => {
-        if (error.response.status == 422) {
-          toast.error('Order was not created due to validation errors!')
-          errors.value = error.response.data.errors
-        } else {
-          toast.error('Order was not created due to unknown server error!')
-        }
-      })
-
-  } else {
-    ordersStore.updateOrder(order.value)
-      .then((updatedOrder) => {
-        order.value = updatedOrder
-        originalValueStr = dataAsString()
-
-        toast.success('Order #' + order.value.ticket_number + ' was updated successfully.')
-        router.back()
-      })
-
-      .catch((error) => {
-        if (error.response.status == 422) {
-          toast.error('Order #' + order.value.ticket_number + ' was not updated due to validation errors!')
-          errors.value = error.response.data.errors
-
-        } else {
-          toast.error('Order #' + order.value.ticket_number + ' was not updated due to unknown server error!')
-        }
-      })
-  }
-}
-
-const cancel = () => {
-  originalValueStr = dataAsString()
-  router.back()
-}
-
-const complete = () => {
-  axios.patch("orders/" + order.value.id + "/completed")
+  axios.get('orders/' + id)
     .then((response) => {
-      toast.success('Order #' + order.value.ticket_number + ' was completed' )
-      loadOrders()
+      order.value = response.data.data
+      originalValueStr = dataAsString()
     })
 
     .catch((error) => {
@@ -115,41 +56,9 @@ const dataAsString = () => {
   return JSON.stringify(order.value)
 }
 
-let nextCallBack = null
-const leaveConfirmed = () => {
-  if (nextCallBack) {
-    nextCallBack()
-  }
-}
-
-onBeforeRouteLeave((to, from, next) => {
-  nextCallBack = null
-  let newValueStr = dataAsString()
-
-  if (originalValueStr != newValueStr) {
-    nextCallBack = next
-    confirmationLeaveDialog.value.show()
-
-  } else {
-    next()
-  }
-})
-
-const props = defineProps({
-  id: {
-    type: Number,
-    default: null
-  }
-})
-
 const order = ref(newOrder())
 const users = ref([])
 const errors = ref(null)
-const confirmationLeaveDialog = ref(null)
-
-const operation = computed(() => {
-  return (!props.id || props.id < 0) ? 'insert' : 'update'
-})
 
 watch(
   () => props.id,
@@ -158,27 +67,120 @@ watch(
     loadOrder(newValue)
   },
 
-  { immediate: true, }
+  { immediate: true }
 )
 
-onMounted(() => {
-  users.value = []
-  axios.get('users')
+const back = () => {
+  router.push({ name: 'Orders' })
+}
+
+const prepareItem = (order_item) => {
+  orderItemsStore.prepareOrderItem(order_item)
     .then((response) => {
-      users.value = response.data.data
+      loadOrder(props.id)
+      toast.success('Order Item #' + order_item.order_local_number + ' is now being prepared')
     })
 
     .catch((error) => {
-      console.log(error)
+      toast.error("It was not possible to prepare Order Item #" + order_item.order_local_number + "!")
     })
+}
+
+const readyItem = (order_item) => {
+  orderItemsStore.readyOrderItem(order_item)
+    .then((response) => {
+      loadOrder(props.id)
+      toast.success('Order Item #' + order_item.order_local_number + ' is now ready')
+    })
+
+    .catch((error) => {
+      toast.error("It was not possible to ready Order Item #" + order_item.order_local_number + "!")
+    })
+}
+
+const cancelOrderConfirmed = () => {
+  ordersStore.cancelOrder(order.value)
+    .then((cancelledOrder) => {
+      toast.info("Order #" + order.value.ticket_number + " was successfully cancelled")
+      router.back()
+    })
+
+    .catch(() => {
+      toast.error("It was not possible to cancel Order " + order.value.ticket_number + "!")
+    })
+}
+
+const cancelOrder = () => {
+  cancelConfirmationDialog.value.show()
+}
+
+const filteredOrderItems = computed(() => {
+  return order.value.order_items.filter(order_item => (!filterByStatus.value || filterByStatus.value == order_item.status))
+})
+
+const areAllOrderItemsReady = computed(() => {
+  return order.value.order_items.every(order_item => order_item.status == 'R')
+})
+
+onMounted(() => {
+  users.value = []
+  if (userStore.user?.type == 'EM') {
+    axios.get('users')
+      .then((response) => {
+        users.value = response.data.data
+      })
+
+      .catch((error) => {
+        console.log(error)
+      })
+  }
 })
 </script>
 
 <template>
-  <confirmation-dialog ref="confirmationLeaveDialog" confirmationBtn="Discard changes and leave"
-    msg="Do you really want to leave? You have unsaved changes!" @confirmed="leaveConfirmed">
+  <confirmation-dialog ref="cancelConfirmationDialog" confirmationBtn="Cancel Order"
+    :msg="`Do you really want to cancel this order?`" @confirmed="cancelOrderConfirmed">
   </confirmation-dialog>
 
-  <OrderDetail :operationType="operation" :order="order" :users="users" :errors="errors" @save="save" @cancel="cancel">
-  </OrderDetail>
+  <div class="d-flex justify-content-start">
+    <div class="mx-2">
+      <h3 class="mt-4">Order #{{ order.ticket_number }}</h3>
+    </div>
+  </div>
+  <hr>
+  <div v-if="userStore.user?.type != 'EM' && userStore.user?.type != 'ED' && !areAllOrderItemsReady"
+    class="mb-3 mt-2 d-flex justify-content-between flex-wrap">
+    <div class="mx-2 mt-2 flex-grow-1 filter-div">
+      <label for="selectStatus" class="form-label">Filter by Status:</label>
+      <select class="form-select" id="selectStatus" v-model="filterByStatus">
+        <option value="">Any</option>
+        <option value="W">Waiting</option>
+        <option value="P">Preparing</option>
+        <option value="R">Ready</option>
+      </select>
+    </div>
+    <!--<div class="mx-2 mt-2 flex-grow-1 filter-div" v-if="">
+      <label for="selectCustomer" class="form-label">Filter by customer:</label>
+      <select class="form-select" id="selectOwner" v-model="filterByCustomerId">
+        <option :value="null"></option>
+        <option v-for="user in users" :key="user.id" :value="user.id">{{ user.name }}</option>
+      </select>
+    </div>-->
+  </div>
+  <OrderDetail :order="order" :order_items="filteredOrderItems" :users="users"
+    :showChef="userStore.user && userStore.user?.type != 'C'" :showChefButtons="userStore.user?.type == 'EC'"
+    :showReadyButton="userStore.user?.type == 'ED' && order.status == 'P' && areAllOrderItemsReady"
+    :showCancelButton="userStore.user?.type == 'EM' && order.status != 'C'"
+    :showDeliverer="userStore.user?.type != 'ED' && userStore.user?.type != 'EC' && (order.status == 'D' || order.status == 'C')"
+    @back="back" @prepareItem="prepareItem" @readyItem="readyItem" @cancel="cancelOrder"></OrderDetail>
 </template>
+
+<style scoped>
+.filter-div {
+  min-width: 12rem;
+}
+
+.total-filter {
+  margin-top: 0.35rem;
+}
+</style>

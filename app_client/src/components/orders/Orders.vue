@@ -11,11 +11,9 @@ const toast = inject("toast")
 
 const userStore = useUserStore()
 const ordersStore = useOrdersStore()
-const orderToDelete = ref(null)
-const users = ref([])
-const filterByCustomerId = ref(null)
-const filterByStatus = ref(userStore.user?.type == 'ED' ? 'R' : userStore.user?.type == 'EC' ? 'P' : '')
-const deleteConfirmationDialog = ref(null)
+const orderToCancel = ref(null)
+const filterByStatus = ref(!userStore.user || userStore.user?.type == 'C' ? 'R' : userStore.user?.type != 'EM' ? 'P' : '')
+const cancelConfirmationDialog = ref(null)
 
 const loadOrders = () => {
   ordersStore.loadOrders()
@@ -24,35 +22,15 @@ const loadOrders = () => {
     })
 }
 
-const loadUsers = () => {
-  axios.get('users')
-    .then((response) => {
-      users.value = response.data.data
-    })
-    .catch((error) => {
-      console.log(error)
-    })
-}
-
-const editOrder = (order) => {
+const viewOrder = (order) => {
   router.push({ name: 'Order', params: { id: order.id } })
-}
-
-const readyOrder = (order) => {
-  ordersStore.readyOrder(order)
-    .then((response) => {
-      toast.success('Order #' + order.ticket_number + ' is now ready to be delivered')
-    })
-
-    .catch((error) => {
-      toast.error("It was not possible to ready Order #" + order.ticket_number + "!")
-    })
 }
 
 const deliverOrder = (order) => {
   ordersStore.deliverOrder(order)
     .then((response) => {
-      toast.success('Order #' + order.ticket_number + ' was delivered')
+      loadOrders()
+      toast.success('Order #' + order.ticket_number + ' was successfully delivered')
     })
 
     .catch((error) => {
@@ -60,20 +38,20 @@ const deliverOrder = (order) => {
     })
 }
 
-const deleteOrderConfirmed = () => {
-  ordersStore.deleteOrder(orderToDelete.value)
-    .then((deletedOrder) => {
-      toast.info("Order " + orderToDeleteDescription.value + " was deleted")
+const cancelOrderConfirmed = () => {
+  ordersStore.cancelOrder(orderToCancel.value)
+    .then((cancelledOrder) => {
+      toast.info("Order " + orderToCancelDescription.value + " was successfully cancelled")
     })
 
     .catch(() => {
-      toast.error("It was not possible to delete Order " + orderToDeleteDescription.value + "!")
+      toast.error("It was not possible to cancel Order " + orderToCancelDescription.value + "!")
     })
 }
 
-const clickToDeleteOrder = (order) => {
-  orderToDelete.value = order
-  deleteConfirmationDialog.value.show()
+const cancelOrder = (order) => {
+  orderToCancel.value = order
+  cancelConfirmationDialog.value.show()
 }
 
 const filteredOrders = computed(() => {
@@ -84,12 +62,11 @@ const totalOrders = computed(() => {
   return ordersStore.getOrdersByFilterTotal(filterByStatus.value)
 })
 
-const orderToDeleteDescription = computed(() => {
-  return orderToDelete.value ? `#${orderToDelete.value.id} (${orderToDelete.value.name})` : ""
+const orderToCancelDescription = computed(() => {
+  return orderToCancel.value ? `#${orderToCancel.value.ticket_number}` : ""
 })
 
 onMounted(() => {
-  loadUsers()
   // Calling loadOrders refresh the list of orders from the API
   loadOrders()
 })
@@ -97,28 +74,28 @@ onMounted(() => {
 </script>
 
 <template>
-  <confirmation-dialog ref="deleteConfirmationDialog" confirmationBtn="Delete order"
-    :msg="`Do you really want to delete the order ${orderToDeleteDescription}?`" @confirmed="deleteOrderConfirmed">
+  <confirmation-dialog ref="cancelConfirmationDialog" confirmationBtn="Cancel Order"
+    :msg="`Do you really want to cancel the Order ${orderToCancelDescription}?`" @confirmed="cancelOrderConfirmed">
   </confirmation-dialog>
 
   <div class="d-flex justify-content-between">
     <div class="mx-2">
       <h3 class="mt-4">Orders</h3>
     </div>
-    <div class="mx-2 total-filtro">
+    <div class="mx-2 total-filter">
       <h5 class="mt-4">Total: {{ totalOrders }}</h5>
     </div>
   </div>
   <hr>
-  <div class="mb-3 d-flex justify-content-between flex-wrap">
+  <div class="mb-3 d-flex justify-content-between flex-wrap" v-if="userStore.user && userStore.user?.type != 'C'">
     <div class="mx-2 mt-2 flex-grow-1 filter-div">
       <label for="selectStatus" class="form-label">Filter by Status:</label>
       <select class="form-select" id="selectStatus" v-model="filterByStatus">
-        <option value="">Any</option>
+        <option v-if="userStore.user?.type == 'EM'" value="">Any</option>
         <option value="P">Pending</option>
         <option value="R">Ready</option>
-        <option value="C">Cancelled</option>
-        <option value="D">Delivered</option>
+        <option v-if="userStore.user?.type == 'EM'" value="C">Cancelled</option>
+        <option v-if="userStore.user?.type == 'EM'" value="D">Delivered</option>
       </select>
     </div>
     <!--<div class="mx-2 mt-2 flex-grow-1 filter-div" v-if="">
@@ -129,8 +106,12 @@ onMounted(() => {
       </select>
     </div>-->
   </div>
-  <order-table :orders="filteredOrders" :showId="false" :showDates="true" @edit="editOrder" @ready="readyOrder"
-    @deliver="deliverOrder" @delete="clickToDeleteOrder"></order-table>
+  <order-table :orders="filteredOrders" :showStatus="filterByStatus == ''"
+    :showDeliverer="filterByStatus == 'C' || filterByStatus == 'D' || filterByStatus == ''"
+    :showBillInformation="userStore.user?.type == 'EM'" :showToCustomer="!userStore.user || userStore.user?.type == 'C'"
+    :showViewButton="userStore.user?.type != 'C'" :showDeliverButton="userStore.user?.type == 'ED'"
+    :showCancelButton="userStore.user?.type == 'EM'" @view="viewOrder" @deliver="deliverOrder" @cancel="cancelOrder">
+  </order-table>
 </template>
 
 <style scoped>
@@ -138,11 +119,7 @@ onMounted(() => {
   min-width: 12rem;
 }
 
-.total-filtro {
+.total-filter {
   margin-top: 0.35rem;
-}
-
-.btn-addorder {
-  margin-top: 1.85rem;
 }
 </style>

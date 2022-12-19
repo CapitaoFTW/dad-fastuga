@@ -43,12 +43,12 @@ class OrderItemResource extends JsonResource
                     "order_id" => $this->order_id,
                     "order_local_number" => $this->order_local_number,
                     "product_id" => $this->product_id,
-                    "product_name" => $this->product->name,
+                    "product_name" => $this->product->name ?? null,
                     "status" => $this->status,
                     "status_name" => $this->statusName,
                     "price" => $this->price,
                     "preparation_by" => $this->preparation_by,
-                    "chef" => $this->chef ?? null,
+                    "chef" => $this->chef->name ?? null,
                     "notes" => $this->notes,
                 ];
         //}

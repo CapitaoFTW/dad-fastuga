@@ -8,6 +8,7 @@ import UserDetail from "./UserDetail.vue"
 const router = useRouter()
 const axios = inject('axios')
 const toast = inject('toast')
+
 const usersStore = useUsersStore()
 
 const props = defineProps({

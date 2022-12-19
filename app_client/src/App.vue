@@ -51,7 +51,10 @@ const clickMenuOption = () => {
         <ul class="navbar-nav">
           <li class="nav-item" v-if="orderStore.totalProducts != 0">
             <router-link class="nav-link" :class="{ active: $route.name == 'ComposeOrder' }"
-              :to="{ name: 'ComposeOrder' }" @click="clickMenuOption"><i class="bi bi-cart m-0"></i><span class="rounded-circle align-top badge badge-pill badge-danger"><span class="text-light">{{ orderStore.totalProducts }}</span></span>
+              :to="{ name: 'ComposeOrder' }" @click="clickMenuOption"><i class="bi bi-cart m-0"></i><span
+                class="rounded-circle align-top badge badge-pill badge-danger"><span class="text-light">{{
+                    orderStore.totalProducts
+                }}</span></span>
             </router-link>
           </li>
           <li class="nav-item" v-show="!userStore.user">
@@ -69,11 +72,16 @@ const clickMenuOption = () => {
             </router-link>
           </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
+            <a v-if="userStore.user" class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
               data-bs-toggle="dropdown" aria-expanded="false">
               <img :src="(userStore.userPhotoUrl ?? '@/assets/avatar-none.png')"
                 class="rounded-circle z-depth-0 avatar-img" alt="avatar image" />
-              <span class="avatar-text">{{ userStore.user?.name ?? "Anonymous" }}</span>
+              <span class="avatar-text">{{ userStore.user?.name }}</span>
+            </a>
+            <a v-else class="nav-link dropdown-toggle arrow" href="#" id="navbarDropdownMenuLink" role="button"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              <img src="@/assets/avatar-none.png" class="rounded-circle z-depth-0 avatar-img" alt="avatar image" />
+              <span class="avatar-text">Anonymous</span>
             </a>
             <ul v-show="userStore.user" class="dropdown-menu dropdown-menu-dark dropdown-menu-end"
               aria-labelledby="navbarDropdownMenuLink">
@@ -145,7 +153,7 @@ const clickMenuOption = () => {
                 <i class="bi bi-xs bi-plus-circle"></i>
               </router-link>
             </li>-->
-            <li class="nav-item" v-show="userStore.user && userStore.user?.type != 'C'">
+            <li class="nav-item">
               <router-link class="nav-link" :class="{ active: $route.name === 'Orders' }" :to="{ name: 'Orders' }"
                 @click="clickMenuOption">
                 <i class="bi bi-receipt"></i>
@@ -168,16 +176,15 @@ const clickMenuOption = () => {
             </li>
           </ul>
 
-          <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted"
+          <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-2 text-muted"
             v-if="!userStore.user && ordersStore.totalMyInProgressOrders != 0 || userStore.user?.type == 'C' && ordersStore.totalMyInProgressOrders != 0">
             <span>My Orders</span>
           </h6>
           <ul class="nav flex-column mb-2">
             <li class="nav-item" v-for="order in ordersStore.myInProgressOrders" :key="order.id">
-              <router-link class="nav-link w-100 me-3"
-                :class="{ active: $route.name == 'Order' && $route.params.id == order.id }"
+              <router-link class="nav-link" :class="{ active: $route.name == 'Order' && $route.params.id == order.id }"
                 :to="{ name: 'Order', params: { id: order.id } }" @click="clickMenuOption">
-                <i class="bi bi-file-receipt"></i> {{ order.name }}
+                <i class="bi bi-ticket-detailed"></i> Ticket #{{ order.ticket_number }}
               </router-link>
             </li>
           </ul>
@@ -277,5 +284,9 @@ span.badge {
 
 #sidebarMenu {
   overflow-y: auto;
+}
+
+.dropdown-toggle.arrow::after {
+  content: none;
 }
 </style>

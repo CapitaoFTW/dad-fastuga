@@ -1,6 +1,7 @@
 <script setup>
-import { ref, watch, computed } from 'vue'
+import { ref } from 'vue'
 import { useUserStore } from "../../stores/user.js"
+
 const userStore = useUserStore()
 
 const props = defineProps({
@@ -8,144 +9,137 @@ const props = defineProps({
     type: Object,
     required: true
   },
-  errors: {
-    type: Object,
-    required: false
-  },
-  operationType: {
-    type: String,
-    default: 'insert'  // insert / update
+  order_items: {
+    type: Array,
+    default: () => [],
   },
   users: {
     type: Array,
     required: true
-  }
+  },
+  showChef: {
+    type: Boolean,
+    default: true,
+  },
+  showDeliverer: {
+    type: Boolean,
+    default: false,
+  },
+  showChefButtons: {
+    type: Boolean,
+    default: false,
+  },
+  showReadyButton: {
+    type: Boolean,
+    default: false,
+  },
+  showCancelButton: {
+    type: Boolean,
+    default: false,
+  },
 })
 
-const emit = defineEmits(['save', 'cancel', 'complete'])
+const emit = defineEmits(['back', 'prepareItem', 'readyItem', 'ready', 'deliver', 'cancel'])
 
-const editingOrder = ref(props.order)
-
-watch(
-  () => props.order,
-
-  (newOrder) => {
-    editingOrder.value = newOrder
-  }
-)
-
-const orderTitle = computed(() => {
-  if (!editingOrder.value) {
-    return ''
-  }
-
-  return props.operationType == 'insert' ? 'New Order' : 'Order #' + editingOrder.value.id
-})
-
-const save = () => {
-  emit('save', editingOrder.value)
+const backClick = () => {
+  emit('back')
 }
 
-const cancel = () => {
-  emit('cancel', editingOrder.value)
+const prepareItemClick = (order_item) => {
+  emit('prepareItem', order_item)
 }
 
-const complete = () => {
-  emit('complete', editingOrder.value)
+const readyItemClick = (order_item) => {
+  emit('readyItem', order_item)
+}
+
+const readyClick = (order) => {
+  emit('ready', order)
+}
+
+const deliveredClick = (order) => {
+  emit('deliver', order)
+}
+
+const cancelledClick = (order) => {
+  emit('cancel', order)
 }
 
 </script>
 
 <template>
-  <form class="row g-3 needs-validation" novalidate @submit.prevent="save">
-    <h3 class="mt-5 mb-3">{{ orderTitle }}</h3>
-    <hr>
-    <div class="d-flex flex-wrap justify-content-between">
-      <div class="row mb-3 bill_information">
-        <label for="inputTotalPrice" class="col-sm-3 col-form-label">Total Price</label>
-        <div class="col-sm-9">
-          <input type="number" class="form-control" id="inputTotalPrice" v-model="editingOrder.total_price">
-          <field-error-message :errors="errors" fieldName="total_price"></field-error-message>
-        </div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Status</th>
+        <th>Product</th>
+        <th v-if="showChef">Chef</th>
+        <th>Notes</th>
+        <th>Price</th>
+        <th v-if="showChefButtons"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="order_item in order_items" :key="order_item.id">
+        <td>{{ order.ticket_number + '-' + order_item.order_local_number }}</td>
+        <td>{{ order_item.status_name }}</td>
+        <td>{{ order_item.product_name }}</td>
+        <td v-if="showChef">{{ order_item.chef ?? '-- No Chef --' }}</td>
+        <td>{{ order_item.notes }}</td>
+        <td>{{ order_item.price }} €</td>
+        <td class="text-end" v-if="showChefButtons">
+          <div class="d-flex justify-content-end">
+            <button v-if="order_item.status == 'W'" class="btn btn-xs btn-primary text-light"
+              @click="prepareItemClick(order_item)">
+              <i class="bi bi-xs bi-skip-start-btn-fill"></i>
+            </button>
+            <button v-if="order_item.status == 'P'" class="btn btn-xs btn-success text-light"
+              @click="readyItemClick(order_item)">
+              <i class="bi bi-xs bi-check-circle-fill"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="row mt-4 mb-4 m-0">
+    <div class="d-flex justify-content-between">
+      <span><b>Total Price:</b> &nbsp;{{ order.total_price }} €</span>
+      <span><b>Points Gained:</b> &nbsp;{{ order.points_gained }}</span>
+      <span><b>Payment Type:</b> &nbsp;{{ order.payment_type }}</span>
+    </div>
+    <div class="row" style="padding-right: 0rem">
+      <div class="col-4">
+        <span><b>Total Paid:</b> &nbsp;{{ order.total_paid }} €</span>
       </div>
-      <div class="row mb-3 bill_information">
-        <label for="inputTotalPaid" class="col-sm-3 col-form-label">Total Paid</label>
-        <div class="col-sm-9">
-          <input type="number" class="form-control" id="inputTotalPaid" v-model="editingOrder.total_paid">
-          <field-error-message :errors="errors" fieldName="total_paid"></field-error-message>
-        </div>
+      <div class="col-4 text-center">
+        <span><b>Points Used to Pay:</b> &nbsp;{{ order.points_used_to_pay }}</span>
       </div>
-      <div class="row mb-3 bill_information">
-        <label for="inputTotalPaidPoints" class="col-sm-3 col-form-label">Total Paid</label>
-        <div class="col-sm-9">
-          <input type="number" class="form-control" id="inputTotalPaidPoints"
-            v-model="editingOrder.total_paid_with_points">
-          <field-error-message :errors="errors" fieldName="total_paid_with_points"></field-error-message>
-        </div>
-      </div>
-      <div class="row mb-3 bill_information">
-        <label for="inputPoints" class="col-sm-3 col-form-label">Points Gained</label>
-        <div class="col-sm-9">
-          <input type="number" class="form-control" id="inputPoints" v-model="editingOrder.points_gained">
-          <field-error-message :errors="errors" fieldName="points_gained"></field-error-message>
-        </div>
-      </div>
-      <div class="row mb-3 bill_information">
-        <label for="inputPointsPay" class="col-sm-3 col-form-label">Points Used to Pay</label>
-        <div class="col-sm-9">
-          <input type="number" class="form-control" id="inputPointsPay" v-model="editingOrder.points_used_to_pay">
-          <field-error-message :errors="errors" fieldName="points_used_to_pay"></field-error-message>
-        </div>
-      </div>
-      <div class="row mb-3 bill_information">
-        <label for="inputPaymentType" class="form-label">Payment Type</label>
-        <select class="form-select" id="inputPaymentType" v-model="editingOrder.payment_type">
-          <option :value="null"></option>
-          <option value="VISA">VISA</option>
-          <option value="MBWAY">MBWAY</option>
-          <option value="PAYPAL">PAYPAL</option>
-        </select>
-        <field-error-message :errors="errors" fieldName="payment_type"></field-error-message>
-      </div>
-      <div class="row mb-3 bill_information">
-        <label for="inputPaymentReference" class="col-sm-3 col-form-label">Reference</label>
-        <div class="col-sm-9">
-          <input type="string" class="form-control" id="inputPaymentReference" v-model="editingOrder.payment_reference">
-          <field-error-message :errors="errors" fieldName="payment_reference"></field-error-message>
-        </div>
+      <div class="col-4 pr-0 text-end" style="padding-right:0rem">
+        <span><b>Payment Reference:</b> &nbsp;{{ order.payment_reference }}</span>
       </div>
     </div>
-
-    <div class="mb-3 me-3 flex-grow-1">
-      <label for="inputDeliverer" class="form-label">Deliverer</label>
-      <select class="form-select pe-2" id="inputDeliverer" v-model="editingOrder.delivered_by">
-        <option :value="null">-- No Deliverer --</option>
-        <option v-for="user in users" :key="user.id" :value="user.id">{{ user.name }}</option>
-      </select>
-      <field-error-message :errors="errors" fieldName="delivered_by"></field-error-message>
+    <div class="d-flex justify-content-between">
+      <span><b>Total Paid with Points:</b> &nbsp;{{ order.total_paid_with_points }} €</span>
+      <span v-if="showDeliverer"><b>Deliverer:</b> {{ props.order.deliverer ?? 'None' }}</span>
     </div>
-
-    <div class="d-flex flex-wrap justify-content-between">
-      <div class="mb-3 me-3 flex-grow-1">
-        <label for="inputTotalProducts" class="form-label">Total Products</label>
-        <input type="number" class="form-control" id="inputTotalProducts" placeholder="Total Products" v-model="editingOrder.total_products">
-        <field-error-message :errors="errors" fieldName="total_products"></field-error-message>
-      </div>
-    </div>
-
-    <div class="mb-3 d-flex justify-content-end">
-      <button v-if="userStore.user?.type == 'EC' && order.status == 'P'" class="btn btn-success px-5" @click="complete">
-        Complete
-      </button>
-      <button type="button" class="btn btn-primary px-5" @click="save">Save</button>
-      <button type="button" class="btn btn-light px-5" @click="cancel">Cancel</button>
-    </div>
-
-  </form>
+  </div>
+  <div class="mb-5 d-flex justify-content-center">
+    <button type="button" class="btn btn-primary" @click="backClick"><i class="bi bi-arrow-left-circle"></i><b
+        class="position-relative" style="bottom:0.1rem">Back</b>
+    </button>
+    <button v-if="showReadyButton" class="btn btn-success text-light" @click="readyClick(order)"><b>Ready Order</b>
+    </button>
+    <button v-if="showCancelButton" class="btn btn-warning text-light" @click="cancelledClick(order)"><b>Cancel
+        Order</b>
+    </button>
+  </div>
 </template>
 
 <style scoped>
-.bill_information {
-  width: 26rem;
+button {
+  margin-left: 3px;
+  margin-right: 3px;
 }
 </style>

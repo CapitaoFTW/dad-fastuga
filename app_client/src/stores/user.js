@@ -1,5 +1,6 @@
 import { ref, computed, inject } from 'vue'
 import { defineStore } from 'pinia'
+import { useOrdersStore } from "./orders.js"
 import avatarNoneUrl from '@/assets/avatar-none.png'
 
 export const useUserStore = defineStore('user', () => {
@@ -7,6 +8,7 @@ export const useUserStore = defineStore('user', () => {
     const axios = inject('axios')
     const serverBaseUrl = inject('serverBaseUrl')
 
+    const ordersStore = useOrdersStore()
     const user = ref(null)
 
     const userPhotoUrl = computed(() => {
@@ -22,7 +24,7 @@ export const useUserStore = defineStore('user', () => {
     })
 
     const customerId = computed(() => {
-        return user.value?.customer.id ?? -1
+        return user.value?.customer ? user.value.customer.id : -1
     })
 
     async function loadUser() {
@@ -62,10 +64,12 @@ export const useUserStore = defineStore('user', () => {
             axios.defaults.headers.common.Authorization = "Bearer " + response.data.access_token
             sessionStorage.setItem('token', response.data.access_token)
             await loadUser()
+            //await ordersStore.loadOrders()
             return false
 
         } catch (error) {
             clearUser()
+            //ordersStore.clearOrders()
             return error
         }
     }
@@ -74,6 +78,7 @@ export const useUserStore = defineStore('user', () => {
         try {
             await axios.post('logout')
             clearUser()
+           //ordersStore.clearOrders()
             return true
 
         } catch (error) {
@@ -97,11 +102,12 @@ export const useUserStore = defineStore('user', () => {
         if (storedToken) {
             axios.defaults.headers.common.Authorization = "Bearer " + storedToken
             await loadUser()
+            //await ordersStore.loadOrders()
             return true
         }
 
         clearUser()
-
+        //ordersStore.clearOrders()
         return false
     }
 

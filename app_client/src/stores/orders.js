@@ -13,7 +13,7 @@ export const useOrdersStore = defineStore('orders', () => {
     })
 
     const myInProgressOrders = computed(() => {
-        return orders.value.filter(order => order.status == 'P' && order.costumer_id == userStore.user.customer?.id)
+        return orders.value.filter(order => ((order.status == 'P' || order.status == 'R') && order.customer_userId == userStore.userId))
     })
 
     const totalMyInProgressOrders = computed(() => {
@@ -38,7 +38,7 @@ export const useOrdersStore = defineStore('orders', () => {
             orders.value = response.data.data
 
             return orders.value
-            
+
         } catch (error) {
             clearOrders()
             throw error
@@ -64,27 +64,16 @@ export const useOrdersStore = defineStore('orders', () => {
         return response.data.data
     }
 
-    async function deleteOrder(deleteOrder) {
-        // Note that when an error occours, the exception should be
-        // catch by the function that called the deleteOrder
-        const response = await axios.delete('orders/' + deleteOrder.id)
-        let idx = orders.value.findIndex((t) => t.id === response.data.data.id)
-        if (idx >= 0) {
-            orders.value.splice(idx, 1)
-        }
-        return response.data.data
-    }
-
-    async function readyOrder(order) {
-        const response = await axios.patch("orders/" + order.id + "/ready")
-        return response.data.data
-    }
-
     async function deliverOrder(order) {
         const response = await axios.patch("orders/" + order.id + "/delivered")
         return response.data.data
     }
 
+    async function cancelOrder(order) {
 
-    return { orders, totalOrders, myInProgressOrders, totalMyInProgressOrders, getOrdersByFilter, getOrdersByFilterTotal, loadOrders, clearOrders, insertOrder, updateOrder, deleteOrder, readyOrder, deliverOrder }
+        const response = await axios.patch("orders/" + order.id + "/cancelled")
+        return response.data.data
+    }
+
+    return { orders, totalOrders, myInProgressOrders, totalMyInProgressOrders, getOrdersByFilter, getOrdersByFilterTotal, loadOrders, clearOrders, insertOrder, updateOrder, deliverOrder, cancelOrder }
 })

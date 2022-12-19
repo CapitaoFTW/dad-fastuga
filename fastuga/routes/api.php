@@ -4,9 +4,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\UserController;
 use App\Http\Controllers\api\AuthController;
 use App\Http\Controllers\api\OrderController;
+use App\Http\Controllers\api\OrderItemController;
 use App\Http\Controllers\api\ProductController;
 
 Route::GET('products', [ProductController::class, 'index']);
+Route::GET('orders', [OrderController::class, 'index']);
 
 Route::middleware(['isNotEmployee'])->group(function () {
     Route::POST('login', [AuthController::class, 'login']);
@@ -29,11 +31,16 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::middleware(['isEmployee'])->group(function () {
-        Route::GET('orders', [OrderController::class, 'index']);
-        Route::DELETE('orders/{order}', [OrderController::class, 'destroy']);
         Route::PATCH('orders/{order}/ready', [OrderController::class, 'update_ready']);
         Route::PATCH('orders/{order}/delivered', [OrderController::class, 'update_delivered']);
+        Route::PATCH('orders/{order}/cancelled', [OrderController::class, 'update_cancelled']);
+
+        Route::PATCH('order_items/{orderItem}/preparing', [OrderItemController::class, 'update_preparing']);
+        Route::PATCH('order_items/{orderItem}/ready', [OrderItemController::class, 'update_ready']);
     });
+
+    Route::middleware(['isChef'])->group(function () {
+           });
 
     Route::GET('users/{user}', [UserController::class, 'show'])
         ->middleware('can:view,user');
@@ -46,13 +53,12 @@ Route::middleware('auth:api')->group(function () {
     Route::PATCH('users/{user}/blocked', [UserController::class, 'update_blocked'])
         ->middleware('can:updateBlocked,user');
 
-
-    Route::GET('orders/{order}', [OrderController::class, 'show']);
+    Route::GET('orders/{order}', [OrderController::class, 'show'])
+        ->middleware('can:view,order');
     //Route::GET('orders/{order}/products', [OrderController::class, 'showWithProducts']);
     Route::PUT('orders/{order}', [OrderController::class, 'update']);
     Route::GET('users/{user}/orders', [OrderController::class, 'getOrdersOfUser']);
     //Route::get('customers/{customer}/orders/forpickup', [OrderController::class, 'getOrdersOfCustomerForPickup']);
-
 
     /*Route::get('users/{user}/tasks', [TaskController::class, 'getTasksOfUser']);
     Route::get('tasks/{task}', [TaskController::class, 'show']);

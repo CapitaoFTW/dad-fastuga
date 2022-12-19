@@ -17,14 +17,14 @@ class OrderResource extends JsonResource
     public function toArray($request)
     {
         switch (OrderResource::$format) {
-            case 'withProducts':
+            case 'withOrderItems':
                 return [
                     "id" => $this->id,
                     "ticket_number" => $this->ticket_number,
                     "status" => $this->status,
                     "status_name" => $this->statusName,
                     "customer_id" => $this->customer_id,
-                    "customer_name" => $this->customer->name,
+                    "customer_name" => $this->customer->user->name ?? null,
                     "total_price" => $this->total_price,
                     "total_paid" => $this->total_paid,
                     "total_paid_with_points" => $this->total_paid_with_points,
@@ -34,8 +34,9 @@ class OrderResource extends JsonResource
                     "payment_reference" => $this->payment_reference,
                     "date" => $this->date,
                     "delivered_by" => $this->delivered_by,
-                    "deliverer" => $this->deliverer->name,
-                    "products" => ProductResource::collection($this->order_items->product->sortByDesc('id'))
+                    "deliverer" => $this->deliverer->name ?? null,
+                    "total_products" => $this->totalProducts,
+                    "order_items" => OrderItemResource::collection($this->orderItems),
                 ];
             default:
                 return [
@@ -44,6 +45,7 @@ class OrderResource extends JsonResource
                     "status" => $this->status,
                     "status_name" => $this->statusName,
                     "customer_id" => $this->customer_id,
+                    "customer_userId" => $this->customer->user_id ?? null,
                     "customer_name" => $this->customer->user->name ?? null,
                     "total_price" => $this->total_price,
                     "total_paid" => $this->total_paid,

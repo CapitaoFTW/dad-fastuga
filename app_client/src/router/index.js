@@ -170,7 +170,7 @@ router.beforeEach((to, from, next) => {
     return
   }
 
-  if (to.name == 'ComposeOrder' || to.name == 'Register' || to.name == 'Login' || to.name == 'Products') {
+  if (to.name == 'Orders' || to.name == 'ComposeOrder' || to.name == 'Register' || to.name == 'Login' || to.name == 'Products') {
     next()
     return
   }
