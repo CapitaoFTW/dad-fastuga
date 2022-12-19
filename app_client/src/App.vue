@@ -51,7 +51,7 @@ const clickMenuOption = () => {
         <ul class="navbar-nav">
           <li class="nav-item" v-if="orderStore.totalProducts != 0">
             <router-link class="nav-link" :class="{ active: $route.name == 'ComposeOrder' }"
-              :to="{ name: 'ComposeOrder' }" @click="clickMenuOption"><i class="bi bi-cart m-0"></i><span
+              :to="{ name: 'ComposeOrder' }" @click="clickMenuOption"><i class="bi bi-cart3 m-0"></i><span
                 class="rounded-circle align-top badge badge-pill badge-danger"><span class="text-light">{{
                     orderStore.totalProducts
                 }}</span></span>
@@ -124,7 +124,7 @@ const clickMenuOption = () => {
             <li class="nav-item">
               <router-link class="nav-link" :class="{ active: $route.name === 'Products' }" :to="{ name: 'Products' }"
                 @click="clickMenuOption">
-                <i class="bi bi-book"></i>
+                <i class="bi bi-clipboard"></i>
                 Menu
               </router-link>
             </li>

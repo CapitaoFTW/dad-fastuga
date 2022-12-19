@@ -8,7 +8,7 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Product;
 use App\Http\Resources\OrderResource;
-use App\Http\Requests\StoreUpdateOrderRequest;
+use App\Http\Requests\StoreOrderRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\OrderItem;
 use App\Models\User;
@@ -36,23 +36,23 @@ class OrderController extends Controller
         return new OrderResource($order);
     }
 
-    public function store(Request $request)
+    public function store(StoreOrderRequest $request)
     {
-        //$validated = $request->validated();
+        $validated = $request->validated();
 
         $lastOrder = Order::latest('id')->first();
 
         $newOrder = Order::create([
             'ticket_number' => $lastOrder->ticket_number == 99 ? 1 : $lastOrder->ticket_number + 1,
             'status' => 'P',
-            'customer_id' => $request['customer_id'],
-            'total_price' => $request['total_price'],
-            'total_paid' => $request['total_paid'],
-            'total_paid_with_points' => $request['total_paid_with_points'],
-            'points_gained' => $request['points_gained'],
-            'points_used_to_pay' => $request['points_used_to_pay'],
-            'payment_type' => $request['payment_type'],
-            'payment_reference' => $request['payment_reference'],
+            'customer_id' => $validated['customer_id'],
+            'total_price' => $validated['total_price'],
+            'total_paid' => $validated['total_paid'],
+            'total_paid_with_points' => $validated['total_paid_with_points'],
+            'points_gained' => $validated['points_gained'],
+            'points_used_to_pay' => $validated['points_used_to_pay'],
+            'payment_type' => $validated['payment_type'],
+            'payment_reference' => $validated['payment_reference'],
             'date' => date("Y-m-d"),
             'delivered_by' => null,
         ]);
@@ -66,24 +66,16 @@ class OrderController extends Controller
                 OrderItem::create([
                     'order_id' => $newOrder->id,
                     'order_local_number' => $order_local_number++,
-                    'product_id' => $request['order_items'][$i]['product_id'],
-                    'status' => $request['order_items'][$i]['type'] == 'hot dish' ? 'W' : 'R',
-                    'price' => $request['order_items'][$i]['price'],
-                    'preparation_by' => null,
-                    'notes' => null,
+                    'product_id' => $validated['order_items'][$i]['product_id'],
+                    'status' => $validated['order_items'][$i]['product_type'] == 'hot dish' ? 'W' : 'R',
+                    'price' => $validated['order_items'][$i]['product_price'],
                 ]);
 
                 $quantity++;
-            } while ($quantity != $request['order_items'][$i]['quantity']);
+            } while ($quantity != $request['order_items'][$i]['product_quantity']);
         }
 
         return new OrderResource($newOrder);
-    }
-
-    public function update(StoreUpdateOrderRequest $request, Order $order)
-    {
-        $order->update($request->validated());
-        return new OrderResource($order);
     }
 
     public function update_ready(Order $order)

@@ -98,6 +98,32 @@ const readyItem = (order_item) => {
     })
 }
 
+const readyOrder = (order) => {
+  ordersStore.readyOrder(order)
+    .then((response) => {
+      loadOrder(props.id)
+      toast.success('Order #' + order.ticket_number + ' is now ready to be delivered')
+      router.back()
+    })
+
+    .catch((error) => {
+      toast.error("It was not possible to ready Order #" + order.ticket_number + "!")
+    })
+}
+
+const deliverOrder = (order) => {
+  ordersStore.deliverOrder(order)
+    .then((response) => {
+      loadOrder(props.id)
+      toast.success('Order #' + order.ticket_number + ' was successfully delivered')
+      router.back()
+    })
+
+    .catch((error) => {
+      toast.error("It was not possible to deliver Order #" + order.ticket_number + "!")
+    })
+}
+
 const cancelOrderConfirmed = () => {
   ordersStore.cancelOrder(order.value)
     .then((cancelledOrder) => {
@@ -172,7 +198,7 @@ onMounted(() => {
     :showReadyButton="userStore.user?.type == 'ED' && order.status == 'P' && areAllOrderItemsReady"
     :showCancelButton="userStore.user?.type == 'EM' && order.status != 'C'"
     :showDeliverer="userStore.user?.type != 'ED' && userStore.user?.type != 'EC' && (order.status == 'D' || order.status == 'C')"
-    @back="back" @prepareItem="prepareItem" @readyItem="readyItem" @cancel="cancelOrder"></OrderDetail>
+    @back="back" @prepareItem="prepareItem" @readyItem="readyItem" @ready="readyOrder" @cancel="cancelOrder"></OrderDetail>
 </template>
 
 <style scoped>

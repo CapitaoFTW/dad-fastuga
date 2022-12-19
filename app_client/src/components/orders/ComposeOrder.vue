@@ -20,7 +20,7 @@ const totalPrice = computed(() => {
   let total = 0
 
   for (const [key] of Object.entries(order.value)) {
-    total += Number(order.value[key].subtotal)
+    total += Number(order.value[key].product_subtotal)
   }
 
   return total.toFixed(2)
@@ -73,50 +73,50 @@ const save = () => {
     .then((payment) => {
       toast.success('Order was paid successfully.')*/
 
-      composingOrder = {
-        'customer_id': userStore.user ? userStore.customerId : null,
-        'total_price': totalPrice.value,
-        'total_paid': totalPrice.value,
-        'total_paid_with_points': 0,
-        'points_gained': userStore.user && totalPrice.value >= 10 ? Math.floor(totalPrice.value / 10) : 0,
-        'points_used_to_pay': 0,
-        'payment_type': userStore.user ? userStore.user.customer.default_payment_type : 'MBWAY',
-        'payment_reference': userStore.user ? userStore.user.customer.default_payment_reference : '910599057',
-        'order_items': order.value,
-      }
+  composingOrder = {
+    'customer_id': userStore.user ? userStore.customerId : null,
+    'total_price': totalPrice.value,
+    'total_paid': totalPrice.value,
+    'total_paid_with_points': 0,
+    'points_gained': userStore.user && totalPrice.value >= 10 ? Math.floor(totalPrice.value / 10) : 0,
+    'points_used_to_pay': 0,
+    'payment_type': userStore.user ? userStore.user.customer.default_payment_type : 'MBWAY',
+    'payment_reference': userStore.user ? userStore.user.customer.default_payment_reference : '910599057',
+    'order_items': order.value,
+  }
 
-      ordersStore.insertOrder(composingOrder)
-        .then((insertedOrder) => {
-          toast.success('Order #' + insertedOrder.ticket_number + ' was created successfully.')
-          orderStore.clearOrder()
+  ordersStore.insertOrder(composingOrder)
+    .then((insertedOrder) => {
+      toast.success('Order #' + insertedOrder.ticket_number + ' was created successfully.')
+      orderStore.clearOrder()
 
-          router.push({ name: 'Products' })
-        })
-
-        .catch((error) => {
-          if (error.response.status == 422) {
-            toast.error('Order was not created due to validation errors!')
-            errors.value = error.response.data.errors
-
-            console.log(error)
-
-          } else {
-            console.log(error)
-            toast.error('Order was not created due to unknown server error!')
-          }
-        })
-    /*})
+      router.push({ name: 'Products' })
+    })
 
     .catch((error) => {
       if (error.response.status == 422) {
-        toast.error('Order was not paid due to validation errors!')
+        toast.error('Order was not created due to validation errors!')
         errors.value = error.response.data.errors
+
+        console.log(error)
 
       } else {
         console.log(error)
         toast.error('Order was not created due to unknown server error!')
       }
-    })*/
+    })
+  /*})
+
+  .catch((error) => {
+    if (error.response.status == 422) {
+      toast.error('Order was not paid due to validation errors!')
+      errors.value = error.response.data.errors
+
+    } else {
+      console.log(error)
+      toast.error('Order was not created due to unknown server error!')
+    }
+  })*/
 }
 
 const errors = ref(null)
@@ -158,13 +158,13 @@ onMounted(() => {
     </thead>
     <tbody>
       <tr v-for="row in order">
-        <td class="align-middle">{{ row['quantity'] }}</td>
-        <td class="align-middle">{{ row['name'] }}</td>
-        <td class="align-middle">{{ row['type'] == 'hot dish' ? 'Hot Dish' : (row['type'] == 'cold dish' ? 'Cold Dish' :
-            (row['type'] == 'drink' ? 'Drink' : 'Dessert'))
+        <td class="align-middle">{{ row['product_quantity'] }}</td>
+        <td class="align-middle">{{ row['product_name'] }}</td>
+        <td class="align-middle">{{ row['product_type'] == 'hot dish' ? 'Hot Dish' : (row['product_type'] == 'cold dish' ? 'Cold Dish' :
+            (row['product_type'] == 'drink' ? 'Drink' : 'Dessert'))
         }}</td>
-        <td class="align-middle">{{ row['price'] }} €</td>
-        <td class="align-middle">{{ row['subtotal'] }} €</td>
+        <td class="align-middle">{{ row['product_price'] }} €</td>
+        <td class="align-middle">{{ row['product_subtotal'] }} €</td>
         <td class="text-end align-middle">
           <div class="d-flex justify-content-end">
             <button class="btn btn-xs btn-primary" @click="more(row)"><i
@@ -182,8 +182,8 @@ onMounted(() => {
   </div>
   <div class="mt-5 mb-5 d-flex justify-content-center">
     <button v-if="userStore.user?.type == 'C' || !userStore.user" type="button" class="btn btn-primary px-5"
-      @click="save">Pay
-      Order</button>
+      @click="save">Pay Order
+    </button>
     <button type="button" class="btn btn-light px-5" @click="cancel">Cancel Order</button>
   </div>
 </template>

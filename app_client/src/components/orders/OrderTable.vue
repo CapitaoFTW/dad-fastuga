@@ -1,4 +1,7 @@
 <script setup>
+import { useUserStore } from '../../stores/user'
+
+const userStore = useUserStore()
 
 const props = defineProps({
   orders: {
@@ -39,10 +42,14 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['view', 'deliver', 'cancel'])
+const emit = defineEmits(['view', 'pickup', 'deliver', 'cancel'])
 
 const viewClick = (order) => {
   emit('view', order)
+}
+
+const pickupClick = (order) => {
+  emit('pickup', order)
 }
 
 const deliveredClick = (order) => {
@@ -59,43 +66,47 @@ const cancelledClick = (order) => {
   <table class="table" v-if="orders.length != 0">
     <thead>
       <tr>
-        <th>#</th>
+        <th>Ticket</th>
         <th v-if="showStatus">Status</th>
         <th v-if="!showToCustomer">Customer</th>
-        <th v-if="showDeliverer">Deliverer</th>
-        <th v-if="!showToCustomer">Date</th>
-        <th v-if="showBillInformation">Payment Type</th>
+        <th v-if="showDeliverer"><i class="bi bi-truck"></i></th>
+        <th v-if="!showToCustomer"><i class="bi bi-calendar-date"></i></th>
+        <th v-if="showBillInformation"><i class="bi bi-credit-card"></i></th>
         <th v-if="showBillInformation">Reference</th>
-        <th v-if="!showToCustomer">Total Products</th>
-        <th v-if="showBillInformation">Total Price</th>
-        <th v-if="showBillInformation">Total Paid</th>
-        <th v-if="showViewButton || showDeliverButton || showCancelButton"></th>
+        <th v-if="!showToCustomer">Products</th>
+        <th v-if="showBillInformation">Price</th>
+        <th v-if="showBillInformation">Paid</th>
+        <th v-if="showViewButton || showToCustomer/*|| showDeliverButton*/ || showCancelButton"></th>
       </tr>
     </thead>
     <tbody>
       <tr v-for="order in orders" :key="order.id">
-        <td>{{ order.ticket_number }}</td>
+        <td>#{{ order.ticket_number }}</td>
         <td v-if="showStatus">{{ order.status_name }}</td>
-        <td v-if="!showToCustomer">{{ order.customer_name ?? '-- No Customer --' }}</td>
-        <td v-if="showDeliverer">{{ order.deliverer ?? '-- No Deliverer --' }}</td>
-        <td v-if="!showToCustomer">{{ order.date }}</td>
+        <td v-if="!showToCustomer">{{ order.customer_name ? order.customer_name.split(' ')[0] + ' ' + order.customer_name.split(' ')[order.customer_name.split(' ').length - 1] : '' }}</td>
+        <td v-if="showDeliverer">{{ order.deliverer ? order.deliverer.split(' ')[0] + ' ' + order.deliverer.split(' ')[order.deliverer.split(' ').length - 1] : '' }}</td>
+        <td class="text-nowrap" v-if="!showToCustomer">{{ order.date }}</td>
         <td v-if="showBillInformation">{{ order.payment_type }}</td>
         <td v-if="showBillInformation">{{ order.payment_reference }}</td>
         <td v-if="!showToCustomer">{{ order.total_products }}</td>
         <td v-if="showBillInformation">{{ order.total_price }} €</td>
         <td v-if="showBillInformation">{{ order.total_paid }} €</td>
-        <td class="text-end" v-if="showViewButton || showDeliverButton || showCancelButton">
+        <td class="text-end" v-if="showViewButton || showToCustomer/*|| showDeliverButton*/ || showCancelButton">
           <div class="d-flex justify-content-end">
             <button class="btn btn-xs btn-primary text-light" @click="viewClick(order)" v-if="showViewButton">
               <i class="bi bi-xs bi-eye-fill"></i>
             </button>
-            <button v-if="order.status == 'R' && showDeliverButton" class="btn btn-xs btn-success text-light"
+            <!--<button v-if="order.status == 'R' && showDeliverButton" class="btn btn-xs btn-success text-light"
               @click="deliveredClick(order)">
               <i class="bi bi-xs bi-box-seam-fill"></i>
-            </button>
+            </button>-->
             <button v-if="order.status != 'C' && showCancelButton" class="btn btn-xs btn-warning text-light"
               @click="cancelledClick(order)">
               <i class="bi bi-xs bi-x-octagon-fill"></i>
+            </button>
+            <button v-if="order.status == 'R' && order.customer_userId == userStore.userId && showToCustomer" class="btn btn-xs btn-success text-light"
+              @click="pickupClick(order)">
+              <i class="bi bi-xs bi-box-seam-fill"></i>
             </button>
           </div>
         </td>

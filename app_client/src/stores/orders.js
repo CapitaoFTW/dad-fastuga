@@ -64,6 +64,11 @@ export const useOrdersStore = defineStore('orders', () => {
         return response.data.data
     }
 
+    async function readyOrder(order) {
+        const response = await axios.patch("orders/" + order.id + "/ready")
+        return response.data.data
+    }
+
     async function deliverOrder(order) {
         const response = await axios.patch("orders/" + order.id + "/delivered")
         return response.data.data
@@ -75,5 +80,5 @@ export const useOrdersStore = defineStore('orders', () => {
         return response.data.data
     }
 
-    return { orders, totalOrders, myInProgressOrders, totalMyInProgressOrders, getOrdersByFilter, getOrdersByFilterTotal, loadOrders, clearOrders, insertOrder, updateOrder, deliverOrder, cancelOrder }
+    return { orders, totalOrders, myInProgressOrders, totalMyInProgressOrders, getOrdersByFilter, getOrdersByFilterTotal, loadOrders, clearOrders, insertOrder, updateOrder, readyOrder, deliverOrder, cancelOrder }
 })

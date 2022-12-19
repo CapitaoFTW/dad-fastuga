@@ -73,9 +73,9 @@ const canViewUserDetail = (userId) => {
     <thead>
       <tr>
         <th v-if="showId" class="align-middle">#</th>
-        <th v-if="showPhoto" class="align-middle">Photo</th>
+        <th v-if="showPhoto" class="align-middle"><i class="bi bi-image"></i></th>
         <th class="align-middle">Name</th>
-        <th v-if="showEmail" class="align-middle">Email</th>
+        <th v-if="showEmail" class="align-middle"><i class="bi bi-at"></i></th>
         <th v-if="showEditButton || showDeleteButton || showToggleButton"></th>
       </tr>
     </thead>

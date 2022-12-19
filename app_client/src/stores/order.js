@@ -17,8 +17,8 @@ export const useOrderStore = defineStore('order', () => {
 
         for (let i = 0; i < order.length; i++) {
             if (order[i].product_id == product.id) {
-                order[i].quantity++
-                order[i].subtotal = (product.price * order[i].quantity).toFixed(2)
+                order[i].product_quantity++
+                order[i].product_subtotal = (product.price * order[i].product_quantity).toFixed(2)
                 isSameProduct = true
             }
         }
@@ -28,11 +28,11 @@ export const useOrderStore = defineStore('order', () => {
         if (!isSameProduct) {
             let row = {
                 'product_id': product.id,
-                'quantity': quantity,
-                'name': product.name,
-                'price': product.price,
-                'type': product.type,
-                'subtotal': (product.price * quantity).toFixed(2),
+                'product_quantity': quantity,
+                'product_name': product.name,
+                'product_price': product.price,
+                'product_type': product.type,
+                'product_subtotal': (product.price * quantity).toFixed(2),
             }
 
             order.push(row)
@@ -50,22 +50,22 @@ export const useOrderStore = defineStore('order', () => {
         for (let i = 0; i < order.length; i++) {
             if (order[i].product_id == row.product_id) {
 
-                if (order[i].quantity > 0) {
-                    order[i].quantity += value
-                    order[i].subtotal = (row.price * order[i].quantity).toFixed(2)
+                if (order[i].product_quantity > 0) {
+                    order[i].product_quantity += value
+                    order[i].product_subtotal = (row.product_price * order[i].product_quantity).toFixed(2)
                 }
 
                 if (value == 1) {
-                    toast.success("Added 1 item from the product '" + order[i].name + "'")
+                    toast.success("Added 1 item from the product '" + order[i].product_name + "'")
                     totalProducts.value++;
 
                 } else {
 
-                    if (order[i].quantity <= 0 || value == 0) {
-                        toast.info("Product '" + order[i].name + "' was removed from the order")
+                    if (order[i].product_quantity <= 0 || value == 0) {
+                        toast.info("Product '" + order[i].product_name + "' was removed from the order")
 
                         if (value == 0) {
-                            totalProducts.value -= order[i].quantity
+                            totalProducts.value -= order[i].product_quantity
                             totalProducts.value++ // using this to spare an else
                         }
 
@@ -73,7 +73,7 @@ export const useOrderStore = defineStore('order', () => {
 
                     } else {
 
-                        toast.warning("Removed 1 item from the product '" + order[i].name + "'")
+                        toast.warning("Removed 1 item from the product '" + order[i].product_name + "'")
                     }
 
                     totalProducts.value--;

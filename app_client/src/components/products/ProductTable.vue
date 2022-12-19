@@ -69,7 +69,7 @@ const deleteClick = (product) => {
     <thead>
       <tr>
         <th v-if="showId" class="align-middle">#</th>
-        <th v-if="showPhoto" class="align-middle">Photo</th>
+        <th v-if="showPhoto" class="align-middle"><i class="bi bi-image"></i></th>
         <th class="align-middle">Name</th>
         <th v-if="showDescription" class="align-middle">Description</th>
         <th v-if="showPrice" class="align-middle">Price</th>

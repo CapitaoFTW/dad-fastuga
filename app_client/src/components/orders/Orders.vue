@@ -26,7 +26,11 @@ const viewOrder = (order) => {
   router.push({ name: 'Order', params: { id: order.id } })
 }
 
-const deliverOrder = (order) => {
+const pickupOrder = (order) => {
+  //router.push({ name: 'Order', params: { id: order.id } })
+}
+
+/*const deliverOrder = (order) => {
   ordersStore.deliverOrder(order)
     .then((response) => {
       loadOrders()
@@ -36,7 +40,7 @@ const deliverOrder = (order) => {
     .catch((error) => {
       toast.error("It was not possible to deliver Order #" + order.ticket_number + "!")
     })
-}
+}*/
 
 const cancelOrderConfirmed = () => {
   ordersStore.cancelOrder(orderToCancel.value)
@@ -80,7 +84,7 @@ onMounted(() => {
 
   <div class="d-flex justify-content-between">
     <div class="mx-2">
-      <h3 class="mt-4">Orders</h3>
+      <h3 class="mt-4">{{ (!userStore.user || userStore.user?.type == 'C') ? 'Ready' : '' }} Orders </h3>
     </div>
     <div class="mx-2 total-filter">
       <h5 class="mt-4">Total: {{ totalOrders }}</h5>
@@ -110,7 +114,7 @@ onMounted(() => {
     :showDeliverer="filterByStatus == 'C' || filterByStatus == 'D' || filterByStatus == ''"
     :showBillInformation="userStore.user?.type == 'EM'" :showToCustomer="!userStore.user || userStore.user?.type == 'C'"
     :showViewButton="userStore.user?.type != 'C'" :showDeliverButton="userStore.user?.type == 'ED'"
-    :showCancelButton="userStore.user?.type == 'EM'" @view="viewOrder" @deliver="deliverOrder" @cancel="cancelOrder">
+    :showCancelButton="userStore.user?.type == 'EM'" @view="viewOrder" @pickup="pickupOrder" @cancel="cancelOrder">
   </order-table>
 </template>
 
