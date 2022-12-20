@@ -2,7 +2,7 @@
 import { ref, watch, computed, onMounted, inject } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useUserStore } from "../../stores/user.js"
-import { useOrderStore } from '../../stores/order'
+import { useOrderItemsStore } from '../../stores/order_items'
 import { useOrdersStore } from '../../stores/orders'
 
 const router = useRouter()
@@ -10,34 +10,34 @@ const axios = inject('axios')
 const toast = inject('toast')
 
 const userStore = useUserStore()
-const orderStore = useOrderStore()
+const orderItemsStore = useOrderItemsStore()
 const ordersStore = useOrdersStore()
 
-const order = ref([])
+const order_items = ref([])
 const totalProducts = ref(0)
 
 const totalPrice = computed(() => {
   let total = 0
 
-  for (const [key] of Object.entries(order.value)) {
-    total += Number(order.value[key].product_subtotal)
+  for (const [key] of Object.entries(orderItemsStore.order_items)) {
+    total += Number(orderItemsStore.order_items[key].product_subtotal)
   }
 
-  return total.toFixed(2)
+  return Number(total.toFixed(2))
 })
 
 const more = (row) => {
-  orderStore.updateComposingOrder(row, 1)
+  orderItemsStore.updateOrderItems(row, 1)
 
-  order.value = orderStore.composingOrder
-  totalProducts.value = orderStore.totalProducts
+  order_items.value = orderItemsStore.order_items
+  totalProducts.value = orderItemsStore.totalProducts
 }
 
 const less = (row) => {
-  orderStore.updateComposingOrder(row, -1)
+  orderItemsStore.updateOrderItems(row, -1)
 
-  order.value = orderStore.composingOrder
-  totalProducts.value = orderStore.totalProducts
+  order_items.value = orderItemsStore.order_items
+  totalProducts.value = orderItemsStore.totalProducts
 
   if (totalProducts.value <= 0) {
     router.push({ name: 'Products' })
@@ -45,50 +45,56 @@ const less = (row) => {
 }
 
 const destroy = (row) => {
-  orderStore.updateComposingOrder(row, 0)
+  orderItemsStore.updateOrderItems(row, 0)
 
-  order.value = orderStore.composingOrder
-  totalProducts.value = orderStore.totalProducts
+  order_items.value = orderItemsStore.order_items
+  totalProducts.value = orderItemsStore.totalProducts
 
   if (totalProducts.value <= 0) {
     router.push({ name: 'Products' })
   }
 }
 
+const newOrder = () => {
+  return {
+    customer_id: userStore.user ? userStore.customerId : null,
+    customer_points: userStore.user ? userStore.user.customer.points : null,
+    total_price: totalPrice.value,
+    points_used_to_pay: 0,
+    total_paid_with_points: 0 /*points_used_to_pay / 2*/,
+    total_paid: totalPrice.value /*- total_paid_with_points*/,
+    points_gained: userStore.user && totalPrice.value >= 10 /*&& points_used_to_pay == 0*/ ? Math.floor(totalPrice.value / 10) : 0,
+    payment_type: userStore.user ? userStore.user.customer.default_payment_type : '',
+    payment_reference: userStore.user ? userStore.user.customer.default_payment_reference : '',
+    order_items: orderItemsStore.order_items,
+  }
+}
+
+const order = ref(newOrder())
+
 const save = () => {
   errors.value = null
-  let composingOrder = {}
 
-  /*if (!userStore.user) {
-    //router.push({ name: 'PayOrder' })
+  if (order.value.points_used_to_pay != 0) {
+    order.value.total_paid_with_points = order.value.points_used_to_pay / 2
+    order.value.total_paid -= order.value.total_paid_with_points
+    order.value.points_gained = 0
   }
 
-  let payment = {
+  /*let payment = {
     type: userStore.user.customer.default_payment_type.toLowerCase(),
     reference: userStore.user.customer.default_payment_reference,
     value: Number(totalPrice.value)
   }
-
+ 
   orderStore.payOrder(payment)
     .then((payment) => {
       toast.success('Order was paid successfully.')*/
 
-  composingOrder = {
-    'customer_id': userStore.user ? userStore.customerId : null,
-    'total_price': totalPrice.value,
-    'total_paid': totalPrice.value,
-    'total_paid_with_points': 0,
-    'points_gained': userStore.user && totalPrice.value >= 10 ? Math.floor(totalPrice.value / 10) : 0,
-    'points_used_to_pay': 0,
-    'payment_type': userStore.user ? userStore.user.customer.default_payment_type : 'MBWAY',
-    'payment_reference': userStore.user ? userStore.user.customer.default_payment_reference : '910599057',
-    'order_items': order.value,
-  }
-
-  ordersStore.insertOrder(composingOrder)
+  ordersStore.insertOrder(order.value)
     .then((insertedOrder) => {
       toast.success('Order #' + insertedOrder.ticket_number + ' was created successfully.')
-      orderStore.clearOrder()
+      orderItemsStore.clearOrderItems()
 
       router.push({ name: 'Products' })
     })
@@ -106,12 +112,12 @@ const save = () => {
       }
     })
   /*})
-
+ 
   .catch((error) => {
     if (error.response.status == 422) {
       toast.error('Order was not paid due to validation errors!')
       errors.value = error.response.data.errors
-
+ 
     } else {
       console.log(error)
       toast.error('Order was not created due to unknown server error!')
@@ -122,14 +128,14 @@ const save = () => {
 const errors = ref(null)
 
 const cancel = () => {
-  orderStore.clearOrder()
-  order.value = orderStore.order
-  totalProducts.value = orderStore.totalProducts
+  orderItemsStore.clearOrderItems()
+  order_items.value = orderItemsStore.order_items
+  totalProducts.value = orderItemsStore.totalProducts
   router.push({ name: 'Products' })
 }
 
 onMounted(() => {
-  order.value = orderStore.composingOrder
+  order_items.value = orderItemsStore.order_items
   totalProducts.value = sessionStorage.getItem('totalProducts')
 })
 
@@ -157,35 +163,63 @@ onMounted(() => {
       </tr>
     </thead>
     <tbody>
-      <tr v-for="row in order">
-        <td class="align-middle">{{ row['product_quantity'] }}</td>
-        <td class="align-middle">{{ row['product_name'] }}</td>
-        <td class="align-middle">{{ row['product_type'] == 'hot dish' ? 'Hot Dish' : (row['product_type'] == 'cold dish' ? 'Cold Dish' :
-            (row['product_type'] == 'drink' ? 'Drink' : 'Dessert'))
+      <tr v-for="order_item in order_items">
+        <td class="align-middle">{{ order_item['product_quantity'] }}</td>
+        <td class="align-middle">{{ order_item['product_name'] }}</td>
+        <td class="align-middle">{{ order_item['product_type'] == 'hot dish' ? 'Hot Dish' : (order_item['product_type']
+            == 'cold dish'
+            ? 'Cold Dish' : (order_item['product_type'] == 'drink' ? 'Drink' : 'Dessert'))
         }}</td>
-        <td class="align-middle">{{ row['product_price'] }} €</td>
-        <td class="align-middle">{{ row['product_subtotal'] }} €</td>
+        <td class="align-middle">{{ order_item['product_price'] }} €</td>
+        <td class="align-middle">{{ order_item['product_subtotal'] }} €</td>
         <td class="text-end align-middle">
           <div class="d-flex justify-content-end">
-            <button class="btn btn-xs btn-primary" @click="more(row)"><i
+            <button class="btn btn-xs btn-primary" @click="more(order_item)"><i
                 class="bi bi-xs bi-cart-plus-fill"></i></button>
-            <button class="btn btn-xs btn-success" @click="less(row)"><i
+            <button class="btn btn-xs btn-success" @click="less(order_item)"><i
                 class="bi bi-xs bi-cart-dash-fill"></i></button>
-            <button class="btn btn-xs btn-danger" @click="destroy(row)"><i class="bi bi-xs bi-trash3-fill"></i></button>
+            <button class="btn btn-xs btn-danger" @click="destroy(order_item)"><i
+                class="bi bi-xs bi-trash3-fill"></i></button>
           </div>
         </td>
       </tr>
     </tbody>
   </table>
-  <div class="mx-2 total-filter">
+  <div class="mx-2 mb-3 total-filter">
     <h6 class="mt-4">Total Price: {{ totalPrice }} €</h6>
   </div>
-  <div class="mt-5 mb-5 d-flex justify-content-center">
-    <button v-if="userStore.user?.type == 'C' || !userStore.user" type="button" class="btn btn-primary px-5"
-      @click="save">Pay Order
-    </button>
-    <button type="button" class="btn btn-light px-5" @click="cancel">Cancel Order</button>
-  </div>
+  <form class="row pt-3 pb-2 mb-3 needs-validation justify-content-center" novalidate @submit.prevent="save">
+    <div class="w-75">
+      <h4 class="mb-3 text-center">Payment</h4>
+      <div class="mb-3" v-if="userStore.user?.type == 'C'">
+        <label for="inputPoints" class="form-label">Use Points to Pay (Remaining: <b>{{ order.customer_points
+        }}</b>)</label>
+        <input type="number" min="0" step="10" class="form-control" id="inputPoints" placeholder="Points"
+          v-model="order.points_used_to_pay" />
+        <field-error-message :errors="errors" fieldName="points_used_to_pay"></field-error-message>
+      </div>
+      <div class="mb-3">
+        <label for="inputPaymentType" class="form-label">Payment Type</label>
+        <select class="form-select" id="inputPaymentType" v-model="order.payment_type" required>
+          <option :value="null" disabled>Choose an option</option>
+          <option value="VISA">VISA</option>
+          <option value="MBWAY">MBWAY</option>
+          <option value="PAYPAL">PAYPAL</option>
+        </select>
+        <field-error-message :errors="errors" fieldName="payment_type"></field-error-message>
+      </div>
+      <div class="mb-3">
+        <label for="inputPaymentReference" class="form-label">Payment Reference</label>
+        <input type="text" class="form-control" id="inputPaymentReference" placeholder="Payment Reference"
+          v-model="order.payment_reference" />
+        <field-error-message :errors="errors" fieldName="payment_reference"></field-error-message>
+      </div>
+    </div>
+    <div class="mt-5 mb-5 d-flex justify-content-center">
+      <button type="button" class="btn btn-primary px-5" @click="save">Pay Order</button>
+      <button type="button" class="btn btn-light px-5" @click="cancel">Cancel Order</button>
+    </div>
+  </form>
 </template>
 
 <style scoped>

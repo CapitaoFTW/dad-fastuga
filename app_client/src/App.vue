@@ -3,12 +3,12 @@ import { useRouter, RouterLink, RouterView } from "vue-router"
 import { ref, inject } from "vue"
 import { useUserStore } from "./stores/user"
 import { useOrdersStore } from "./stores/orders"
-import { useOrderStore } from "./stores/order"
+import { useOrderItemsStore } from "./stores/order_items"
 
 const router = useRouter()
 const toast = inject("toast")
 const userStore = useUserStore()
-const orderStore = useOrderStore()
+const orderItemsStore = useOrderItemsStore()
 const ordersStore = useOrdersStore()
 
 const buttonSidebarExpand = ref(null)
@@ -49,11 +49,11 @@ const clickMenuOption = () => {
 
       <div class="collapse navbar-collapse justify-content-end">
         <ul class="navbar-nav">
-          <li class="nav-item" v-if="orderStore.totalProducts != 0">
+          <li class="nav-item" v-if="orderItemsStore.totalProducts != 0 && (!userStore.user || userStore.user?.type == 'C')">
             <router-link class="nav-link" :class="{ active: $route.name == 'ComposeOrder' }"
               :to="{ name: 'ComposeOrder' }" @click="clickMenuOption"><i class="bi bi-cart3 m-0"></i><span
                 class="rounded-circle align-top badge badge-pill badge-danger"><span class="text-light">{{
-                    orderStore.totalProducts
+                    orderItemsStore.totalProducts
                 }}</span></span>
             </router-link>
           </li>

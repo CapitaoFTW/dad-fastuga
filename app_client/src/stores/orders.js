@@ -80,5 +80,15 @@ export const useOrdersStore = defineStore('orders', () => {
         return response.data.data
     }
 
-    return { orders, totalOrders, myInProgressOrders, totalMyInProgressOrders, getOrdersByFilter, getOrdersByFilterTotal, loadOrders, clearOrders, insertOrder, updateOrder, readyOrder, deliverOrder, cancelOrder }
+    async function payOrder(payment) {
+        const response = await axios.post('https://dad-202223-payments-api.vercel.app/api/payments ', payment)
+        return response.data.data
+    }
+
+    async function refundOrder(payment) {
+        const response = await axios.post('https://dad-202223-payments-api.vercel.app/api/refunds ', payment)
+        return response.data.data
+    }
+
+    return { orders, totalOrders, myInProgressOrders, totalMyInProgressOrders, getOrdersByFilter, getOrdersByFilterTotal, loadOrders, clearOrders, insertOrder, updateOrder, readyOrder, deliverOrder, cancelOrder, payOrder, refundOrder }
 })

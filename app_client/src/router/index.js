@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from "../stores/user.js"
+import { useOrderItemsStore } from "../stores/order_items.js"
 
 import Products from '../components/products/Products.vue'
 import Product from '../components/products/Product.vue'
@@ -40,7 +41,7 @@ const router = createRouter({
       path: '/redirect/:redirectTo',
       name: 'Redirect',
       component: RouteRedirector,
-      props: route => ({ redirectTo: route.params.redirectTo})   
+      props: route => ({ redirectTo: route.params.redirectTo })
     },
     {
       path: '/register',
@@ -79,16 +80,10 @@ const router = createRouter({
       component: Orders,
     },
     {
-      path: '/orders/new',
-      name: 'NewOrder',
-      component: Order,
-      props: { id: -1 }
-    },
-    {
       path: '/orders/:id',
       name: 'Order',
       component: Order,
-      props: route => ({ id: parseInt(route.params.id) })     
+      props: route => ({ id: parseInt(route.params.id) })
     },
     {
       path: '/users',
@@ -108,7 +103,7 @@ const router = createRouter({
       //props: true
       // Replaced with the following line to ensure that id is a number
       props: route => ({ id: parseInt(route.params.id) })
-    }, 
+    },
     /*{
       path: '/orders/:id/tasks',
       name: 'OrderTasks',
@@ -163,20 +158,21 @@ router.beforeEach((to, from, next) => {
     return
   }
 
-  const userStore = useUserStore()  
+  const userStore = useUserStore()
+  const orderItemsStore = useOrderItemsStore()
 
   if (userStore.user && (to.name == 'Register' || to.name == 'Login')) {
     next({ name: 'Products' })
     return
   }
 
-  if (to.name == 'Orders' || to.name == 'ComposeOrder' || to.name == 'Register' || to.name == 'Login' || to.name == 'Products') {
+  if (!userStore.user && (to.name == 'Orders' || to.name == 'ComposeOrder' && orderItemsStore.totalProducts != 0 || to.name == 'Register' || to.name == 'Login' || to.name == 'Products')) {
     next()
     return
   }
 
   if (!userStore.user) {
-    next({ name: 'Login' })
+    next({ name: 'Products' })
     return
   }
 
@@ -207,12 +203,21 @@ router.beforeEach((to, from, next) => {
     return
   }
 
+  if (to.name == 'ComposeOrder') {
+    if (orderItemsStore.totalProducts == 0) {
+      if (userStore.user && userStore.user != 'C') {
+        next({ name: 'Products' })
+        return
+      }
+    }
+  }
+
   /*if (to.name != 'Dashboard' && to.name != 'Register' && to.name != 'Login' && to.name != 'ChangePassword' && to.name != 'Orders' && to.name != 'NewOrder'
   && to.name != 'Order' && to.name != 'Users' && to.name != 'User' && to.name != 'Reports' && to.name != 'about') {
     next({ name: 'Products' })
     return
   }*/
-  
+
   next()
 })
 

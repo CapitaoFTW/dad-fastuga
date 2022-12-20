@@ -43,14 +43,37 @@ const pickupOrder = (order) => {
 }*/
 
 const cancelOrderConfirmed = () => {
-  ordersStore.cancelOrder(orderToCancel.value)
-    .then((cancelledOrder) => {
-      toast.info("Order " + orderToCancelDescription.value + " was successfully cancelled")
-    })
+  let payment = {
+    type: order.value.payment_type.toLowerCase(),
+    reference: order.value.payment_reference,
+    value: Number(order.value.total_paid)
+  }
 
-    .catch(() => {
-      toast.error("It was not possible to cancel Order " + orderToCancelDescription.value + "!")
-    })
+  /*ordersStore.refundOrder(payment)
+    .then((payment) => {
+      toast.success('Order was refunded successfully.')*/
+
+      ordersStore.cancelOrder(orderToCancel.value)
+        .then((cancelledOrder) => {
+          toast.info("Order #" + orderToCancelDescription.value + " was successfully cancelled")
+          router.back()
+        })
+
+        .catch(() => {
+          toast.error("It was not possible to cancel Order " + orderToCancelDescription.value + "!")
+        })
+
+    /*})
+    .catch((error) => {
+      if (error.response.status == 422) {
+        toast.error('Order was not paid due to validation errors!')
+        errors.value = error.response.data.errors
+
+      } else {
+        console.log(error)
+        toast.error('Order was not created due to unknown server error!')
+      }
+    })*/
 }
 
 const cancelOrder = (order) => {

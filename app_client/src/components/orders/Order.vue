@@ -125,6 +125,16 @@ const deliverOrder = (order) => {
 }
 
 const cancelOrderConfirmed = () => {
+  let payment = {
+    type: order.value.payment_type.toLowerCase(),
+    reference: order.value.payment_reference,
+    value: Number(order.value.total_paid)
+  }
+
+  /*ordersStore.refundOrder(payment)
+    .then((payment) => {
+      toast.success('Order was refunded successfully.')*/
+
   ordersStore.cancelOrder(order.value)
     .then((cancelledOrder) => {
       toast.info("Order #" + order.value.ticket_number + " was successfully cancelled")
@@ -134,6 +144,17 @@ const cancelOrderConfirmed = () => {
     .catch(() => {
       toast.error("It was not possible to cancel Order " + order.value.ticket_number + "!")
     })
+  /*})
+.catch((error) => {
+    if (error.response.status == 422) {
+      toast.error('Order was not paid due to validation errors!')
+      errors.value = error.response.data.errors
+ 
+    } else {
+      console.log(error)
+      toast.error('Order was not created due to unknown server error!')
+    }
+  })*/
 }
 
 const cancelOrder = () => {
@@ -198,7 +219,8 @@ onMounted(() => {
     :showReadyButton="userStore.user?.type == 'ED' && order.status == 'P' && areAllOrderItemsReady"
     :showCancelButton="userStore.user?.type == 'EM' && order.status != 'C'"
     :showDeliverer="userStore.user?.type != 'ED' && userStore.user?.type != 'EC' && (order.status == 'D' || order.status == 'C')"
-    @back="back" @prepareItem="prepareItem" @readyItem="readyItem" @ready="readyOrder" @cancel="cancelOrder"></OrderDetail>
+    @back="back" @prepareItem="prepareItem" @readyItem="readyItem" @ready="readyOrder" @cancel="cancelOrder">
+  </OrderDetail>
 </template>
 
 <style scoped>

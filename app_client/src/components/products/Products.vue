@@ -3,14 +3,14 @@ import { ref, computed, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProductsStore } from "../../stores/products.js"
 import { useUserStore } from "../../stores/user"
-import { useOrderStore } from "../../stores/order"
+import { useOrderItemsStore } from "../../stores/order_items"
 
 import ProductTable from "./ProductTable.vue"
 
 const router = useRouter()
 const toast = inject("toast")
 
-const orderStore = useOrderStore()
+const orderItemsStore = useOrderItemsStore()
 const userStore = useUserStore()
 const productsStore = useProductsStore()
 const productToDelete = ref(null)
@@ -28,8 +28,8 @@ const addProduct = () => {
   router.push({ name: 'NewProduct' })
 }
 
-const addProductToOrder = (product) => {
-  orderStore.composeOrder(product)
+const addOrderItems = (product) => {
+  orderItemsStore.composeOrder(product)
 }
 
 const editProduct = (product) => {
@@ -102,7 +102,7 @@ onMounted(() => {
         @click="addProduct"><i class="bi bi-xs bi-plus-circle"></i>&nbsp; Add Product</button>
     </div>
   </div>
-  <product-table :products="filteredProducts" :showId="false" @add="addProductToOrder" @edit="editProduct"
+  <product-table :products="filteredProducts" :showId="false" @add="addOrderItems" @edit="editProduct"
     @delete="clickToDeleteProduct"></product-table>
 </template>
 

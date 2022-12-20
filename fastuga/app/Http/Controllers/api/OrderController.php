@@ -20,16 +20,6 @@ class OrderController extends Controller
         return OrderResource::collection(Order::all());
     }
 
-    public function getOrdersOfCustomer(User $user)
-    {
-        return OrderResource::collection($user->customer->orders);
-    }
-
-    public function getOrdersOfCustomerForPickup(Customer $customer)
-    {
-        return OrderResource::collection($customer->orders()->where('status', 'in', 'P,R')->get());
-    }
-
     public function show(Order $order)
     {
         OrderResource::$format = 'withOrderItems';
@@ -56,6 +46,18 @@ class OrderController extends Controller
             'date' => date("Y-m-d"),
             'delivered_by' => null,
         ]);
+
+        if ($newOrder->customer) {
+            if ($validated['points_used_to_pay'] != 0) {
+                $newOrder->customer->points -= $validated['points_used_to_pay'];
+            }
+
+            if ($validated['points_gained'] != 0) {
+                $newOrder->customer->points += $validated['points_gained'];
+            }
+
+            $newOrder->customer->save();
+        }
 
         $order_local_number = 1;
 
