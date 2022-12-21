@@ -3,8 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
-use App\Models\User;
 
 class StoreUserRequest extends FormRequest
 {
@@ -31,6 +29,7 @@ class StoreUserRequest extends FormRequest
             'type' => 'required|in:ED,EC,EM',
             'photo' => 'base64image',
             'password' => 'required|min:3',
+            'password_confirmation' => 'same:password',
         ];
     }
 }

@@ -25,14 +25,8 @@ class UpdateUserPasswordRequest extends FormRequest
      */
     public function rules()
     {
-        $user = auth()->user();
-
         return [
-            'current_password' => ['required', function ($attribute, $value, $fail) use ($user) {
-                if (!Hash::check($value, $user->password)) {
-                    return $fail(__('The current password is incorrect.'));
-                }
-            }],
+            'current_password' => 'required|current_password:api|min:3',
             'password' => 'required|different:current_password',
             'password_confirmation' => 'same:password',
         ];

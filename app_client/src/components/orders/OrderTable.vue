@@ -104,7 +104,7 @@ const cancelledClick = (order) => {
               @click="cancelledClick(order)">
               <i class="bi bi-xs bi-x-octagon-fill"></i>
             </button>
-            <button v-if="order.status == 'R' && order.customer_userId == userStore.userId && showToCustomer" class="btn btn-xs btn-success text-light"
+            <button v-if="order.status == 'R' && (order.customer_userId == userStore.userId || !order.customer_id) && showToCustomer" class="btn btn-xs btn-success text-light"
               @click="pickupClick(order)">
               <i class="bi bi-xs bi-box-seam-fill"></i>
             </button>

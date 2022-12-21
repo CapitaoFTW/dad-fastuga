@@ -4,14 +4,10 @@ namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Customer;
 use App\Models\Order;
-use App\Models\Product;
 use App\Http\Resources\OrderResource;
 use App\Http\Requests\StoreOrderRequest;
-use App\Http\Resources\ProductResource;
 use App\Models\OrderItem;
-use App\Models\User;
 
 class OrderController extends Controller
 {

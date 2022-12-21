@@ -93,7 +93,7 @@ const save = () => {
 
         } else {
           toast.error('User ' + user.value.name + ' was not updated due to unknown server error!')
-
+          console.log(error)
         }
       })
   }

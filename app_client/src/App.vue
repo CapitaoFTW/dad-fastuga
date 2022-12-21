@@ -49,7 +49,8 @@ const clickMenuOption = () => {
 
       <div class="collapse navbar-collapse justify-content-end">
         <ul class="navbar-nav">
-          <li class="nav-item" v-if="orderItemsStore.totalProducts != 0 && (!userStore.user || userStore.user?.type == 'C')">
+          <li class="nav-item"
+            v-if="orderItemsStore.totalProducts != 0 && (!userStore.user || userStore.user?.type == 'C')">
             <router-link class="nav-link" :class="{ active: $route.name == 'ComposeOrder' }"
               :to="{ name: 'ComposeOrder' }" @click="clickMenuOption"><i class="bi bi-cart3 m-0"></i><span
                 class="rounded-circle align-top badge badge-pill badge-danger"><span class="text-light">{{
@@ -76,7 +77,7 @@ const clickMenuOption = () => {
               data-bs-toggle="dropdown" aria-expanded="false">
               <img :src="(userStore.userPhotoUrl ?? '@/assets/avatar-none.png')"
                 class="rounded-circle z-depth-0 avatar-img" alt="avatar image" />
-              <span class="avatar-text">{{ userStore.user?.name }}</span>
+              <span class="avatar-text">{{ userStore.user.name }}</span>
             </a>
             <a v-else class="nav-link dropdown-toggle arrow" href="#" id="navbarDropdownMenuLink" role="button"
               data-bs-toggle="dropdown" aria-expanded="false">
@@ -135,24 +136,6 @@ const clickMenuOption = () => {
                 Dashboard
               </router-link>
             </li>
-            <!--<li class="nav-item">
-              <router-link class="nav-link" :class="{ active: $route.name === 'CurrentTasks' }"
-                :to="{ name: 'CurrentTasks' }" @click="clickMenuOption">
-                <i class="bi bi-list-stars"></i>
-                Current Tasks
-              </router-link>
-            </li>
-            <li class="nav-item d-flex justify-content-between align-items-center pe-3">
-              <router-link class="nav-link w-100 me-3" :class="{ active: $route.name === 'Tasks' }"
-                :to="{ name: 'Tasks' }" @click="clickMenuOption">
-                <i class="bi bi-list-check"></i>
-                Tasks
-              </router-link>
-              <router-link class="link-secondary" :to="{ name: 'NewTask' }" aria-label="Add a new task"
-                @click="clickMenuOption">
-                <i class="bi bi-xs bi-plus-circle"></i>
-              </router-link>
-            </li>-->
             <li class="nav-item">
               <router-link class="nav-link" :class="{ active: $route.name === 'Orders' }" :to="{ name: 'Orders' }"
                 @click="clickMenuOption">
@@ -212,7 +195,7 @@ const clickMenuOption = () => {
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink2" role="button"
                   data-bs-toggle="dropdown" aria-expanded="false" style="padding-left: 3px">
                   <img :src="userStore.userPhotoUrl" class="rounded-circle z-depth-0 avatar-img" alt="avatar image" />
-                  <span class="avatar-text">{{ userStore.user?.name ?? "Anonymous" }}</span>
+                  <span class="avatar-text">{{ userStore.user?.name }}</span>
                 </a>
                 <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink2">
                   <li>
@@ -234,13 +217,26 @@ const clickMenuOption = () => {
                     <hr class="dropdown-divider" />
                   </li>
                   <li>
-                    <a class="dropdown-item" @click.prevent="logout">
+                    <a class="dropdown-item" href="#" @click.prevent="logout">
                       <i class="bi bi-arrow-right"></i><span class="position-absolute"
                         style="bottom: 1.1rem; left: 3rem">Logout</span>
                     </a>
                   </li>
                 </ul>
               </li>
+              <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-5 mb-1 text-muted"
+                v-if="orderItemsStore.totalProducts != 0 && (!userStore.user || userStore.user?.type == 'C')">
+                Composing Order
+              </h6>
+              <li class="nav-item"
+                v-if="orderItemsStore.totalProducts != 0 && (!userStore.user || userStore.user?.type == 'C')">
+                <router-link class="nav-link cart" :class="{ active: $route.name == 'ComposeOrder' }"
+                  :to="{ name: 'ComposeOrder' }" @click="clickMenuOption"><i class="bi bi-cart3 m-0"></i><span
+                    class="rounded-circle align-top badge badge-pill badge-danger"><span class="text-light">{{
+                        orderItemsStore.totalProducts
+                    }}</span></span>
+                </router-link>
+                </li>
             </ul>
           </div>
         </div>

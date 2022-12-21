@@ -48,7 +48,8 @@ const loadOrder = (id) => {
     })
 
     .catch((error) => {
-      console.log(error)
+      if (error.response.status == 403)
+        router.push({ name: 'Orders' }) // como as Orders são um array seria mais pesado fazer esta verificação no index do router
     })
 }
 
@@ -58,7 +59,6 @@ const dataAsString = () => {
 
 const order = ref(newOrder())
 const users = ref([])
-const errors = ref(null)
 
 watch(
   () => props.id,
@@ -147,8 +147,7 @@ const cancelOrderConfirmed = () => {
   /*})
 .catch((error) => {
     if (error.response.status == 422) {
-      toast.error('Order was not paid due to validation errors!')
-      errors.value = error.response.data.errors
+      toast.error(error.response.data.errors)
  
     } else {
       console.log(error)

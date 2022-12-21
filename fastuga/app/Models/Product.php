@@ -20,11 +20,6 @@ class Product extends Model
 
     public function orderItems()
     {
-        return $this->hasMany(Order_Item::class, 'product_id');
+        return $this->hasMany(OrderItem::class, 'product_id');
     }
-
-    /*public function assignedUsers()
-    {
-        return $this->belongsToMany(User::class, 'task_user');
-    }*/
 }

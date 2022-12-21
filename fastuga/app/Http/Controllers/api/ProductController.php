@@ -3,11 +3,9 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Http\Resources\ProductResource;
 use App\Http\Requests\StoreUpdateProductRequest;
-use App\Http\Requests\UpdateCompleteProductRequest;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 

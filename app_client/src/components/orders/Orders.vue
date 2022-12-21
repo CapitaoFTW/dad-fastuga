@@ -136,7 +136,7 @@ onMounted(() => {
   <order-table :orders="filteredOrders" :showStatus="filterByStatus == ''"
     :showDeliverer="filterByStatus == 'C' || filterByStatus == 'D' || filterByStatus == ''"
     :showBillInformation="userStore.user?.type == 'EM'" :showToCustomer="!userStore.user || userStore.user?.type == 'C'"
-    :showViewButton="userStore.user?.type != 'C'" :showDeliverButton="userStore.user?.type == 'ED'"
+    :showViewButton="userStore.user && userStore.user?.type != 'C'" :showDeliverButton="userStore.user?.type == 'ED'"
     :showCancelButton="userStore.user?.type == 'EM'" @view="viewOrder" @pickup="pickupOrder" @cancel="cancelOrder">
   </order-table>
 </template>

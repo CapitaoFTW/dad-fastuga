@@ -77,52 +77,6 @@ class User extends Authenticatable
 
     public function orderItems()
     {
-        return $this->hasMany(Order_Item::class, 'preparation_by');
+        return $this->hasMany(OrderItem::class, 'preparation_by');
     }
-
-    /*public function getGenderNameAttribute()
-    {
-        return $this->gender == 'M' ? 'Masculine' : 'Feminine';
-    }
-
-    public function orders()
-    {
-        return $this->hasMany(Order::class, 'responsible_id');
-    }
-
-    public function tasks()
-    {
-        return $this->hasMany(Task::class, 'owner_id');
-    }
-
-    public function assignedTasks()
-    {
-        return $this->belongsToMany(Task::class, 'task_user');
-    }
-
-    // Relations that return only a subset of the tasks
-
-    // Owner and Completed
-    public function tasksCompleted()
-    {
-        return $this->hasMany(Task::class, 'owner_id')->where('completed', 1);
-    }
-
-    // Owner and NOT Completed
-    public function tasksNotCompleted()
-    {
-        return $this->hasMany(Task::class, 'owner_id')->where('completed', 0);
-    }
-
-    // Assigned and Completed
-    public function assigedTasksCompleted()
-    {
-        return $this->belongsToMany(Task::class, 'task_user')->where('completed', 1);
-    }
-
-    // Assigned and Not Completed
-    public function assigedTasksNotCompleted()
-    {
-        return $this->belongsToMany(Task::class, 'task_user')->where('completed', 0);
-    }*/
 }

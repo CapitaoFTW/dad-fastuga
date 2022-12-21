@@ -63,12 +63,6 @@ const router = createRouter({
       name: 'Dashboard',
       component: Dashboard
     },
-    /*{
-      path: '/tasks/current',
-      name: 'CurrentTasks',
-      component: Tasks,
-      props: { onlyCurrentTasks: true, tasksTitle: 'Current Tasks' }
-    },*/
     {
       path: '/order',
       name: 'ComposeOrder',
@@ -104,30 +98,6 @@ const router = createRouter({
       // Replaced with the following line to ensure that id is a number
       props: route => ({ id: parseInt(route.params.id) })
     },
-    /*{
-      path: '/orders/:id/tasks',
-      name: 'OrderTasks',
-      component: OrderTasks,
-      props: route => ({ id: parseInt(route.params.id) })
-    },
-    {
-      path: '/orders/:id/tasks/new',
-      name: 'NewTaskOfOrder',
-      component: Task,
-      props: route => ({ id:-1, fixedOrder:  parseInt(route.params.id) })
-    },
-    {
-      path: '/tasks/new',
-      name: 'NewTask',
-      component: Task,
-      props: { id: -1 }
-    },
-    {
-      path: '/tasks/:id',
-      name: 'Task',
-      component: Task,
-      props: route => ({ id: parseInt(route.params.id) })    
-    },*/
     {
       path: '/reports',
       name: 'Reports',
@@ -202,7 +172,7 @@ router.beforeEach((to, from, next) => {
     next({ name: 'Products' })
     return
   }
-
+  
   if (to.name == 'ComposeOrder') {
     if (orderItemsStore.totalProducts == 0) {
       if (userStore.user && userStore.user != 'C') {

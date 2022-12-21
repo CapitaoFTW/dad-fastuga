@@ -34,13 +34,12 @@ Route::middleware('auth:api')->group(function () {
         Route::PATCH('orders/{order}/ready', [OrderController::class, 'update_ready']);
         Route::PATCH('orders/{order}/delivered', [OrderController::class, 'update_delivered']);
         Route::PATCH('orders/{order}/cancelled', [OrderController::class, 'update_cancelled']);
-
-        Route::PATCH('order_items/{orderItem}/preparing', [OrderItemController::class, 'update_preparing']);
-        Route::PATCH('order_items/{orderItem}/ready', [OrderItemController::class, 'update_ready']);
     });
 
     Route::middleware(['isChef'])->group(function () {
-           });
+        Route::PATCH('order_items/{orderItem}/preparing', [OrderItemController::class, 'update_preparing']);
+        Route::PATCH('order_items/{orderItem}/ready', [OrderItemController::class, 'update_ready']);
+    });
 
     Route::GET('users/{user}', [UserController::class, 'show'])
         ->middleware('can:view,user');
@@ -55,15 +54,6 @@ Route::middleware('auth:api')->group(function () {
 
     Route::GET('orders/{order}', [OrderController::class, 'show'])
         ->middleware('can:view,order');
-    //Route::GET('orders/{order}/products', [OrderController::class, 'showWithProducts']);
-    Route::PUT('orders/{order}', [OrderController::class, 'update']);
     Route::GET('users/{user}/orders', [OrderController::class, 'getOrdersOfUser']);
-    //Route::get('customers/{customer}/orders/forpickup', [OrderController::class, 'getOrdersOfCustomerForPickup']);
-
-    /*Route::get('users/{user}/tasks', [TaskController::class, 'getTasksOfUser']);
-    Route::get('tasks/{task}', [TaskController::class, 'show']);
-    Route::post('tasks', [TaskController::class, 'store']);
-    Route::delete('tasks/{task}', [TaskController::class, 'destroy']);
-    Route::put('tasks/{task}', [TaskController::class, 'update']);
-    Route::patch('tasks/{task}/completed', [TaskController::class, 'update_completed']);*/
+    //Route::get('customers/{customer}/orders/forpickup', [OrderController::class, 'getOrdersOfCustomerForPickup']);*/
 });

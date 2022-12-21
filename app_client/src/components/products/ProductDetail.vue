@@ -81,7 +81,7 @@ const cancel = () => {
     <hr>
     <div class="w-75">
       <div class="text-center pt-3">
-        <img :src="photoFullUrl" class="img-fluid rounded-circle" />
+        <img :src="photoFullUrl" class="img-fluid rounded-circle opacity-25"/>
         <br />
         <input type="file" id="inputPhoto" class="inputPhoto text-primary" @change="uploadImage" />
         <label v-if="operationType == 'update'" class="text-primary" for="inputPhoto">Alterar Foto</label>

@@ -8,7 +8,6 @@ use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
-use Exception;
 
 const PASSPORT_SERVER_URL = "http://fastuga.test";
 const CLIENT_ID = 2;

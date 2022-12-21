@@ -22,21 +22,6 @@ class OrderPolicy
 
     public function view(User $user, Order $model)
     {
-        return $user->isEmployee() || $model->customer_id && ($user->id == $model->customer->user_id);
-    }
-
-    public function create(User $user)
-    {
-        return $user->isManager();
-    }
-
-    public function update(User $user, Order $model)
-    {
-        return $user->isManager() || $user->id == $model->delivered_by;
-    }
-
-    public function delete(User $user, Order $model)
-    {
-        return $user->isManager() || $user->id == $model->id;
+        return $user->isManager() || ($user->isEmployee() && ($model->status == 'P' || $model->status == 'R')) || ($model->customer_id && ($user->id == $model->customer->user_id));
     }
 }

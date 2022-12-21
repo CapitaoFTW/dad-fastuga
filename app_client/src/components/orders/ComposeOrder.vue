@@ -57,16 +57,16 @@ const destroy = (row) => {
 
 const newOrder = () => {
   return {
-    customer_id: userStore.user ? userStore.customerId : null,
-    customer_points: userStore.user ? userStore.user.customer.points : null,
-    total_price: totalPrice.value,
-    points_used_to_pay: 0,
-    total_paid_with_points: 0 /*points_used_to_pay / 2*/,
-    total_paid: totalPrice.value /*- total_paid_with_points*/,
-    points_gained: userStore.user && totalPrice.value >= 10 /*&& points_used_to_pay == 0*/ ? Math.floor(totalPrice.value / 10) : 0,
-    payment_type: userStore.user ? userStore.user.customer.default_payment_type : '',
-    payment_reference: userStore.user ? userStore.user.customer.default_payment_reference : '',
-    order_items: orderItemsStore.order_items,
+    'customer_id': userStore.user ? userStore.customerId : null,
+    'customer_points': userStore.user ? userStore.user.customer.points : null,
+    'total_price': totalPrice.value,
+    'points_used_to_pay': 0,
+    'total_paid_with_points': 0,
+    'total_paid': totalPrice.value,
+    'points_gained': userStore.user && totalPrice.value >= 10 ? Math.floor(totalPrice.value) : 0,
+    'payment_type': userStore.user ? userStore.user.customer.default_payment_type : '',
+    'payment_reference': userStore.user ? userStore.user.customer.default_payment_reference : '',
+    'order_items': orderItemsStore.order_items,
   }
 }
 
@@ -78,7 +78,7 @@ const save = () => {
   if (order.value.points_used_to_pay != 0) {
     order.value.total_paid_with_points = order.value.points_used_to_pay / 2
     order.value.total_paid -= order.value.total_paid_with_points
-    order.value.points_gained = 0
+    order.value.points_gained = order.value.total_paid >= 10 ? Math.floor(order.value.total_paid / 10) : 0
   }
 
   /*let payment = {
@@ -107,7 +107,6 @@ const save = () => {
         console.log(error)
 
       } else {
-        console.log(error)
         toast.error('Order was not created due to unknown server error!')
       }
     })
@@ -117,6 +116,8 @@ const save = () => {
     if (error.response.status == 422) {
       toast.error('Order was not paid due to validation errors!')
       errors.value = error.response.data.errors
+
+      console.log(error)
  
     } else {
       console.log(error)
@@ -192,11 +193,15 @@ onMounted(() => {
     <div class="w-75">
       <h4 class="mb-3 text-center">Payment</h4>
       <div class="mb-3" v-if="userStore.user?.type == 'C'">
-        <label for="inputPoints" class="form-label">Use Points to Pay (Remaining: <b>{{ order.customer_points
+        <label for="inputPoints" class="form-label">Use Points to Pay (Every 10 = 5€ discount) (Remaining: <b>{{
+            userStore.user.customer.points
         }}</b>)</label>
         <input type="number" min="0" step="10" class="form-control" id="inputPoints" placeholder="Points"
           v-model="order.points_used_to_pay" />
         <field-error-message :errors="errors" fieldName="points_used_to_pay"></field-error-message>
+        <field-error-message :errors="errors" fieldName="points_gained"></field-error-message>
+        <field-error-message :errors="errors" fieldName="total_paid_with_points"></field-error-message>
+        <field-error-message :errors="errors" fieldName="total_paid"></field-error-message>
       </div>
       <div class="mb-3">
         <label for="inputPaymentType" class="form-label">Payment Type</label>

@@ -81,9 +81,9 @@ const cancel = () => {
     <hr>
     <div class="w-75">
       <div class="text-center pt-3">
-        <img :src="photoFullUrl" class="img-fluid rounded-circle" />
+        <img :src="photoFullUrl" class="img-fluid rounded-circle"/>
         <br />
-        <input type="file" id="inputPhoto" class="inputPhoto text-primary" @change="uploadImage" />
+        <input type="file" id="inputPhoto" class="inputPhoto text-primary" @change="uploadImage"/>
         <label v-if="operationType == 'update'" class="text-primary" for="inputPhoto">Alterar Foto</label>
         <label v-if="operationType == 'insert'" class="text-primary" for="inputPhoto">Escolher Foto</label>
         <field-error-message :errors="errors" fieldName="photo"></field-error-message>
@@ -124,7 +124,7 @@ const cancel = () => {
       <div v-if="editingUser.type == 'C'" class="mb-3">
         <label for="inputPaymentReference" class="form-label">Payment Reference</label>
         <input type="text" class="form-control" id="inputPaymentReference" placeholder="Payment Reference"
-          v-model="editingUser.customer.default_payment_reference" disabled />
+          v-model="editingUser.customer.default_payment_reference"/>
         <field-error-message :errors="errors" fieldName="customer.default_payment_reference"></field-error-message>
       </div>
       <div v-if="operationType == 'insert'" class="mb-3">

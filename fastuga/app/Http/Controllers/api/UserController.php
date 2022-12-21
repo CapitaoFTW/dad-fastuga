@@ -10,7 +10,7 @@ use App\Models\Customer;
 use App\Http\Resources\UserResource;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Requests\UpdateBlockUserRequest;
-use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\UpdateUserPasswordRequest;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -18,7 +18,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        return UserResource::collection(User::all());
+        return UserResource::collection(User::orderByRaw("FIELD(type, \"EM\", \"EC\", \"ED\", \"C\")")->get());
     }
 
     public function store(StoreUserRequest $request)
@@ -91,19 +91,9 @@ class UserController extends Controller
         return new UserResource($user);
     }
 
-    public function update_password(Request $request, User $user)
+    public function update_password(UpdateUserPasswordRequest $request, User $user)
     {
-        $validated = $request->validate([
-            'current_password' => ['required', function ($attribute, $value, $fail) use ($user) {
-                if (!Hash::check($value, $user->password)) {
-                    return $fail(__('The current password is incorrect.'));
-                }
-            }],
-            'password' => ['required', 'different:current_password'],
-            'password_confirmation' => ['same:password'],
-        ]);
-
-        $user->password = Hash::make($validated['password']);
+        $user->password = bcrypt($request->validated()['password']);
         $user->save();
 
         return new UserResource($user);
