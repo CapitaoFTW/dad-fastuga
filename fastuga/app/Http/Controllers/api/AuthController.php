@@ -9,9 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
 
-const PASSPORT_SERVER_URL = "http://fastuga.test";
 const CLIENT_ID = 2;
-const CLIENT_SECRET = 'arrozdoce2420';
 
 class AuthController extends Controller
 {
@@ -20,7 +18,7 @@ class AuthController extends Controller
         return [
             'grant_type' => 'password',
             'client_id' => CLIENT_ID,
-            'client_secret' => CLIENT_SECRET,
+            'client_secret' => env('CLIENT_SECRET'),
             'username' => $email,
             'password' => $password,
             'scope' => ''
@@ -31,7 +29,7 @@ class AuthController extends Controller
     {
         try {
             request()->request->add($this->passportAuthenticationData($request->email, $request->password));
-            $request = Request::create(PASSPORT_SERVER_URL . '/oauth/token', 'POST');
+            $request = Request::create(env('APP_URL') . '/oauth/token', 'POST');
             $response = Route::dispatch($request);
             $errorCode = $response->getStatusCode();
             $auth_server_response = json_decode((string) $response->content(), true);

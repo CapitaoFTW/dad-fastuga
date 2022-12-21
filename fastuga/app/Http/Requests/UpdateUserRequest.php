@@ -29,7 +29,7 @@ class UpdateUserRequest extends FormRequest
             'id' => 'required',
             'name' => 'required|string|max:255',
             'email' => ['required','email', Rule::unique('users', 'email')->ignore($this->id)],
-            'photo' => 'base64image',
+            'photo' => 'base64image|base64max:8192',
             'customer' => 'nullable|array',
             'customer.phone' => ['digits:9', 'starts_with:+,2,9', Rule::unique('customers', 'phone')->ignore($this->id, 'user_id')],
             'customer.nif' => ['digits:9', Rule::unique('customers', 'nif')->ignore($this->id, 'user_id')],
