@@ -33,10 +33,6 @@ io.on('connection', (socket) => {
         if (user.type == 'C') {
             socket.join('customer')
         }
-
-        /*if (user.type != 'EM' && user.type != 'EC' && user.type != 'ED' && user.type != 'C') {
-            socket.join('anonymous')
-        }*/
     })
 
     socket.on('loggedOut', function (user) {
@@ -82,34 +78,35 @@ io.on('connection', (socket) => {
     /* ORDERS */
 
     socket.on('newOrder', (order) => {
-        socket.broadcast.emit('newOrder', order)
+        socket.broadcast.emit('newOrder', order) // broadcast para atualizar as orders mas não aparecer a notificação no ecrã para alguns (verificações no client)
     })
 
     socket.on('readyOrder', (order) => {
-        socket.in(order.customer.user_id).emit('readyOrder', order)
+        socket.broadcast.emit('readyOrder', order) // broadcast para atualizar as orders mas não aparecer a notificação no ecrã para alguns (verificações no client)
     })
 
     socket.on('deliveredOrder', (order) => {
-        socket.broadcast.emit('deliveredOrder', order)
+        socket.broadcast.emit('deliveredOrder', order) // broadcast para atualizar as orders mas não aparecer a notificação no ecrã para alguns (verificações no client)
     })
 
-    socket.on('cancelledOrder', (order, manager) => {
-        socket.broadcast.emit('cancelledOrder', order, manager)
+    socket.on('cancelledOrder', (data) => {
+        socket.broadcast.emit('cancelledOrder', data) // broadcast para atualizar as orders mas não aparecer a notificação no ecrã para alguns (verificações no client)
     })
 
     /* ORDER ITEMS */
 
-    socket.on('newHotDishes', (number) => {
-        socket.broadcast.emit('newHotDishes', number)
-        //socket.in('chef').emit('newHotDishes', data)
+    socket.on('newHotDishes', (data) => {
+        socket.in('chef').emit('newHotDishes', data)
+        socket.in('delivery').emit('newHotDishes', data) // delivery para atualizar as orders mas não aparecer a notificação no ecrã (verificações no client)
+        socket.in('manager').emit('newHotDishes', data) // manager para atualizar as orders mas não aparecer a notificação no ecrã (verificações no client)
     })
 
-    socket.on('preparingOrderItem', (order_item) => {
-        socket.in('chef').except(order_item.preparation_by).emit('preparingOrderItem', order_item)
-        socket.in(order_item.preparation_by).emit('preparingOrderItem', order_item)
+    socket.on('preparingOrderItem', (data) => {
+        socket.in('chef').except(data.order_item.preparation_by).emit('preparingOrderItem', data)
+        socket.in('manager').emit('preparingOrderItem', data) // manager para atualizar as orders mas não aparecer a notificação no ecrã (verificações no client)
     })
 
-    socket.on('readyOrderItem', (order_item) => {
-        socket.in('delivery').emit('readyOrderItem', order_item)
+    socket.on('readyOrderItem', (data) => {
+        socket.broadcast.emit('readyOrderItem', data) // broadcast para atualizar as orders todas mas não aparecer a notificação no ecrã para alguns (verificações no client)
     })
 })

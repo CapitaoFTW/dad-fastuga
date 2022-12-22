@@ -94,15 +94,15 @@ export const useOrderItemsStore = defineStore('order_items', () => {
         totalProducts.value = 0
     }
 
-    async function prepareOrderItem(order_item) {
+    async function prepareOrderItem(order_item, ticket_number) {
         const response = await axios.patch("order_items/" + order_item.id + "/preparing")
-        socket.emit('preparingOrderItem', response.data.data)
+        socket.emit('preparingOrderItem', { ticket_number, order_item: response.data.data })
         return response.data.data
     }
 
-    async function readyOrderItem(order_item) {
+    async function readyOrderItem(order_item, ticket_number) {
         const response = await axios.patch("order_items/" + order_item.id + "/ready")
-        socket.emit('readyOrderItem', response.data.data)
+        socket.emit('readyOrderItem', { ticket_number, order_item: response.data.data })
         return response.data.data
     }
 

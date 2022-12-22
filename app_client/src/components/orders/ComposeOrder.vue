@@ -93,50 +93,44 @@ const save = () => {
     order.value.points_gained = order.value.total_paid >= 10 ? Math.floor(order.value.total_paid / 10) : 0
   }
 
-  /*let payment = {
-    type: userStore.user.customer.default_payment_type.toLowerCase(),
-    reference: userStore.user.customer.default_payment_reference,
+  let payment = {
+    type: order.value.payment_type.toLowerCase(),
+    reference: order.value.payment_reference,
     value: Number(totalPrice.value)
   }
- 
-  orderStore.payOrder(payment)
+
+  ordersStore.payOrder(payment)
     .then((payment) => {
-      toast.success('Order was paid successfully.')*/
+      toast.success('Order was paid successfully.')
 
-  ordersStore.insertOrder(order.value)
-    .then((insertedOrder) => {
-      toast.success('Order #' + insertedOrder.ticket_number + ' was created successfully.')
+      ordersStore.insertOrder(order.value, numberHotDishes.value)
+        .then((insertedOrder) => {
+          toast.success('Order #' + insertedOrder.ticket_number + ' was created successfully.')
 
-      orderItemsStore.clearOrderItems()
+          orderItemsStore.clearOrderItems()
 
-      router.push({ name: 'Products' })
+          router.push({ name: 'Products' })
+        })
+
+        .catch((error) => {
+          if (error.response.status == 422) {
+            toast.error('Order was not created due to validation errors!')
+            errors.value = error.response.data.errors
+
+          } else {
+            toast.error('Order was not created due to unknown server error!')
+          }
+        })
     })
 
     .catch((error) => {
       if (error.response.status == 422) {
-        toast.error('Order was not created due to validation errors!')
-        errors.value = error.response.data.errors
-
-        console.log(error)
+        toast.error('Order was not paid because of: ' + error.response.data.message.toUpperCase())
 
       } else {
-        toast.error('Order was not created due to unknown server error!')
+        toast.error('Order was not paid due to unknown server error!')
       }
     })
-  /*})
- 
-  .catch((error) => {
-    if (error.response.status == 422) {
-      toast.error('Order was not paid due to validation errors!')
-      errors.value = error.response.data.errors
-
-      console.log(error)
- 
-    } else {
-      console.log(error)
-      toast.error('Order was not created due to unknown server error!')
-    }
-  })*/
 }
 
 const errors = ref(null)

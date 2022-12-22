@@ -36,7 +36,7 @@ export const useUserStore = defineStore('user', () => {
 
         } catch (error) {
             clearUser()
-            ordersStore.clearOrders()
+           // ordersStore.clearOrders()
             throw error
         }
     }
@@ -72,7 +72,7 @@ export const useUserStore = defineStore('user', () => {
 
         } catch (error) {
             clearUser()
-            ordersStore.clearOrders()
+            //ordersStore.clearOrders()
             return error
         }
     }
@@ -82,7 +82,7 @@ export const useUserStore = defineStore('user', () => {
             await axios.post('logout')
             socket.emit('loggedOut', user.value)
             clearUser()
-            ordersStore.clearOrders()
+           // ordersStore.clearOrders()
             return true
 
         } catch (error) {
@@ -107,12 +107,12 @@ export const useUserStore = defineStore('user', () => {
             axios.defaults.headers.common.Authorization = "Bearer " + storedToken
             await loadUser()
             socket.emit('loggedIn', user.value)
-            await ordersStore.loadOrders()
+           //await ordersStore.loadOrders()
             return true
         }
 
         clearUser()
-        ordersStore.clearOrders()
+        //ordersStore.clearOrders()
         return false
     }
 
@@ -156,14 +156,6 @@ export const useUserStore = defineStore('user', () => {
             }
         }
     })
-
-    /*socket.on('newHotDishes', (number) => {
-        //if (data.numberHotDishes == 1)
-            toast.info(`One Hot Dish was ordered (Ticket #${number.id})`)
-
-        else
-            toast.info(`${data.numberHotDishes} new Hot Dishes were ordered (Ticket #${data.ticket})`)
-    })*/
 
     return { user, userId, customerId, userPhotoUrl, register, login, changePassword, logout, restoreToken }
 })

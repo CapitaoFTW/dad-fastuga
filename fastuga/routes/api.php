@@ -14,6 +14,7 @@ Route::middleware(['isNotEmployee'])->group(function () {
     Route::POST('login', [AuthController::class, 'login']);
     Route::POST('register', [AuthController::class, 'register']);
     Route::POST('orders', [OrderController::class, 'store']);
+    Route::PATCH('orders/{order}/delivered', [OrderController::class, 'update_delivered']);  // um bocado aldrabado porque no PickupOrder não sei como guardar o delivered_by (a menos que criasse uma variavel na DB mas não sei se podia fazer isso)
 });
 
 Route::middleware('auth:api')->group(function () {
@@ -32,7 +33,6 @@ Route::middleware('auth:api')->group(function () {
 
     Route::middleware(['isEmployee'])->group(function () {
         Route::PATCH('orders/{order}/ready', [OrderController::class, 'update_ready']);
-        Route::PATCH('orders/{order}/delivered', [OrderController::class, 'update_delivered']);
         Route::PATCH('orders/{order}/cancelled', [OrderController::class, 'update_cancelled']);
     });
 

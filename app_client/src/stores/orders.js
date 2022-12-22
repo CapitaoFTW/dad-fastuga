@@ -1,11 +1,12 @@
 import { ref, computed, inject } from 'vue'
 import { defineStore } from 'pinia'
 import { useUserStore } from "./user.js"
+import axios from 'axios'
 
 export const useOrdersStore = defineStore('orders', () => {
 
     const userStore = useUserStore()
-    const axios = inject('axios')
+    const axiosInject = inject('axios')
     const socket = inject("socket")
 
     const orders = ref([])
@@ -34,9 +35,9 @@ export const useOrdersStore = defineStore('orders', () => {
         orders.value = []
     }
 
-    async function loadOrders() {
+    async function loadOrders(page) {
         try {
-            const response = await axios.get('orders')
+            const response = await axiosInject.get('orders', page)
             orders.value = response.data.data
 
             return orders.value
@@ -47,11 +48,13 @@ export const useOrdersStore = defineStore('orders', () => {
         }
     }
 
-    async function insertOrder(newOrder) {
+    async function insertOrder(newOrder, numberHotDishes) {
         // Note that when an error occours, the exception should be
         // catch by the function that called the insertOrder
-        const response = await axios.post('orders', newOrder)
+        const response = await axiosInject.post('orders', newOrder)
         orders.value.push(response.data.data)
+
+        socket.emit('newHotDishes', { ticket_number: response.data.data.ticket_number, numberHotDishes })
 
         return response.data.data
     }
@@ -59,7 +62,7 @@ export const useOrdersStore = defineStore('orders', () => {
     async function updateOrder(updateOrder) {
         // Note that when an error occours, the exception should be
         // catch by the function that called the updateOrder
-        const response = await axios.put('orders/' + updateOrder.id, updateOrder)
+        const response = await axiosInject.put('orders/' + updateOrder.id, updateOrder)
         let idx = orders.value.findIndex((t) => t.id === response.data.data.id)
         if (idx >= 0) {
             orders.value[idx] = response.data.data
@@ -68,21 +71,21 @@ export const useOrdersStore = defineStore('orders', () => {
     }
 
     async function readyOrder(order) {
-        const response = await axios.patch("orders/" + order.id + "/ready")
+        const response = await axiosInject.patch("orders/" + order.id + "/ready")
         socket.emit('readyOrder', response.data.data)
         return response.data.data
     }
 
-    async function deliverOrder(order) {
-        const response = await axios.patch("orders/" + order.id + "/delivered")
+    async function pickupOrder(order) {
+        const response = await axiosInject.patch("orders/" + order.id + "/delivered")
         socket.emit('deliveredOrder', response.data.data)
         return response.data.data
     }
 
     async function cancelOrder(order) {
 
-        const response = await axios.patch("orders/" + order.id + "/cancelled")
-        socket.emit('cancelledOrder', response.data.data, userStore.user.name)
+        const response = await axiosInject.patch("orders/" + order.id + "/cancelled")
+        socket.emit('cancelledOrder', { order: response.data.data, manager: userStore.user.name })
         return response.data.data
     }
 
@@ -96,5 +99,5 @@ export const useOrdersStore = defineStore('orders', () => {
         return response.data.data
     }
 
-    return { orders, totalOrders, myInProgressOrders, totalMyInProgressOrders, getOrdersByFilter, getOrdersByFilterTotal, loadOrders, clearOrders, insertOrder, updateOrder, readyOrder, deliverOrder, cancelOrder, payOrder, refundOrder }
+    return { orders, totalOrders, myInProgressOrders, totalMyInProgressOrders, getOrdersByFilter, getOrdersByFilterTotal, loadOrders, clearOrders, insertOrder, updateOrder, readyOrder, pickupOrder, cancelOrder, payOrder, refundOrder }
 })

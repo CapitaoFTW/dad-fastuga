@@ -40,7 +40,6 @@ const blockUser = (user) => {
       toast.success("User " + user.name + " was blocked")
 
     socket.emit('blockUser', { user, manager: userStore.user.name })
-    userStore.user = user
 
   } else {
 
@@ -58,8 +57,6 @@ const deleteUserConfirmed = () => {
       toast.info("User " + userToDeleteDescription.value + " was deleted")
 
       socket.emit('deleteUser', { user: userToDelete.value, manager: userStore.user.name })
-
-      userStore.user = deletedUser
     })
 
     .catch(() => {

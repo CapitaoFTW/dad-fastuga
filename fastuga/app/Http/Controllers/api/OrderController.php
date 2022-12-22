@@ -11,9 +11,9 @@ use App\Models\OrderItem;
 
 class OrderController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-    return OrderResource::collection(Order::all()/*query()->paginate(25)*/);
+        return OrderResource::collection(Order::orderBy('updated_at', 'desc')->paginate(99));
     }
 
     public function show(Order $order)
@@ -76,17 +76,17 @@ class OrderController extends Controller
         return new OrderResource($newOrder);
     }
 
-    public function update_ready(Order $order)
+    public function update_ready(Request $request, Order $order)
     {
         $order->status = 'R';
+        $order->delivered_by = $request->user()->id;  // um bocado aldrabado porque no PickupOrder não sei como guardar o delivered_by (a menos que criasse uma variavel na DB mas não sei se podia fazer isso)
         $order->save();
 
         return new OrderResource($order);
     }
 
-    public function update_delivered(Request $request, Order $order)
+    public function update_delivered(Order $order)
     {
-        $order->delivered_by = $request->user()->id;
         $order->status = 'D';
         $order->save();
 
@@ -95,6 +95,9 @@ class OrderController extends Controller
 
     public function update_cancelled(Order $order)
     {
+        if ($order->status = 'R')
+            $order->delivered_by = null;
+
         if ($order->customer_id) {
             if ($order->points_gained != 0)
                 $order->customer->points -= $order->points_gained;

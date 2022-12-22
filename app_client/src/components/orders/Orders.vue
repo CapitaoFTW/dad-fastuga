@@ -16,8 +16,8 @@ const orderToCancel = ref(null)
 const filterByStatus = ref(!userStore.user || userStore.user?.type == 'C' ? 'R' : userStore.user?.type != 'EM' ? 'P' : '')
 const cancelConfirmationDialog = ref(null)
 
-const loadOrders = () => {
-  ordersStore.loadOrders()
+const loadOrders = (page) => {
+  ordersStore.loadOrders(page)
     .catch((error) => {
       console.log(error)
     })
@@ -28,53 +28,47 @@ const viewOrder = (order) => {
 }
 
 const pickupOrder = (order) => {
-  //router.push({ name: 'Order', params: { id: order.id } })
-}
-
-/*const deliverOrder = (order) => {
-  ordersStore.deliverOrder(order)
+  ordersStore.pickupOrder(order)
     .then((response) => {
       loadOrders()
-      toast.success('Order #' + order.ticket_number + ' was successfully delivered')
+      toast.success('Order #' + order.ticket_number + ' was successfully picked up')
     })
 
     .catch((error) => {
-      toast.error("It was not possible to deliver Order #" + order.ticket_number + "!")
+      toast.error("It was not possible to pickup Order #" + order.ticket_number + "!")
     })
-}*/
+}
 
 const cancelOrderConfirmed = () => {
   let payment = {
-    type: order.value.payment_type.toLowerCase(),
-    reference: order.value.payment_reference,
-    value: Number(order.value.total_paid)
+    type: orderToCancel.value.payment_type.toLowerCase(),
+    reference: orderToCancel.value.payment_reference,
+    value: Number(orderToCancel.value.total_paid)
   }
 
-  /*ordersStore.refundOrder(payment)
+  ordersStore.refundOrder(payment)
     .then((payment) => {
-      toast.success('Order was refunded successfully.')*/
+      toast.success('Order was refunded successfully.')
 
-  ordersStore.cancelOrder(orderToCancel.value)
-    .then((cancelledOrder) => {
-      toast.info("Order #" + orderToCancelDescription.value + " was successfully cancelled")
-      router.back()
+      ordersStore.cancelOrder(orderToCancel.value)
+        .then((cancelledOrder) => {
+          loadOrders()
+          toast.info("Order " + orderToCancelDescription.value + " was cancelled")
+        })
+
+        .catch(() => {
+          toast.error("It was not possible to cancel Order " + orderToCancelDescription.value + "!")
+        })
     })
 
-    .catch(() => {
-      toast.error("It was not possible to cancel Order " + orderToCancelDescription.value + "!")
+    .catch((error) => {
+      if (error.response.status == 422) {
+        toast.error('Order was not refunded because of: ' + error.response.data.message.toUpperCase())
+
+      } else {
+        toast.error('Order was not refunded due to unknown server error!')
+      }
     })
-
-  /*})
-  .catch((error) => {
-    if (error.response.status == 422) {
-      toast.error('Order was not paid due to validation errors!')
-      errors.value = error.response.data.errors
-
-    } else {
-      console.log(error)
-      toast.error('Order was not created due to unknown server error!')
-    }
-  })*/
 }
 
 const cancelOrder = (order) => {
@@ -115,7 +109,7 @@ onMounted(() => {
     </div>
   </div>
   <hr>
-  <div class="mb-3 d-flex justify-content-between flex-wrap" v-if="userStore.user && userStore.user?.type != 'C'">
+  <form class="mb-3 d-flex justify-content-between flex-wrap" v-if="userStore.user && userStore.user?.type != 'C'">
     <div class="mx-2 mt-2 flex-grow-1 filter-div">
       <label for="selectStatus" class="form-label">Filter by Status:</label>
       <select class="form-select" id="selectStatus" v-model="filterByStatus">
@@ -126,14 +120,7 @@ onMounted(() => {
         <option v-if="userStore.user?.type == 'EM'" value="D">Delivered</option>
       </select>
     </div>
-    <!--<div class="mx-2 mt-2 flex-grow-1 filter-div" v-if="">
-      <label for="selectCustomer" class="form-label">Filter by customer:</label>
-      <select class="form-select" id="selectOwner" v-model="filterByCustomerId">
-        <option :value="null"></option>
-        <option v-for="user in users" :key="user.id" :value="user.id">{{ user.name }}</option>
-      </select>
-    </div>-->
-  </div>
+  </form>
   <order-table :orders="filteredOrders" :showStatus="filterByStatus == ''"
     :showDeliverer="filterByStatus == 'C' || filterByStatus == 'D' || filterByStatus == ''"
     :showBillInformation="userStore.user?.type == 'EM'" :showToCustomer="!userStore.user || userStore.user?.type == 'C'"

@@ -10,6 +10,7 @@ import OrderDetail from "./OrderDetail.vue"
 const router = useRouter()
 const axios = inject('axios')
 const toast = inject('toast')
+const socket = inject('socket')
 
 const userStore = useUserStore()
 const ordersStore = useOrdersStore()
@@ -75,22 +76,24 @@ const back = () => {
 }
 
 const prepareItem = (order_item) => {
-  orderItemsStore.prepareOrderItem(order_item)
-    .then((response) => {
+  orderItemsStore.prepareOrderItem(order_item, order.value.ticket_number)
+    .then((preparedOrderItem) => {
+      order_item = preparedOrderItem
       loadOrder(props.id)
-      toast.success('Order Item #' + order_item.order_local_number + ' is now being prepared')
+      toast.success('Order Item #' + order.value.ticket_number + '-' + order_item.order_local_number + ' is now being prepared')
     })
 
     .catch((error) => {
-      toast.error("It was not possible to prepare Order Item #" + order_item.order_local_number + "!")
+      toast.error("It was not possible to prepare Order Item #" + order.value.ticket_number + '-' + order_item.order_local_number + "!")
     })
 }
 
 const readyItem = (order_item) => {
-  orderItemsStore.readyOrderItem(order_item)
-    .then((response) => {
+  orderItemsStore.readyOrderItem(order_item, order.value.ticket_number)
+    .then((readyOrderItem) => {
+      order_item = readyOrderItem
       loadOrder(props.id)
-      toast.success('Order Item #' + order_item.order_local_number + ' is now ready')
+      toast.success('Order Item #' + order.value.ticket_number + '-' + order_item.order_local_number + ' is now ready')
     })
 
     .catch((error) => {
@@ -111,19 +114,6 @@ const readyOrder = (order) => {
     })
 }
 
-const deliverOrder = (order) => {
-  ordersStore.deliverOrder(order)
-    .then((response) => {
-      loadOrder(props.id)
-      toast.success('Order #' + order.ticket_number + ' was successfully delivered')
-      router.back()
-    })
-
-    .catch((error) => {
-      toast.error("It was not possible to deliver Order #" + order.ticket_number + "!")
-    })
-}
-
 const cancelOrderConfirmed = () => {
   let payment = {
     type: order.value.payment_type.toLowerCase(),
@@ -131,29 +121,29 @@ const cancelOrderConfirmed = () => {
     value: Number(order.value.total_paid)
   }
 
-  /*ordersStore.refundOrder(payment)
+  ordersStore.refundOrder(payment)
     .then((payment) => {
-      toast.success('Order was refunded successfully.')*/
+      toast.success('Order was refunded successfully.')
 
-  ordersStore.cancelOrder(order.value)
-    .then((cancelledOrder) => {
-      toast.info("Order #" + order.value.ticket_number + " was successfully cancelled")
-      router.back()
+      ordersStore.cancelOrder(order.value)
+        .then((cancelledOrder) => {
+          toast.info("Order #" + order.value.ticket_number + " was successfully cancelled")
+          router.back()
+        })
+
+        .catch(() => {
+          toast.error("It was not possible to cancel Order " + order.value.ticket_number + "!")
+        })
     })
 
-    .catch(() => {
-      toast.error("It was not possible to cancel Order " + order.value.ticket_number + "!")
+    .catch((error) => {
+      if (error.response.status == 422) {
+        toast.error('Order was not refunded because of: ' + error.response.data.message.toUpperCase())
+
+      } else {
+        toast.error('Order was not refunded due to unknown server error!')
+      }
     })
-  /*})
-.catch((error) => {
-    if (error.response.status == 422) {
-      toast.error(error.response.data.errors)
- 
-    } else {
-      console.log(error)
-      toast.error('Order was not created due to unknown server error!')
-    }
-  })*/
 }
 
 const cancelOrder = () => {
@@ -166,6 +156,30 @@ const filteredOrderItems = computed(() => {
 
 const areAllOrderItemsReady = computed(() => {
   return order.value.order_items.every(order_item => order_item.status == 'R')
+})
+
+socket.on('newHotDishes', () => {
+  loadOrder(props.id)
+})
+
+socket.on('preparingOrderItem', () => {
+  loadOrder(props.id)
+})
+
+socket.on('readyOrderItem', () => {
+  loadOrder(props.id)
+})
+
+socket.on('readyOrder', () => {
+  loadOrder(props.id)
+})
+
+socket.on('deliveredOrder', () => {
+  loadOrder(props.id)
+})
+
+socket.on('cancelledOrder', () => {
+  loadOrder(props.id)
 })
 
 onMounted(() => {

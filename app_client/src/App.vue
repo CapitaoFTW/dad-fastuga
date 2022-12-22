@@ -32,18 +32,60 @@ const clickMenuOption = () => {
   }
 }
 
-socket.on('newOrder', (order) => {
-  toast.success(`A new order was created (#${order.id} : Ticket #${order.ticket})`)
+socket.on('newHotDishes', (data) => {
+  if (userStore.user?.type == 'EC') {
+
+    if (data.numberHotDishes == 1)
+      toast.info(`One Hot Dish has been ordered (Ticket #${data.ticket_number})`)
+
+    if (data.numberHotDishes > 1)
+      toast.info(`${data.numberHotDishes} new Hot Dishes have been ordered! (Ticket #${data.ticket_number})`)
+  }
+
+  if (userStore.user?.type == 'ED') {
+    if (data.numberHotDishes == 0) {
+      toast.info(`Order #${data.ticket_number} has all Order Items ready!`)
+    }
+  }
+})
+
+socket.on('preparingOrderItem', (data) => {
+  if (userStore.user?.type == 'EC')
+    toast.info(`Order Item #${data.ticket_number}-${data.order_item.order_local_number} is now being prepared by ${data.order_item.chef}!`)
+})
+
+socket.on('readyOrderItem', (data) => {
+  if (userStore.user?.type == 'ED')
+    toast.info(`Order Item #${data.ticket_number}-${data.order_item.order_local_number} is now ready by ${data.order_item.chef}!`)
+})
+
+socket.on('readyOrder', (order) => {
+
+  if (userStore.customerId && userStore.customerId == order.customer_id)
+    toast.info(`Your Order #${order.ticket_number} is now ready for pickup!`)
+
+  else if (!userStore.customerId && !userStore.user)
+    toast.info(`The Order #${order.ticket_number} is now ready for pickup!`)
+
   ordersStore.loadOrders()
 })
 
-socket.on('preparingOrderItem', (order_item) => {
-  toast.success(`Order Item #${order_item.id}-${order_item.order_local_number} is now being prepared by ${order_item.chef}!`)
+socket.on('deliveredOrder', (order) => {
+
+  if (userStore.user?.type == 'EC' || userStore.user?.type == 'ED')
+    toast.info(`Order #${order.ticket_number} has been delivered to a customer by ${order.deliverer}!`)
+
   ordersStore.loadOrders()
 })
 
-socket.on('readyOrderItem', (order_item) => {
-  toast.success(`Order Item #${order_item.id}-${order_item.order_local_number} is now ready!`)
+socket.on('cancelledOrder', (data) => {
+
+  if (userStore.user?.type == 'EM')
+    toast.info(`Order #${data.order.ticket_number} has been cancelled by ${data.manager}!`)
+
+  if (userStore.user.customer?.id == data.order.customer_id)
+    toast.info(`Your Order #${data.order.ticket_number} has been cancelled!`)
+
   ordersStore.loadOrders()
 })
 
@@ -160,8 +202,8 @@ socket.on('readyOrderItem', (order_item) => {
               </router-link>
             </li>
             <li class="nav-item" v-show="userStore.user?.type == 'EM'">
-              <router-link class="nav-link" :class="{ active: $route.name === 'Statistics' }" :to="{ name: 'Statistics' }"
-                @click="clickMenuOption">
+              <router-link class="nav-link" :class="{ active: $route.name === 'Statistics' }"
+                :to="{ name: 'Statistics' }" @click="clickMenuOption">
                 <i class="bi bi-bar-chart"></i>
                 Statistics
               </router-link>

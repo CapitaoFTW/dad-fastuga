@@ -52,10 +52,6 @@ const pickupClick = (order) => {
   emit('pickup', order)
 }
 
-const deliveredClick = (order) => {
-  emit('deliver', order)
-}
-
 const cancelledClick = (order) => {
   emit('cancel', order)
 }
@@ -96,15 +92,11 @@ const cancelledClick = (order) => {
             <button class="btn btn-xs btn-primary text-light" @click="viewClick(order)" v-if="showViewButton">
               <i class="bi bi-xs bi-eye-fill"></i>
             </button>
-            <!--<button v-if="order.status == 'R' && showDeliverButton" class="btn btn-xs btn-success text-light"
-              @click="deliveredClick(order)">
-              <i class="bi bi-xs bi-box-seam-fill"></i>
-            </button>-->
             <button v-if="order.status != 'C' && showCancelButton" class="btn btn-xs btn-warning text-light"
               @click="cancelledClick(order)">
               <i class="bi bi-xs bi-x-octagon-fill"></i>
             </button>
-            <button v-if="order.status == 'R' && (order.customer_userId == userStore.userId || !order.customer_id) && showToCustomer" class="btn btn-xs btn-success text-light"
+            <button v-if="(order.customer_id && order.customer_userId == userStore.userId) || (!userStore.user && !order.customer_id)" class="btn btn-xs btn-success text-light"
               @click="pickupClick(order)">
               <i class="bi bi-xs bi-box-seam-fill"></i>
             </button>
