@@ -64,12 +64,12 @@ export const useUserStore = defineStore('user', () => {
             axios.defaults.headers.common.Authorization = "Bearer " + response.data.access_token
             sessionStorage.setItem('token', response.data.access_token)
             await loadUser()
-            //await ordersStore.loadOrders()
+            await ordersStore.loadOrders()
             return false
 
         } catch (error) {
             clearUser()
-            //ordersStore.clearOrders()
+            ordersStore.clearOrders()
             return error
         }
     }
@@ -78,7 +78,7 @@ export const useUserStore = defineStore('user', () => {
         try {
             await axios.post('logout')
             clearUser()
-           //ordersStore.clearOrders()
+            ordersStore.clearOrders()
             return true
 
         } catch (error) {
@@ -102,12 +102,12 @@ export const useUserStore = defineStore('user', () => {
         if (storedToken) {
             axios.defaults.headers.common.Authorization = "Bearer " + storedToken
             await loadUser()
-            //await ordersStore.loadOrders()
+            await ordersStore.loadOrders()
             return true
         }
 
         clearUser()
-        //ordersStore.clearOrders()
+        ordersStore.clearOrders()
         return false
     }
 

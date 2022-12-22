@@ -44,7 +44,7 @@ export const useOrdersStore = defineStore('orders', () => {
             throw error
         }
     }
-
+    
     async function insertOrder(newOrder) {
         // Note that when an error occours, the exception should be
         // catch by the function that called the insertOrder
