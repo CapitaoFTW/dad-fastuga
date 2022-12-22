@@ -31,7 +31,7 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
-  showToggleButton: {
+  showBlockButton: {
     type: Boolean,
     default: true,
   },
@@ -41,7 +41,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['edit', 'toggle', 'delete'])
+const emit = defineEmits(['edit', 'block', 'delete'])
 
 const photoFullUrl = (user) => {
   return user.photo_url ? serverBaseUrl + "/storage/fotos/" + user.photo_url : avatarNoneUrl
@@ -51,8 +51,8 @@ const editClick = (user) => {
   emit("edit", user)
 }
 
-const toggleClick = (user) => {
-  emit('toggle', user)
+const blockClick = (user) => {
+  emit('block', user)
 }
 
 const deleteClick = (user) => {
@@ -92,10 +92,10 @@ const canViewUserDetail = (userId) => {
             <button class="btn btn-xs btn-primary text-light" @click="editClick(user)" v-if="showEditButton">
               <i class="bi bi-xs bi-pencil-fill"></i>
             </button>
-            <button class="btn btn-xs" :class="{ 'btn-success' : user.blocked == 0, 'btn-danger' : user.blocked == 1, }" @click="toggleClick(user)" v-if="showToggleButton">
+            <button class="btn btn-xs" :class="{ 'btn-success' : user.blocked == 0, 'btn-danger' : user.blocked == 1, }" @click="blockClick(user)" v-if="user.id != userStore.userId && showBlockButton">
               <i class="bi bi-xs" :class="{ 'bi-unlock-fill': user.blocked == 0, 'bi-lock-fill': user.blocked == 1, }"></i>
             </button>
-            <button class="btn btn-xs btn-secondary text-light" @click="deleteClick(user)" v-if="showDeleteButton"><i
+            <button class="btn btn-xs btn-secondary text-light" @click="deleteClick(user)" v-if="user.id != userStore.userId && showDeleteButton"><i
                 class="bi bi-xs bi-trash3-fill"></i>
             </button>
           </div>

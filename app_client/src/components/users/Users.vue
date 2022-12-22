@@ -2,13 +2,16 @@
 import { ref, computed, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUsersStore } from '../../stores/users.js';
+import { useUserStore } from "../../stores/user.js"
 
 import UserTable from "./UserTable.vue"
 
 const router = useRouter()
 const toast = inject("toast")
+const socket = inject('socket')
 
 const usersStore = useUsersStore()
+const userStore = useUserStore()
 const userToDelete = ref(null)
 const filterByType = ref('')
 const deleteConfirmationDialog = ref(null)
@@ -28,13 +31,16 @@ const editUser = (user) => {
   router.push({ name: 'User', params: { id: user.id } })
 }
 
-const toggleBlocked = (user) => {
-  if (usersStore.blockedUser(user)) {
+const blockUser = (user) => {
+  if (usersStore.blockUser(user)) {
     if (user.blocked == 0)
       toast.success("User " + user.name + " was unblocked")
 
     else
       toast.success("User " + user.name + " was blocked")
+
+    socket.emit('blockUser', { user, manager: userStore.user.name })
+    userStore.user = user
 
   } else {
 
@@ -50,6 +56,10 @@ const deleteUserConfirmed = () => {
   usersStore.deleteUser(userToDelete.value)
     .then((deletedUser) => {
       toast.info("User " + userToDeleteDescription.value + " was deleted")
+
+      socket.emit('deleteUser', { user: userToDelete.value, manager: userStore.user.name })
+
+      userStore.user = deletedUser
     })
 
     .catch(() => {
@@ -72,6 +82,22 @@ const totalUsers = computed(() => {
 
 const userToDeleteDescription = computed(() => {
   return userToDelete.value ? `#${userToDelete.value.id} (${userToDelete.value.name})` : ""
+})
+
+socket.on('newUser', () => {
+  loadUsers()
+})
+
+socket.on('updateUser', () => {
+  loadUsers()
+})
+
+socket.on('deleteUser', () => {
+  loadUsers()
+})
+
+socket.on('blockUser', () => {
+  loadUsers()
 })
 
 onMounted(() => {
@@ -109,7 +135,7 @@ onMounted(() => {
           class="bi bi-xs bi-person-plus-fill"></i>&nbsp; Add User</button>
     </div>
   </div>
-  <user-table :users="filteredUsers" :showId="false" @toggle="toggleBlocked" @edit="editUser"
+  <user-table :users="filteredUsers" @block="blockUser" @edit="editUser"
     @delete="clickToDeleteUser"></user-table>
 </template>
 

@@ -2,14 +2,17 @@
 import { ref, computed, watch, inject } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useUsersStore } from "../../stores/users.js"
+import { useUserStore } from "../../stores/user.js"
 
 import UserDetail from "./UserDetail.vue"
 
 const router = useRouter()
 const axios = inject('axios')
 const toast = inject('toast')
+const socket = inject("socket")
 
 const usersStore = useUsersStore()
+const userStore = useUserStore()
 
 const props = defineProps({
   id: {
@@ -60,6 +63,9 @@ const save = () => {
 
       .then((insertedUser) => {
         user.value = insertedUser
+
+        socket.emit('newUser', { user: user.value, manager: userStore.user.name })
+
         originalValueStr = dataAsString()
 
         toast.success('User ' + user.value.name + ' was created successfully.')
@@ -80,6 +86,12 @@ const save = () => {
     usersStore.updateUser(user.value)
       .then((updatedUser) => {
         user.value = updatedUser
+
+        socket.emit('updateUser', { user: user.value, manager: userStore.user.name })
+
+        if (user.value.id == userStore.user.id)
+          userStore.user = user.value
+
         originalValueStr = dataAsString()
 
         toast.success('User ' + user.value.name + ' was updated successfully.')

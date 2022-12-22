@@ -118,7 +118,7 @@ class UserController extends Controller
         }
 
         if ($user->isBlocked())
-            return response()->json('User is blocked!', 403);
+            return response()->json('Your account is blocked!', 403);
 
         return new UserResource($request->user());
     }

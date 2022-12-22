@@ -5,7 +5,6 @@ import { useUserStore } from "./user.js"
 export const useOrderStore = defineStore('order', () => {
 
     const axios = inject('axios')
-    
 
     return {  }
 })

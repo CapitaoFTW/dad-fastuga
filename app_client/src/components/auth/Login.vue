@@ -22,7 +22,7 @@ const login = async () => {
     credentials.value.password = ''
 
     if (error.response.status == 403) {
-      toast.error('User is blocked!')
+      toast.error('Your account is blocked!')
    
     } else {
 

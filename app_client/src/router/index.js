@@ -4,7 +4,7 @@ import { useOrderItemsStore } from "../stores/order_items.js"
 
 import Products from '../components/products/Products.vue'
 import Product from '../components/products/Product.vue'
-import Dashboard from "../components/Dashboard.vue"
+import Statistics from "../components/Statistics.vue"
 import Register from "../components/auth/Register.vue"
 import Login from "../components/auth/Login.vue"
 import ChangePassword from "../components/auth/ChangePassword.vue"
@@ -59,9 +59,9 @@ const router = createRouter({
       component: ChangePassword
     },
     {
-      path: '/dashboard',
-      name: 'Dashboard',
-      component: Dashboard
+      path: '/statistics',
+      name: 'Statistics',
+      component: Statistics
     },
     {
       path: '/order',
@@ -97,19 +97,6 @@ const router = createRouter({
       //props: true
       // Replaced with the following line to ensure that id is a number
       props: route => ({ id: parseInt(route.params.id) })
-    },
-    {
-      path: '/reports',
-      name: 'Reports',
-      component: () => import('../views/AboutView.vue')
-    },
-    {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue')
     }
   ]
 })
@@ -156,7 +143,7 @@ router.beforeEach((to, from, next) => {
     return
   }
 
-  if (to.name == 'Reports') {
+  if (to.name == 'Statistics') {
     if (userStore.user.type != 'EM') {
       next({ name: 'Products' })
       return
@@ -172,7 +159,7 @@ router.beforeEach((to, from, next) => {
     next({ name: 'Products' })
     return
   }
-  
+
   if (to.name == 'ComposeOrder') {
     if (orderItemsStore.totalProducts == 0) {
       if (userStore.user && userStore.user != 'C') {
@@ -182,11 +169,11 @@ router.beforeEach((to, from, next) => {
     }
   }
 
-  /*if (to.name != 'Dashboard' && to.name != 'Register' && to.name != 'Login' && to.name != 'ChangePassword' && to.name != 'Orders' && to.name != 'NewOrder'
-  && to.name != 'Order' && to.name != 'Users' && to.name != 'User' && to.name != 'Reports' && to.name != 'about') {
+  if (to.name != 'Products' && to.name != 'Register' && to.name != 'Login' && to.name != 'ChangePassword' && to.name != 'Orders' && to.name != 'ComposeOrder'
+    && to.name != 'Order' && to.name != 'Users' && to.name != 'User' && to.name != 'Statistics' && to.name != 'Products' && to.name != 'Product' && to.name != 'NewProduct' && to.name != 'Products') {
     next({ name: 'Products' })
     return
-  }*/
+  }
 
   next()
 })

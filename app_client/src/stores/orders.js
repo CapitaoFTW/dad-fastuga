@@ -6,6 +6,8 @@ export const useOrdersStore = defineStore('orders', () => {
 
     const userStore = useUserStore()
     const axios = inject('axios')
+    const socket = inject("socket")
+
     const orders = ref([])
 
     const totalOrders = computed(() => {
@@ -44,12 +46,13 @@ export const useOrdersStore = defineStore('orders', () => {
             throw error
         }
     }
-    
+
     async function insertOrder(newOrder) {
         // Note that when an error occours, the exception should be
         // catch by the function that called the insertOrder
         const response = await axios.post('orders', newOrder)
         orders.value.push(response.data.data)
+
         return response.data.data
     }
 
@@ -66,17 +69,20 @@ export const useOrdersStore = defineStore('orders', () => {
 
     async function readyOrder(order) {
         const response = await axios.patch("orders/" + order.id + "/ready")
+        socket.emit('readyOrder', response.data.data)
         return response.data.data
     }
 
     async function deliverOrder(order) {
         const response = await axios.patch("orders/" + order.id + "/delivered")
+        socket.emit('deliveredOrder', response.data.data)
         return response.data.data
     }
 
     async function cancelOrder(order) {
 
         const response = await axios.patch("orders/" + order.id + "/cancelled")
+        socket.emit('cancelledOrder', response.data.data, userStore.user.name)
         return response.data.data
     }
 

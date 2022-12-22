@@ -9,16 +9,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
 
-const CLIENT_ID = 2;
-
 class AuthController extends Controller
 {
     private function passportAuthenticationData($email, $password)
     {
         return [
             'grant_type' => 'password',
-            'client_id' => CLIENT_ID,
-            'client_secret' => env('CLIENT_SECRET'),
+            'client_id' => env('PASSPORT_CLIENT_ID'),
+            'client_secret' => env('PASSPORT_CLIENT_SECRET'),
             'username' => $email,
             'password' => $password,
             'scope' => ''
@@ -29,7 +27,7 @@ class AuthController extends Controller
     {
         try {
             request()->request->add($this->passportAuthenticationData($request->email, $request->password));
-            $request = Request::create(env('APP_URL') . '/oauth/token', 'POST');
+            $request = Request::create(env('PASSPORT_SERVER_URL') . '/oauth/token', 'POST');
             $response = Route::dispatch($request);
             $errorCode = $response->getStatusCode();
             $auth_server_response = json_decode((string) $response->content(), true);

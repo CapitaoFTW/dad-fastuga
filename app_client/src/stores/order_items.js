@@ -5,6 +5,7 @@ export const useOrderItemsStore = defineStore('order_items', () => {
 
     const axios = inject('axios')
     const toast = inject('toast')
+    const socket = inject("socket")
 
     const order_items = ref(JSON.parse(sessionStorage.getItem('order_items')) ?? [])
     const totalProducts = ref(sessionStorage.getItem('totalProducts') ?? 0)
@@ -61,7 +62,7 @@ export const useOrderItemsStore = defineStore('order_items', () => {
                 } else {
 
                     if (orderItems[i].product_quantity <= 0 || value == 0) {
-                        toast.info("Product '" + orderItems[i].product_name + "' was removed from the order_items")
+                        toast.info("Product '" + orderItems[i].product_name + "' was removed from the order")
 
                         if (value == 0) {
                             totalProducts.value -= orderItems[i].product_quantity
@@ -95,11 +96,13 @@ export const useOrderItemsStore = defineStore('order_items', () => {
 
     async function prepareOrderItem(order_item) {
         const response = await axios.patch("order_items/" + order_item.id + "/preparing")
+        socket.emit('preparingOrderItem', response.data.data)
         return response.data.data
     }
 
     async function readyOrderItem(order_item) {
         const response = await axios.patch("order_items/" + order_item.id + "/ready")
+        socket.emit('readyOrderItem', response.data.data)
         return response.data.data
     }
 

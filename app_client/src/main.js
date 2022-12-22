@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import { io } from "socket.io-client"
 import axios from 'axios'
 import Toaster from "@meforma/vue-toaster";
 import FieldErrorMessage from './components/global/FieldErrorMessage.vue'
@@ -16,6 +17,8 @@ import "bootstrap"
 const app = createApp(App)
 
 const serverBaseUrl = import.meta.env.VITE_API_DOMAIN
+const socketUrl = import.meta.env.VITE_WS_CONNECTION
+
 app.provide('axios', axios.create({
     baseURL: serverBaseUrl + '/api',
     headers: {
@@ -31,6 +34,7 @@ app.use(Toaster, {
     pauseOnHover: true
 })
 
+app.provide('socket', io(socketUrl))
 app.provide('toast', app.config.globalProperties.$toast);
 
 app.use(createPinia())

@@ -8,6 +8,7 @@ import OrderTable from "./OrderTable.vue"
 const router = useRouter()
 const axios = inject("axios")
 const toast = inject("toast")
+const socket = inject("socket")
 
 const userStore = useUserStore()
 const ordersStore = useOrdersStore()

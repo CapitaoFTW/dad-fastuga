@@ -16,6 +16,18 @@ const ordersStore = useOrdersStore()
 const order_items = ref([])
 const totalProducts = ref(0)
 
+const numberHotDishes = computed(() => {
+  let numberHotDishes = 0
+
+  for (const [key] of Object.entries(orderItemsStore.order_items)) {
+    if (orderItemsStore.order_items[key].product_type == 'hot dish') {
+      numberHotDishes += orderItemsStore.order_items[key].product_quantity
+    }
+  }
+
+  return numberHotDishes
+})
+
 const totalPrice = computed(() => {
   let total = 0
 
@@ -94,6 +106,7 @@ const save = () => {
   ordersStore.insertOrder(order.value)
     .then((insertedOrder) => {
       toast.success('Order #' + insertedOrder.ticket_number + ' was created successfully.')
+
       orderItemsStore.clearOrderItems()
 
       router.push({ name: 'Products' })

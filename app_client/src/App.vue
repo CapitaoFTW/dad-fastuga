@@ -6,6 +6,7 @@ import { useOrdersStore } from "./stores/orders"
 import { useOrderItemsStore } from "./stores/order_items"
 
 const router = useRouter()
+const socket = inject("socket")
 const toast = inject("toast")
 const userStore = useUserStore()
 const orderItemsStore = useOrderItemsStore()
@@ -30,6 +31,21 @@ const clickMenuOption = () => {
     buttonSidebarExpand.value.click()
   }
 }
+
+socket.on('newOrder', (order) => {
+  toast.success(`A new order was created (#${order.id} : Ticket #${order.ticket})`)
+  ordersStore.loadOrders()
+})
+
+socket.on('preparingOrderItem', (order_item) => {
+  toast.success(`Order Item #${order_item.id}-${order_item.order_local_number} is now being prepared by ${order_item.chef}!`)
+  ordersStore.loadOrders()
+})
+
+socket.on('readyOrderItem', (order_item) => {
+  toast.success(`Order Item #${order_item.id}-${order_item.order_local_number} is now ready!`)
+  ordersStore.loadOrders()
+})
 
 </script>
 
@@ -129,13 +145,6 @@ const clickMenuOption = () => {
                 Menu
               </router-link>
             </li>
-            <li class="nav-item" v-show="userStore.user?.type == 'EM'">
-              <router-link class="nav-link" :class="{ active: $route.name === 'Dashboard' }" :to="{ name: 'Dashboard' }"
-                @click="clickMenuOption">
-                <i class="bi bi-speedometer2"></i>
-                Dashboard
-              </router-link>
-            </li>
             <li class="nav-item">
               <router-link class="nav-link" :class="{ active: $route.name === 'Orders' }" :to="{ name: 'Orders' }"
                 @click="clickMenuOption">
@@ -151,10 +160,10 @@ const clickMenuOption = () => {
               </router-link>
             </li>
             <li class="nav-item" v-show="userStore.user?.type == 'EM'">
-              <router-link class="nav-link" :class="{ active: $route.name === 'Reports' }" :to="{ name: 'Reports' }"
+              <router-link class="nav-link" :class="{ active: $route.name === 'Statistics' }" :to="{ name: 'Statistics' }"
                 @click="clickMenuOption">
-                <i class="bi bi-bar-chart-line"></i>
-                Reports
+                <i class="bi bi-bar-chart"></i>
+                Statistics
               </router-link>
             </li>
           </ul>
@@ -236,7 +245,7 @@ const clickMenuOption = () => {
                         orderItemsStore.totalProducts
                     }}</span></span>
                 </router-link>
-                </li>
+              </li>
             </ul>
           </div>
         </div>

@@ -67,7 +67,7 @@ export const useUsersStore = defineStore('users', () => {
         return response.data.data
     }
 
-    async function blockedUser(user) {
+    async function blockUser(user) {
         if (user.blocked == 0)
             user.blocked = 1
         
@@ -79,5 +79,5 @@ export const useUsersStore = defineStore('users', () => {
         return response.data.data
     }
 
-    return { users, totalUsers, getUsersByFilter, getUsersByFilterTotal, loadUsers, clearUsers, insertUser, updateUser, deleteUser, blockedUser }
+    return { users, totalUsers, getUsersByFilter, getUsersByFilterTotal, loadUsers, clearUsers, insertUser, updateUser, deleteUser, blockUser }
 })

@@ -1,11 +1,13 @@
 import { ref, computed, inject } from 'vue'
 import { defineStore } from 'pinia'
-import { useOrdersStore } from "./orders.js"
+import { useOrdersStore } from './orders'
 import avatarNoneUrl from '@/assets/avatar-none.png'
 
 export const useUserStore = defineStore('user', () => {
 
     const axios = inject('axios')
+    const toast = inject("toast")
+    const socket = inject("socket")
     const serverBaseUrl = inject('serverBaseUrl')
 
     const ordersStore = useOrdersStore()
@@ -34,6 +36,7 @@ export const useUserStore = defineStore('user', () => {
 
         } catch (error) {
             clearUser()
+            ordersStore.clearOrders()
             throw error
         }
     }
@@ -64,7 +67,7 @@ export const useUserStore = defineStore('user', () => {
             axios.defaults.headers.common.Authorization = "Bearer " + response.data.access_token
             sessionStorage.setItem('token', response.data.access_token)
             await loadUser()
-            await ordersStore.loadOrders()
+            socket.emit('loggedIn', user.value)
             return false
 
         } catch (error) {
@@ -77,6 +80,7 @@ export const useUserStore = defineStore('user', () => {
     async function logout() {
         try {
             await axios.post('logout')
+            socket.emit('loggedOut', user.value)
             clearUser()
             ordersStore.clearOrders()
             return true
@@ -102,6 +106,7 @@ export const useUserStore = defineStore('user', () => {
         if (storedToken) {
             axios.defaults.headers.common.Authorization = "Bearer " + storedToken
             await loadUser()
+            socket.emit('loggedIn', user.value)
             await ordersStore.loadOrders()
             return true
         }
@@ -110,6 +115,55 @@ export const useUserStore = defineStore('user', () => {
         ordersStore.clearOrders()
         return false
     }
+
+    socket.on('newUser', (data) => {
+        toast.info(`New User '${data.user.name}' has been created by ${data.manager}!`)
+    })
+
+    socket.on('updateUser', (data) => {
+        if (user.value?.id == data.user.id) {
+            user.value = data.user
+            toast.info('Your profile has been changed!')
+
+        } else {
+            toast.info(`${data.user.name}'s profile has been changed by ${data.manager}!`)
+        }
+    })
+
+    socket.on('deleteUser', (data) => {
+        if (user.value?.id == data.user.id) {
+            user.value = data.user
+            toast.error('Your account has been deleted!')
+            logout()
+
+        } else {
+            toast.warning(`${data.user.name}'s account has been deleted by ${data.manager}!`)
+        }
+    })
+
+    socket.on('blockUser', (data) => {
+        if (user.value?.id == data.user.id) {
+            user.value = data.user
+            toast.error('You have been blocked!')
+            logout()
+
+        } else {
+            if (data.user.blocked == 0) {
+                toast.warning(`${data.user.name}'s account has been unblocked by ${data.manager}!`)
+
+            } else {
+                toast.warning(`${data.user.name}'s account has been blocked by ${data.manager}!`)
+            }
+        }
+    })
+
+    /*socket.on('newHotDishes', (number) => {
+        //if (data.numberHotDishes == 1)
+            toast.info(`One Hot Dish was ordered (Ticket #${number.id})`)
+
+        else
+            toast.info(`${data.numberHotDishes} new Hot Dishes were ordered (Ticket #${data.ticket})`)
+    })*/
 
     return { user, userId, customerId, userPhotoUrl, register, login, changePassword, logout, restoreToken }
 })
