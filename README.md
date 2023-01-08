@@ -19,7 +19,7 @@ Clique [aqui](materiais/2021-22-EI-AI-enunciado.pdf) para ler o enunciado fornec
 
 Para começar deve renomear o `.env.example` para `.env` e preenchê-lo com as informações corretas para a sua área de trabalho.
 
-Após isso deve correr os seguintes comandos em um terminal na pasta fastuga:
+Após isso deve correr os seguintes comandos em um terminal na pasta <b>fastuga</b>:
 
 ```bash
 composer update
@@ -27,7 +27,7 @@ php artisan migrate:fresh
 php artisan db:seed
 ```
 
-Deve correr também os seguintes comandos em um terminal na pasta app_client:
+Deve correr também os seguintes comandos em um terminal na pasta <b>app_client</b>:
 
 ```bash
 npm install
