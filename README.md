@@ -7,7 +7,7 @@
 O objetivo deste projeto é implementar uma aplicação Web com client-side e server-side, utilizando a
 Framework Vue e Laravel respetivamente, para a cadeia de restaurantes FasTuga que funciona com base na entrega e recolha de produtos do menu disponibilizado no restaurante.
 
-Clique [aqui](materiais/2021-22-EI-AI-enunciado.pdf) para ler o enunciado fornecido.
+  Clique [aqui](2022-23-EI-DAD-Project.pdf) para ler o enunciado fornecido.
 (Contém informações adicionais sobre o cenário e implementação)
 
 ## :computer: Linguagens e Tecnologias Utilizadas
