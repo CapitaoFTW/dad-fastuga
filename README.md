@@ -25,6 +25,7 @@ Após isso deve correr os seguintes comandos em um terminal na pasta <b>fastuga<
 composer update
 php artisan migrate:fresh
 php artisan db:seed
+php artisan storage:link
 ```
 
 Deve correr também os seguintes comandos em um terminal na pasta <b>app_client</b>:
