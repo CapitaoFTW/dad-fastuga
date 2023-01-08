@@ -26,7 +26,12 @@ composer update
 php artisan migrate:fresh
 php artisan db:seed
 php artisan storage:link
+php artisan passport:install
 ```
+
+Nota 1: Terá de substituir a pass do client no ficheiro <b>.env</b> da pasta <b>fastuga</b> pela pass do client 2 (que foi fornecida no terminal após introduzir o comando ```php artisan passport:install```)
+
+Nota 2: Terá de substituir o IP pelo que tem após criar o projeto no ficheiro <b>.env</b> da pasta <b>fastuga</b> e <b>app_client</b>.
 
 Deve correr também os seguintes comandos em um terminal na pasta <b>app_client</b>:
 
