@@ -1,4 +1,4 @@
-# :hamburger: FasTuga :hamburger: 
+# :hamburger: FasTuga
 
 <p>Este projeto foi desenvolvido no âmbito da disciplina de <b>Desenvolvimento de Aplicações Distríbuidas</b> de Engenharia Informática no ano letivo 2022/2023.</p>
 
@@ -17,13 +17,16 @@ Framework Vue e Laravel respetivamente, para a cadeia de restaurantes FasTuga qu
 
 ## :man_technologist: Configurar o Projeto
 
-Para começar deve renomear o `.env.example` para `.env` e preenchê-lo com as informações corretas para a sua área de trabalho.
+Para começar deve renomear o <b>.env.example</b> para <b>.env</b> da pasta <b>fastuga</b> e preenchê-lo com as informações corretas para a sua área de trabalho:
+Configurar parâmetros da base de dados
+      (DB_HOST, DB_DATABASE, DB_USERNAME e DB_PASSWORD) 
 
 Após isso deve correr os seguintes comandos em um terminal na pasta <b>fastuga</b>:
 
 ```bash
 composer update
 php artisan migrate:fresh
+composer dump-autoload
 php artisan db:seed
 php artisan storage:link
 php artisan passport:install
